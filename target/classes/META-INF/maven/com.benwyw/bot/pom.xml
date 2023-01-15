@@ -13,8 +13,9 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.16</maven.compiler.source>
-    <maven.compiler.target>1.16</maven.compiler.target>
+    <maven.compiler.source>18</maven.compiler.source>
+    <maven.compiler.target>18</maven.compiler.target>
+    <mainClass>com.benwyw.bot.Main</mainClass>
   </properties>
   
   <repositories>

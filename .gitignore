@@ -86,6 +86,7 @@ local.properties
 # Typically, this file would be tracked if it contains build/dependency configurations:
 #.project
 
+target/
 
 # Env
 .env
