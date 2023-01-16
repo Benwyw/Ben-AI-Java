@@ -1,15 +1,5 @@
 Manifest-Version: 1.0
-Build-Jdk-Spec: 19
-Class-Path: JDA-5.0.0-beta.2.jar nv-websocket-client-2.14.jar okhttp-4.9
- .3.jar okio-2.8.0.jar opus-java-1.1.1.jar opus-java-api-1.1.1.jar jna-4
- .4.0.jar opus-java-natives-1.1.1.jar commons-collections4-4.4.jar trove
- 4j-3.0.3.jar jackson-core-2.14.1.jar jackson-databind-2.14.1.jar jackso
- n-annotations-2.14.1.jar lombok-1.18.24.jar slf4j-simple-1.7.36.jar slf
- 4j-api-1.7.30.jar java-dotenv-5.2.2.jar kotlin-stdlib-1.4.0.jar kotlin-
- stdlib-common-1.4.0.jar annotations-13.0.jar lavaplayer-1.3.78.jar lava
- -common-1.1.2.jar httpclient-4.5.10.jar httpcore-4.4.12.jar commons-log
- ging-1.2.jar commons-codec-1.11.jar lavaplayer-natives-1.3.14.jar commo
- ns-io-2.6.jar jsoup-1.12.1.jar base64-2.3.9.jar lavasrc-3.2.0.jar
-Main-Class: com.benwyw.bot.Main
+Built-By: User
+Build-Jdk: 19.0.1
 Created-By: Maven Integration for Eclipse
 
