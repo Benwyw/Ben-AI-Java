@@ -218,6 +218,7 @@ public class MusicListener extends ListenerAdapter {
     		GuildData data = GuildData.get(event.getGuild());
             if (data.musicHandler != null) {
                 data.musicHandler.disconnect();
+                event.getGuild().getAudioManager().closeAudioConnection();
             }
             log.info(String.format("Only bot left in voice channel: %s, leaving...", String.valueOf(event.getChannelLeft())));
     	}
