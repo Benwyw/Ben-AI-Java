@@ -5,8 +5,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.benwyw</groupId>
-  <artifactId>bot</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <artifactId>Ben-AI-Java</artifactId>
+  <version>0.0.1</version>
 
   <name>Ben-AI-Java</name>
   <url>http://www.benwyw.com</url>

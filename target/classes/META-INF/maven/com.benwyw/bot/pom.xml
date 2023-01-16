@@ -6,7 +6,7 @@
 
   <groupId>com.benwyw</groupId>
   <artifactId>bot</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.1</version>
 
   <name>Ben-AI-Java</name>
   <url>http://www.benwyw.com</url>
