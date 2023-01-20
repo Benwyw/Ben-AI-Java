@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import com.benwyw.bot.commands.CommandRegistry;
 import com.benwyw.bot.data.GuildData;
+import com.benwyw.bot.listeners.CommandListener;
 import com.benwyw.bot.listeners.MusicListener;
 
 import io.github.cdimascio.dotenv.Dotenv;
@@ -37,7 +38,7 @@ public class Main {
 		
 		musicListener = new MusicListener(config.get("SPOTIFY_CLIENT_ID"), config.get("SPOTIFY_TOKEN"));
 		shardManager.addEventListener(
-//				new CommandListener(),
+				new CommandListener(),
 				musicListener);
 	}
 	
