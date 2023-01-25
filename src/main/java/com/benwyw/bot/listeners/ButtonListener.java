@@ -18,11 +18,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.stereotype.Component;
+
 /**
  * Listens for button input and handles all button backend.
  *
  * @author Benwyw
  */
+@Component
 public class ButtonListener extends ListenerAdapter {
 
     public static final int MINUTES_TO_DISABLE = 3;
