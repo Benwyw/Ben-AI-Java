@@ -80,6 +80,12 @@
       <version>3.2.0</version>
   	</dependency>
   	
+  	<!-- Jackson -->
+	<dependency>
+	    <groupId>com.fasterxml.jackson.core</groupId>
+	    <artifactId>jackson-core</artifactId>
+	</dependency>
+  	
   	<!-- Spring Framework -->
   	<!-- https://mvnrepository.com/artifact/org.mybatis.spring.boot/mybatis-spring-boot-starter -->
 	<dependency>

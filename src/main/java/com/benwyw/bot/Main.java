@@ -1,6 +1,7 @@
 package com.benwyw.bot;
 
 import java.net.UnknownHostException;
+import java.util.HashMap;
 
 import javax.security.auth.login.LoginException;
 
@@ -19,6 +20,7 @@ import com.benwyw.bot.commands.CommandRegistry;
 import com.benwyw.bot.data.GuildData;
 import com.benwyw.bot.listeners.ButtonListener;
 import com.benwyw.bot.listeners.CommandListener;
+import com.benwyw.bot.listeners.MessageListener;
 import com.benwyw.bot.listeners.MusicListener;
 
 import io.github.cdimascio.dotenv.Dotenv;
@@ -31,6 +33,7 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
 
 @Slf4j
 @Configuration
@@ -87,11 +90,11 @@ public class Main {
 	@Bean
 	ShardManager shardManager(@Qualifier("commandListener") final CommandListener commandListener,
 			@Qualifier("buttonListener") final ButtonListener buttonListener,
-			@Value("${jda.token}") final String jdaToken) {
+			@Qualifier("messageListener") final MessageListener messageListener) {
 		log.info("Inside JDA");
-		final DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault(jdaToken);
+		final DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault(config.get("TOKEN"));
 		builder.setStatus(OnlineStatus.ONLINE);
-		builder.setActivity(Activity.watching("dev in-progress"));
+		builder.setActivity(Activity.watching("音樂幫到你"));
 		builder.enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES);
 		builder.addEventListeners(new CommandRegistry(this));
 //		builder.setMemberCachePolicy(MemberCachePolicy.ALL);
@@ -103,7 +106,7 @@ public class Main {
 		try {
 			final ShardManager shardManager = builder.build();
 			GuildData.init(this);
-			shardManager.addEventListener(commandListener, musicListener, buttonListener);
+			shardManager.addEventListener(commandListener, musicListener, buttonListener, messageListener);
 			
 //			final JDA jda = builder.build();
 			log.info("Inside GuildData");
