@@ -26,6 +26,8 @@ import net.dv8tion.jda.api.managers.AudioManager;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.stereotype.Component;
+
 import java.net.MalformedURLException;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -36,9 +38,14 @@ import java.util.concurrent.TimeUnit;
  * @author Benwyw
  */
 @Slf4j
+@Component
 public class MusicListener extends ListenerAdapter {
 
     private final @NotNull AudioPlayerManager playerManager;
+    
+    public MusicListener() {
+		this.playerManager = null;
+    }
 
     /**
      * Setup audio player manager.

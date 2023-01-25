@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.benwyw.bot.mapper.UserMapper">
+
+	<resultMap id="userMap" type="com.benwyw.bot.payload.User">
+		<id property="userId" column="user_id" />
+		<result property="userBalance" column="user_balance" />
+		<result property="colorPref" column="color_pref" />
+		<result property="userWin" column="user_win" />
+		<result property="mcName" column="mc_name" />
+		<result property="riotLolTwName" column="riot_lol_tw_name" />
+		<result property="riotLolNaName" column="riot_lol_na_name" />
+		<result property="ownedPlaylistCount" column="owned_playlist_count" />
+		<result property="linkedPlaylistCount" column="linked_playlist_count" />
+		<!-- <collection property="riot" ofType="Riot" resultMap="riotMap" columnPrefix="riot_"/> -->
+	</resultMap>
+
+	<select id="getUserInfo" resultMap="userMap">
+		select ud.userid as user_id, ud.userbalance as user_balance, ud.colorpref as color_pref, ud.userwin as user_win, ud.mcname as mc_name,
+		rtw.user_name as riot_lol_tw_name,
+		rna.user_name as riot_lol_na_name,
+		(select count(playlist_id) from playlist where owner_user_id = ud.userid) as owned_playlist_count,
+		(select count(playlist_id) from user_music_playlist where userid = ud.userid) as linked_playlist_count
+		from userdata ud
+		left join riot rtw on ud.userid = rtw.user_id and rtw.game = 'LOL' and rtw.region = 'TW'
+		left join riot rna on ud.userid = rna.user_id and rna.game = 'LOL' and rna.region = 'NA'
+		where ud.userid = #{userId}
+	</select>
+
+</mapper>

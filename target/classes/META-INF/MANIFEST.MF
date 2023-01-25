@@ -1,5 +1,7 @@
 Manifest-Version: 1.0
-Built-By: User
-Build-Jdk: 19.0.1
+Build-Jdk-Spec: 19
+Implementation-Title: Ben-AI-Java
+Implementation-Version: 0.0.1
+Main-Class: com.benwyw.bot.Main
 Created-By: Maven Integration for Eclipse
 

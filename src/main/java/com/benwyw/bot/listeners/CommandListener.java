@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jetbrains.annotations.NotNull;
+import org.springframework.stereotype.Component;
 
 import com.benwyw.bot.commands.CommandRegistry;
 import com.benwyw.bot.commands.RolesCommand;
@@ -18,6 +19,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
+@Component
 public class CommandListener extends ListenerAdapter {
 
 	@Override
