@@ -85,7 +85,7 @@ public class Main {
 	 * @return the jda
 	 */
 	@Bean
-	ShardManager jda(@Qualifier("commandListener") final CommandListener commandListener,
+	ShardManager shardManager(@Qualifier("commandListener") final CommandListener commandListener,
 			@Qualifier("buttonListener") final ButtonListener buttonListener,
 			@Value("${jda.token}") final String jdaToken) {
 		log.info("Inside JDA");
