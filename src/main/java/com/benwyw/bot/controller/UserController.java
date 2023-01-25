@@ -31,14 +31,15 @@ public class UserController {
 	UserService userService;
 	
 	@GetMapping("/test")
-	public String ok() {
+	public String ok(HttpServletRequest request) {
+		log.info(String.format("ok @ %s", request.getRemoteAddr()));
 		return String.valueOf(shardManager.getGuildById(763404947500564500L).getRoles());
 	}
 	
-	@GetMapping("/testMsg")
-	public void testMsg() {
-		shardManager.getTextChannelById(991895044221046804L).sendMessage("This is a test message from Spring Boot web service.").queue();
-	}
+//	@GetMapping("/testMsg")
+//	public void testMsg() {
+//		shardManager.getTextChannelById(991895044221046804L).sendMessage("This is a test message from Spring Boot web service.").queue();
+//	}
 	
 	@GetMapping("/getUserInfo")
 	public User getUserInfo(@Param("userTag") String userTag, HttpServletRequest request) {
