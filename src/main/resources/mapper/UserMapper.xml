@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.benwyw.bot.mapper.UserMapper">
 
-	<resultMap id="userMap" type="com.benwyw.bot.payload.User">
+	<resultMap id="userMap" type="com.benwyw.bot.data.User">
 		<id property="userId" column="user_id" />
 		<result property="userBalance" column="user_balance" />
 		<result property="colorPref" column="color_pref" />

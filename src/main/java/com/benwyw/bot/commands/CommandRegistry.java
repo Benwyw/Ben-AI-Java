@@ -23,7 +23,7 @@ import com.benwyw.bot.commands.music.SeekCommand;
 import com.benwyw.bot.commands.music.SkipCommand;
 import com.benwyw.bot.commands.music.StopCommand;
 import com.benwyw.bot.commands.music.VolumeCommand;
-import com.benwyw.bot.commands.user.UserDetailCommand;
+import com.benwyw.bot.commands.user.UserDetailsCommand;
 import com.benwyw.bot.data.GuildData;
 import com.benwyw.util.embeds.EmbedUtils;
 
@@ -71,7 +71,7 @@ public class CommandRegistry extends ListenerAdapter {
                 new VolumeCommand(bot),
 
                 //Utility commands
-                new UserDetailCommand(bot)
+                new UserDetailsCommand(bot)
                 // TODO new HelpCommand(bot)
         );
     }

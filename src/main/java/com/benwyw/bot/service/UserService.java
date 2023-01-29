@@ -59,9 +59,9 @@ public class UserService {
 		return false;
 	}
 
-	public com.benwyw.bot.payload.User getUserInfo(String userTag) {
+	public com.benwyw.bot.data.User getUserInfo(String userTag) {
 		final String transactionType = "getUserInfo";
-		com.benwyw.bot.payload.User user = new com.benwyw.bot.payload.User();
+		com.benwyw.bot.data.User user = new com.benwyw.bot.data.User();
 		
 		if (getApproval(userTag, transactionType)) {
 			approvalList.remove(userTag);

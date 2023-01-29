@@ -1,4 +1,4 @@
-package com.benwyw.bot.payload;
+package com.benwyw.bot.data;
 
 import lombok.Data;
 
