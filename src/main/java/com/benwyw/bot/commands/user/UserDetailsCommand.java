@@ -67,6 +67,24 @@ public class UserDetailsCommand extends Command {
 //        this.permission = Permission.MANAGE_SERVER;
     }
     
+    private String getPointsLolRegion(String region) {
+    	String resp = "";
+    	
+    	switch(region) {
+    	case "TW":
+    		resp = "loltw";
+    		break;
+    	case "NA":
+    		resp = "lolna";
+    		break;
+    	case "EU":
+    		resp = "loleu";
+    		break;
+    	}
+    	
+    	return resp;
+    }
+    
     private boolean commonValidation(RiotUser riotUser, SlashCommandInteractionEvent event) {
     	RiotUserMapper riotMapper = SpringContext.getBean(RiotUserMapper.class);
     	
@@ -135,10 +153,25 @@ public class UserDetailsCommand extends Command {
 			riotUser.setGame(GAME);
 			
 			if (commonValidation(riotUser, event))
-				if (riotMapper.insertUserInfo(riotUser) > 0)
-					text = String.format("已新增 %s: %s", newRegion, newUserName);
+				if (riotMapper.insertUserInfo(riotUser) > 0) {
+					String pointsRegion = getPointsLolRegion(newRegion);
+					int pointsMapperCount;
+					
+					if (riotMapper.isExistingPoints(pointsRegion, newUserName))
+						pointsMapperCount = riotMapper.insertActivePoints(pointsRegion, newUserName);
+					else
+						pointsMapperCount = riotMapper.updateToActivePoints(pointsRegion, newUserName);
+					
+					if (pointsMapperCount > 0)
+						text = String.format("已新增 %s: %s", newRegion, newUserName);
+					else {
+						text = "數據庫出錯。\npointsMapperCount > 0 validation failed. (create)";
+						event.getHook().sendMessageEmbeds(EmbedUtils.createError(text)).queue();
+	        			return;
+					}
+				}
 				else {
-					text = "數據庫出錯。";
+					text = "數據庫出錯。\nriotMapper.insertUserInfo > 0 validation failed. (create)";
 					event.getHook().sendMessageEmbeds(EmbedUtils.createError(text)).queue();
         			return;
 				}
@@ -216,10 +249,25 @@ public class UserDetailsCommand extends Command {
 				riotUser.setGame(GAME);
 				
 				if (commonValidation(riotUser, event))
-					if (riotMapper.updateUserInfo(riotUser) > 0)
-						text = String.format("%s -> %s", existingUserName, newUserName);
+					if (riotMapper.updateUserInfo(riotUser) > 0) {
+						String pointsRegion = getPointsLolRegion(newRegion);
+						int pointsMapperCount;
+						
+						if (riotMapper.isExistingPoints(pointsRegion, newUserName))
+							pointsMapperCount = riotMapper.updateExistingActivePoints(pointsRegion, newUserName, existingUserName);
+						else
+							pointsMapperCount = riotMapper.insertActivePoints(pointsRegion, newUserName);
+						
+						if (pointsMapperCount > 0)
+							text = String.format("%s -> %s", existingUserName, newUserName);
+						else {
+							text = "數據庫出錯。\npointsMapperCount > 0 validation failed. (update)";
+							event.getHook().sendMessageEmbeds(EmbedUtils.createError(text)).queue();
+		        			return;
+						}
+					}
 					else {
-						text = "數據庫出錯。";
+						text = "數據庫出錯。\nriotMapper.insertUserInfo > 0 validation failed. (update)";
 						event.getHook().sendMessageEmbeds(EmbedUtils.createError(text)).queue();
 	        			return;
 					}
@@ -260,8 +308,23 @@ public class UserDetailsCommand extends Command {
 			riotUser.setRegion(newRegion);
 			riotUser.setGame(GAME);
 			
-			if (riotMapper.deleteUserInfo(riotUser) > 0)
-				text = String.format("已刪除 %s: %s", newRegion, existingUserName);
+			if (riotMapper.deleteUserInfo(riotUser) > 0) {
+				String pointsRegion = getPointsLolRegion(newRegion);
+				int pointsMapperCount;
+				
+				if (riotMapper.isExistingPoints(pointsRegion, existingUserName))
+					pointsMapperCount = riotMapper.softDeletePoints(pointsRegion, existingUserName);
+				else
+					pointsMapperCount = riotMapper.insertInactivePoints(pointsRegion, existingUserName);
+				
+				if (pointsMapperCount > 0)
+					text = String.format("已刪除 %s: %s", newRegion, existingUserName);
+				else {
+					text = "數據庫出錯。\npointsMapperCount > 0 validation failed. (delete)";
+					event.getHook().sendMessageEmbeds(EmbedUtils.createError(text)).queue();
+        			return;
+				}
+			}
 			else {
 				text = "數據庫出錯。";
 				event.getHook().sendMessageEmbeds(EmbedUtils.createError(text)).queue();

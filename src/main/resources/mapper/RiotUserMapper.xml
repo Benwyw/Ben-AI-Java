@@ -36,5 +36,40 @@
 		from riot
 		where user_name = #{userName} and region = #{region} and game = #{game}
 	</select>
+	
+	<!-- Points -->
+	<select id="isExistingPoints" resultType="boolean">
+		select count(1)
+		from points
+		where type = #{region} and remarks = #{userName} and active = 'Y'
+	</select>
+	
+	<insert id="insertActivePoints">
+		insert into points (type, remarks, active)
+		values(#{region}, #{userName}, 'Y')
+	</insert>
+	
+	<update id="updateToActivePoints">
+		update points
+		set active = 'Y'
+		where type = #{region} and remarks = #{userName}
+	</update>
+	
+	<update id="updateExistingActivePoints">
+		update points
+		set remarks = #{userName}
+		where type = #{region} and remarks = #{existingUserName} and active = 'Y'
+	</update>
+	
+	<update id="softDeletePoints">
+		update points
+		set active = 'N'
+		where type = #{region} and remarks = #{userName}
+	</update>
+	
+	<insert id="insertInactivePoints">
+		insert into points (type, remarks, active)
+		values(#{region}, #{userName}, 'N')
+	</insert>
 
 </mapper>
