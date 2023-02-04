@@ -19,11 +19,13 @@
 		select ud.userid as user_id, ud.userbalance as user_balance, ud.colorpref as color_pref, ud.userwin as user_win, ud.mcname as mc_name,
 		rtw.user_name as riot_lol_tw_name,
 		rna.user_name as riot_lol_na_name,
+		reu.user_name as riot_lol_eu_name,
 		(select count(playlist_id) from playlist where owner_user_id = ud.userid) as owned_playlist_count,
 		(select count(playlist_id) from user_music_playlist where userid = ud.userid) as linked_playlist_count
 		from userdata ud
 		left join riot rtw on ud.userid = rtw.user_id and rtw.game = 'LOL' and rtw.region = 'TW'
 		left join riot rna on ud.userid = rna.user_id and rna.game = 'LOL' and rna.region = 'NA'
+		left join riot reu on ud.userid = rna.user_id and rna.game = 'LOL' and rna.region = 'EU'
 		where ud.userid = #{userId}
 	</select>
 

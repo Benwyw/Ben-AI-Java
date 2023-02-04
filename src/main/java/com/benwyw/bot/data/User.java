@@ -15,6 +15,7 @@ public class User {
 	private String mcName;
 	private String riotLolTwName;
 	private String riotLolNaName;
+	private String riotLolEuName;
 	private String ownedPlaylistCount;
 	private String linkedPlaylistCount;
 }

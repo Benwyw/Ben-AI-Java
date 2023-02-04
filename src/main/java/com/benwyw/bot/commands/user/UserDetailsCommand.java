@@ -43,14 +43,26 @@ public class UserDetailsCommand extends Command {
         this.description = "Query self user details.";
         this.category = Category.UTILITY;
         this.subCommands.add(new SubcommandData("create", "加入RIOT LOL戰績分享。")
-        		.addOptions(new OptionData(OptionType.STRING, "riot_region", "RIOT LOL邊區").addChoice("TW", "TW").addChoice("NA", "NA").setRequired(true),
+        		.addOptions(new OptionData(OptionType.STRING, "riot_region", "RIOT LOL邊區")
+        				.addChoice("TW", "TW")
+        				.addChoice("NA", "NA")
+        				.addChoice("EU", "EU")
+        				.setRequired(true),
         				new OptionData(OptionType.STRING, "new_user_name", "名").setRequired(true)));
         this.subCommands.add(new SubcommandData("enquiry", "睇下自己咩料到。"));
         this.subCommands.add(new SubcommandData("update", "更新你的名字。")
-        		.addOptions(new OptionData(OptionType.STRING, "riot_region", "RIOT LOL邊區").addChoice("TW", "TW").addChoice("NA", "NA").setRequired(true),
+        		.addOptions(new OptionData(OptionType.STRING, "riot_region", "RIOT LOL邊區")
+        				.addChoice("TW", "TW")
+        				.addChoice("NA", "NA")
+        				.addChoice("EU", "EU")
+        				.setRequired(true),
         				new OptionData(OptionType.STRING, "new_user_name", "新名").setRequired(true)));
         this.subCommands.add(new SubcommandData("delete", "取消RIOT LOL戰績分享。")
-        		.addOptions(new OptionData(OptionType.STRING, "riot_region", "RIOT LOL邊區").addChoice("TW", "TW").addChoice("NA", "NA").setRequired(true)));
+        		.addOptions(new OptionData(OptionType.STRING, "riot_region", "RIOT LOL邊區")
+        				.addChoice("TW", "TW")
+        				.addChoice("NA", "NA")
+        				.addChoice("EU", "EU")
+        				.setRequired(true)));
 //        this.args.add(new OptionData(OptionType.STRING, "message", "Query specific user details"));
 //        this.permission = Permission.MANAGE_SERVER;
     }
@@ -147,10 +159,11 @@ public class UserDetailsCommand extends Command {
 //                    .setDescription("[" + track.getInfo().title + "](" + track.getInfo().uri + ")")
                     .addField("LoL TW", "`"+user.getRiotLolTwName()+"`", true)
                     .addField("LoL NA", "`"+user.getRiotLolNaName()+"`", true)
-                    .addField("MC", "`"+user.getMcName()+"`", true)
+                    .addField("LoL EU", "`"+user.getRiotLolEuName()+"`", true)
                     .addField("PL Owned", "`"+user.getOwnedPlaylistCount()+"`", true)
                     .addField("PL Linked", "`"+user.getLinkedPlaylistCount()+"`", true)
-                    .addField("Money", "`"+user.getUserBalance()+"`", true)
+                    .addField("MC", "`"+user.getMcName()+"`", true)
+//                    .addField("Money", "`"+user.getUserBalance()+"`", true)
 //                    .addField("Link", "[`Click Here`]("+track.getInfo().uri+")", true)
                     .setColor(EmbedColor.DEFAULT.color)
                     .setThumbnail(event.getUser().getEffectiveAvatarUrl())
