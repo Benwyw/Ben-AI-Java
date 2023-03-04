@@ -52,7 +52,7 @@ jobs:
     steps:
     - name: Set tag name
       id: set_tag
-      run: echo ::set-output name=tag::ai-$(echo ${GITHUB_SHA::8})-$(date +%Y%m%d%H%M%S)
+      run: echo "tag=ai-$(echo ${GITHUB_SHA::8})-$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
       
     - name: Create release
       id: create_release
