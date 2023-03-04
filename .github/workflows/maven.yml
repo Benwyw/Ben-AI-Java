@@ -37,13 +37,13 @@ jobs:
       run: |
         version=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
         echo "VERSION=$version" >> $GITHUB_ENV
-        echo "Env version is $env.VERSION, version is $version"
+        echo "Env version is ${{ env.VERSION }}, version is $version"
         
     - name: Save artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: Ben-AI-Java-0.0.1
-        path: target/Ben-AI-Java-0.0.1.jar
+        name: "Ben-AI-Java-${{ env.VERSION }}"
+        path: "target/Ben-AI-Java-${{ env.VERSION }}.jar"
         
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     - name: Update dependency graph
@@ -70,7 +70,7 @@ jobs:
     - name: Download Jar Artifact
       uses: actions/download-artifact@v3
       with:
-        name: Ben-AI-Java-0.0.1
+        name: "Ben-AI-Java-${{ env.VERSION }}"
         
     - name: Upload Jar to Release
       id: upload-jar-to-release
@@ -78,13 +78,13 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag: ${{ env.VERSION }}-${{ steps.set_tag.outputs.TAG }}
-        name: ${{ env.VERSION }}
+        tag: "${{ env.VERSION }}-${{ steps.set_tag.outputs.TAG }}"
+        name: "${{ env.VERSION }}"
         body: |
             Changes in this Release
             ${{ github.event.pull_request.body }}
             ${{ github.event.head_commit.message }}
         draft: false
         prerelease: false
-        artifacts: ${{ github.workspace }}/Ben-AI-Java-0.0.1.jar
+        artifacts: "${{ github.workspace }}/Ben-AI-Java-${{ env.VERSION }}.jar"
         artifactContentType: application/java-archive
