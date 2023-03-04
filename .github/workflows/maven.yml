@@ -22,8 +22,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
       
-    - name: Check tag name
-      run: echo ai-$(date +%s)-$(echo ${{ github.sha }} | cut -c1-8 | tr '[:lower:]' '[:upper:]' | tr -d '[[:punct:]]')
+    - name: Set tag name
+      id: set_tag
+      run: echo ::set-output name=tag::ai-$(echo ${GITHUB_SHA::8})-$(date +%Y%m%d%H%M%S)
       
     - name: Create release
       id: create_release
@@ -31,7 +32,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-          tag_name: ai-$(date +%s)-$(echo ${{ github.sha }} | cut -c1-8 | tr '[:lower:]' '[:upper:]' | tr -d '[[:punct:]]')
+          tag_name: ${{ steps.set_tag.outputs.tag }}
           release_name: Release ${{ github.ref }}
           body: |
             Changes in this Release
