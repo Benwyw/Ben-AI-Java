@@ -41,10 +41,6 @@ jobs:
         version="$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)"
         echo "VERSION=$version" >> $GITHUB_ENV
         
-    - name: Get version
-      id: get_version
-      run: echo "Env version is ${{ env.VERSION }}, version is $version"
-        
     - name: Save artifacts
       uses: actions/upload-artifact@v3
       with:
@@ -63,15 +59,10 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Set tag name
-      id: set_tag
-      run: echo "TAG=$(echo ${GITHUB_SHA::8})-$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
-      
     - name: Get version
       id: get_version
       run: |
         echo "VERSION=${{ needs.build.outputs.VERSION }}" >> $GITHUB_ENV
-        echo "needs.build.outputs.VERSION: ${{ needs.build.outputs.VERSION }}"
       
     - name: Download Jar Artifact
       uses: actions/download-artifact@v3
@@ -84,8 +75,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag: "${{ env.VERSION }}-${{ steps.set_tag.outputs.TAG }}"
-        name: "${{ env.VERSION }}"
+        tag: "v${{ env.VERSION }}"
+        name: "v${{ env.VERSION }}"
         body: |
             Changes in this Release
             ${{ github.event.pull_request.body }}
