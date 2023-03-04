@@ -52,22 +52,7 @@ jobs:
     steps:
     - name: Set tag name
       id: set_tag
-      run: echo "tag=ai-$(echo ${GITHUB_SHA::8})-$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
-      
-    - name: Create release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-          tag_name: ${{ steps.set_tag.outputs.tag }}
-          release_name: Release ${{ github.ref }}
-          body: |
-            Changes in this Release
-            ${{ github.event.pull_request.body }}
-            ${{ github.event.head_commit.message }}
-          draft: false
-          prerelease: false
+      run: echo "tag=$(echo ${GITHUB_SHA::8})-$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
         
     - name: Download Jar Artifact
       uses: actions/download-artifact@v3
@@ -77,9 +62,16 @@ jobs:
     - name: Upload Jar to Release
       id: upload-jar-to-release
       uses: ncipollo/release-action@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
         tag: ${{ steps.set_tag.outputs.tag }}
-        artifacts: Ben-AI-Java-0.0.1.jar
-        bodyFile: ${{ github.workspace }}/Ben-AI-Java-0.0.1.jar
+        name: ${{ steps.set_tag.outputs.tag }}
+        body: |
+            Changes in this Release
+            ${{ github.event.pull_request.body }}
+            ${{ github.event.head_commit.message }}
+        draft: false
+        prerelease: false
+        artifacts: ${{ github.workspace }}/Ben-AI-Java-0.0.1.jar
         artifactContentType: application/java-archive
