@@ -52,9 +52,11 @@ jobs:
     steps:
     - name: Set tag name
       id: set_tag
-      run: |
-        echo "tag=$(echo ${GITHUB_SHA::8})-$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
-        echo "version=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)" >> $GITHUB_OUTPUT
+      run: echo "TAG=$(echo ${GITHUB_SHA::8})-$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
+        
+    - name: Set version
+      id: set_version
+      run: echo "VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT
         
     - name: Download Jar Artifact
       uses: actions/download-artifact@v3
@@ -67,8 +69,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag: ${{ steps.set_tag.outputs.version }}-${{ steps.set_tag.outputs.tag }}
-        name: ${{ steps.set_tag.outputs.version }}
+        tag: ${{ steps.set_version.outputs.VERSION }}-${{ steps.set_tag.outputs.TAG }}
+        name: ${{ steps.set_version.outputs.VERSION }}
         body: |
             Changes in this Release
             ${{ github.event.pull_request.body }}
