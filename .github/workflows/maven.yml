@@ -79,8 +79,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag: "v${{ env.VERSION }}"
-        name: "v${{ env.VERSION }}"
+        tag: "${{ env.VERSION }}"
+        name: "${{ env.VERSION }}"
         body: |
             Changes in this Release
             ${{ github.event.pull_request.body }}
