@@ -78,5 +78,8 @@ jobs:
       id: upload-jar-to-release
       uses: ncipollo/release-action@v1
       with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        tag: ${{ steps.set_tag.outputs.tag }}
         artifacts: Ben-AI-Java-0.0.1.jar
         bodyFile: ${{ github.workspace }}/Ben-AI-Java-0.0.1.jar
+        artifactContentType: application/java-archive
