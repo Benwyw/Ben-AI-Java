@@ -30,13 +30,16 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
       
+    - name: Print tag_name
+      run: echo $(date +%Y%m%d%H%M%S)-${{ github.sha }}
+      
     - name: Create release
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-          tag_name: ai-$(date +%Y%m%d%H%M%S)-${{ github.sha }}
+          tag_name: $(date +%Y%m%d%H%M%S)-${{ github.sha }}
           release_name: Release ${{ github.ref }}
           body: |
             Changes in this Release
