@@ -67,7 +67,7 @@ jobs:
     - name: Set version
       id: set_version
       run: |
-        version="$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)"
+        version="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
         echo "VERSION=$version" >> $GITHUB_ENV
       
     - name: Download Jar Artifact
