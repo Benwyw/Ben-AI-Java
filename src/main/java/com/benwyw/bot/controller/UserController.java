@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.benwyw.bot.data.User;
 import com.benwyw.bot.listeners.CommandListener;
 import com.benwyw.bot.listeners.MusicListener;
-import com.benwyw.bot.payload.User;
 import com.benwyw.bot.service.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
