@@ -64,6 +64,12 @@ jobs:
       id: set_tag
       run: echo "TAG=$(echo ${GITHUB_SHA::8})-$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
       
+    - name: Set version
+      id: set_version
+      run: |
+        version="$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)"
+        echo "VERSION=$version" >> $GITHUB_ENV
+      
     - name: Download Jar Artifact
       uses: actions/download-artifact@v3
       with:
