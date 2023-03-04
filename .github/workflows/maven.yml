@@ -18,6 +18,9 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    
+    outputs:
+      VERSION: ${{ env.VERSION }}
 
     steps:
     - uses: actions/checkout@v3
@@ -64,11 +67,11 @@ jobs:
       id: set_tag
       run: echo "TAG=$(echo ${GITHUB_SHA::8})-$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
       
-    - name: Set version
-      id: set_version
+    - name: Get version
+      id: get_version
       run: |
-        version="$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
-        echo "VERSION=$version" >> $GITHUB_ENV
+        echo "VERSION=${{ needs.build.outputs.VERSION }}" >> $GITHUB_ENV
+        echo "needs.build.outputs.VERSION: ${{ needs.build.outputs.VERSION }}"
       
     - name: Download Jar Artifact
       uses: actions/download-artifact@v3
