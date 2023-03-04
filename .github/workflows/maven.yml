@@ -35,7 +35,7 @@ jobs:
     - name: Save artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: Ben-AI
+        name: Ben-AI-Java-0.0.1
         path: target/Ben-AI-Java-0.0.1.jar
       
   release:
@@ -62,22 +62,21 @@ jobs:
             ${{ github.event.head_commit.message }}
           draft: false
           prerelease: false
-          
-    - name: List files
-      run: |
-        ls
-        ls ..
-        ls ./target
-          
-    - name: Upload Release Asset
-      id: upload-release-asset 
+        
+    - name: Download Jar Artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: Ben-AI-Java-0.0.1
+        
+    - name: Upload Jar to Release
+      id: upload-jar-to-release
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./target/Ben-AI.jar
-        asset_name: Ben-AI.jar
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ${{ github.workspace }}/Ben-AI-Java-0.0.1.jar
+        asset_name: Ben-AI-Java-0.0.1.jar
         asset_content_type: application/java-archive
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
