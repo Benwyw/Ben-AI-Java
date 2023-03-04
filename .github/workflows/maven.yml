@@ -35,9 +35,12 @@ jobs:
     - name: Set version
       id: set_version
       run: |
-        version=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
+        version="$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)"
         echo "VERSION=$version" >> $GITHUB_ENV
-        echo "Env version is ${{ env.VERSION }}, version is $version"
+        
+    - name: Get version
+      id: get_version
+      run: echo "Env version is ${{ env.VERSION }}, version is $version"
         
     - name: Save artifacts
       uses: actions/upload-artifact@v3
@@ -60,12 +63,6 @@ jobs:
     - name: Set tag name
       id: set_tag
       run: echo "TAG=$(echo ${GITHUB_SHA::8})-$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
-      
-    - name: Set version
-      id: set_version
-      run: |
-        version=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
-        echo "VERSION=$version" >> $GITHUB_ENV
       
     - name: Download Jar Artifact
       uses: actions/download-artifact@v3
