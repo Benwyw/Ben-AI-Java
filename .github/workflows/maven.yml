@@ -31,6 +31,19 @@ jobs:
       
     - name: Build with Maven
       run: mvn -B package --file pom.xml
+      
+    - name: Set tag name
+      id: set_tag
+      run: echo "TAG=$(echo ${GITHUB_SHA::8})-$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
+        
+    - name: Set version
+      id: set_version
+      run: |
+        version=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
+        echo "VERSION=$version" >> $GITHUB_ENV
+        echo "::set-output name=VERSION::$version"
+        echo ${{ steps.set_version.outputs.VERSION }}
+        echo ${{ env.VERSION }}
         
     - name: Save artifacts
       uses: actions/upload-artifact@v3
@@ -50,14 +63,6 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Set tag name
-      id: set_tag
-      run: echo "TAG=$(echo ${GITHUB_SHA::8})-$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
-        
-    - name: Set version
-      id: set_version
-      run: echo "VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
-        
     - name: Download Jar Artifact
       uses: actions/download-artifact@v3
       with:
