@@ -39,10 +39,10 @@ import net.dv8tion.jda.api.utils.MemberCachePolicy;
 @Configuration
 @EnableConfigurationProperties
 @EnableScheduling
-@PropertySource("classpath:application.properties")
+//@PropertySource("classpath:application.properties")
 @SpringBootApplication
 public class Main {
-	
+
 //	public final @NotNull Dotenv config;
 //	public final @NotNull ShardManager shardManager;
 //	public final @NotNull MusicListener musicListener;
@@ -64,9 +64,9 @@ public class Main {
 //				new CommandListener(),
 //				musicListener);
 //	}
-	
+
 	// -------------
-	
+
 	public final @NotNull Dotenv config = Dotenv.configure().load();
 	public @NotNull ShardManager shardManager;
 	
