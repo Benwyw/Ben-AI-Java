@@ -1,7 +1,9 @@
 package com.benwyw.bot.service;
 
+import com.benwyw.bot.service.common.APIService;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -19,6 +21,8 @@ public class RiotService {
 	
 //	@Autowired
 //	private RiotUserMapper riotUserMapper;
+	@Autowired
+	private APIService apiService;
 
 	public boolean isValidUserName(RiotUser riotUser) {
 		String region = "";
@@ -41,20 +45,21 @@ public class RiotService {
 		String token = Dotenv.configure().load().get("RIOT_API_KEY");
 
 		HttpHeaders headers = new HttpHeaders();
-		headers.add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36 Edg/109.0.1518.70");
-		headers.add("Accept-Language", "zh-TW,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6");
-		headers.add("Accept-Charset", "application/x-www-form-urlencoded; charset=UTF-8");
+//		headers.add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36 Edg/109.0.1518.70");
+//		headers.add("Accept-Language", "zh-TW,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6");
+//		headers.add("Accept-Charset", "application/x-www-form-urlencoded; charset=UTF-8");
 		headers.add("X-Riot-Token", token);
 //		
 //		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 //		headers.set("X-COM-PERSIST", "NO");
 //		headers.set("X-COM-LOCATION", "USA");
 
-		HttpEntity<String> entity = new HttpEntity<String>(headers);
-		RestTemplate restTemplate = new RestTemplate();
+//		HttpEntity<String> entity = new HttpEntity<String>(headers);
+//		RestTemplate restTemplate = new RestTemplate();
 		
 		try {
-			ResponseEntity<JSONObject> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, JSONObject.class);
+			ResponseEntity<JSONObject> responseEntity = apiService.exchange(url, HttpMethod.GET, headers);
+//			ResponseEntity<JSONObject> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, JSONObject.class);
 			if (responseEntity.getStatusCode() != null && String.valueOf(responseEntity.getStatusCode()).contains("200"))
 				return true;
 			else {
