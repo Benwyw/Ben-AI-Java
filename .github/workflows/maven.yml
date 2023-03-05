@@ -93,6 +93,7 @@ jobs:
   
     needs: [build, release]
     runs-on: ubuntu-latest
+    environment: production
     
     steps:
     - name: Get version
