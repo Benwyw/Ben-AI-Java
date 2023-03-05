@@ -5,7 +5,7 @@
 
   <groupId>com.benwyw</groupId>
   <artifactId>Ben-AI-Java</artifactId>
-  <version>v0.0.5</version>
+  <version>v0.0.6</version>
   <packaging>jar</packaging>
 
   <name>Ben-AI-Java</name>
@@ -136,7 +136,7 @@
 	<dependency>
 	    <groupId>com.oracle.database.jdbc</groupId>
 	    <artifactId>ojdbc10</artifactId>
-	    <version>19.17.0.0</version>
+	    <version>19.18.0.0</version>
 	</dependency>
 	
 	<dependency>

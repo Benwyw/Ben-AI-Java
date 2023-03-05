@@ -4,16 +4,20 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 
 import javax.security.auth.login.LoginException;
+import javax.sql.DataSource;
 
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.benwyw.bot.commands.CommandRegistry;
@@ -40,7 +44,7 @@ import net.dv8tion.jda.api.utils.MemberCachePolicy;
 @EnableConfigurationProperties
 @EnableScheduling
 //@PropertySource("classpath:application.properties")
-@SpringBootApplication
+@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
 public class Main {
 
 //	public final @NotNull Dotenv config;
@@ -131,6 +135,23 @@ public class Main {
 		return null;
 	}
 
+	@Bean
+	public DataSource dataSource() {
+
+		// Create a DataSource object and set its properties
+		Dotenv config = Dotenv.configure().load();
+
+		DataSource dataSource = DataSourceBuilder.create()
+				.driverClassName("oracle.jdbc.OracleDriver")
+				.url(config.get("SPRING_DATASOURCE_URL"))
+				.username(config.get("ORACLE_DB_USER"))
+				.password(config.get("ORACLE_DB_PASSWORD"))
+				.build();
+
+		// Return the DataSource object
+		return dataSource;
+	}
+
 //	@Bean
 //	TelegramService telegramService(@Value("${telegram.token}") final String telegramToken,
 //			@Value("${developer.update-notes}") final String devNote) {
@@ -158,7 +179,7 @@ public class Main {
     public static void main( String[] args ) {
 //    	try {
 //    		Main bot = new Main();
-    	SpringApplication.run(Main.class, args);
+		SpringApplication.run(Main.class, args);
     		log.info("Bot started.");
 //    	} catch (LoginException e) {
 //    		log.error("Provided bot token is invalid!");
