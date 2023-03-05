@@ -109,6 +109,6 @@ jobs:
         key: ${{ secrets.SERVER_PRIVATE_KEY }}
         script: |
           cd /home/github/ben-ai-java
-          wget https://github.com/${{ github.repository }}/releases/download/v${{ github.run_number }}/Ben-AI-Java-${{ env.VERSION }}.jar
+          wget https://github.com/${{ github.repository }}/releases/download/${{ env.VERSION }}/Ben-AI-Java-${{ env.VERSION }}.jar
           screen -S ben-ai-java -X quit
           screen -dmS ben-ai-java java -jar Ben-AI-Java-${{ env.VERSION }}.jar --server.port=80
