@@ -251,9 +251,9 @@ public class UserDetailsCommand extends Command {
 				if (commonValidation(riotUser, event))
 					if (riotMapper.updateUserInfo(riotUser) > 0) {
 						String pointsRegion = getPointsLolRegion(newRegion);
-						int pointsMapperCount = 0;;
-						
-						if (riotMapper.isExistingPoints(pointsRegion, newUserName))
+						int pointsMapperCount = 0;
+
+						if (riotMapper.isExistingPoints(pointsRegion, existingUserName))
 							pointsMapperCount = riotMapper.updateExistingActivePoints(pointsRegion, newUserName, existingUserName);
 //						else
 //							pointsMapperCount = riotMapper.insertActivePoints(pointsRegion, newUserName);
