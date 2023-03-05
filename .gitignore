@@ -90,4 +90,3 @@ target/
 
 # Env
 .env
-src/main/resources/application.properties
