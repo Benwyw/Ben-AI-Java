@@ -112,4 +112,4 @@ jobs:
           rm Ben-AI-Java-*.jar
           wget https://github.com/${{ github.repository }}/releases/download/${{ env.VERSION }}/Ben-AI-Java-${{ env.VERSION }}.jar
           screen -S ben-ai-java -X quit
-          screen -dmS ben-ai-java java -jar Ben-AI-Java-${{ env.VERSION }}.jar --server.port=80
+          screen -dmS ben-ai-java java -jar Ben-AI-Java-${{ env.VERSION }}.jar --server.port=8080
