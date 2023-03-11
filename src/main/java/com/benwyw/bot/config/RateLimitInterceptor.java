@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class RateLimitInterceptor implements HandlerInterceptor {
 
-    private static final int RATE_LIMIT = 10;
+    private static final int RATE_LIMIT = 100;
     private static final int RATE_LIMIT_PERIOD_IN_SECONDS = 60;
     private static final Map<String, Integer> requestsPerIp = new ConcurrentHashMap<>();
 
@@ -31,7 +31,7 @@ public class RateLimitInterceptor implements HandlerInterceptor {
         int requests = requestsPerIp.getOrDefault(ipAddress, 0);
         if (requests >= RATE_LIMIT) {
             try {
-                shardManager.getTextChannelById(809527650955296848L).sendMessage(String.format("Rate limited: %s", ipAddress)).queue();
+                shardManager.getTextChannelById(809527650955296848L).sendMessage(String.format("Rate limited: ||%s||", ipAddress)).queue();
             } catch(Exception e) {
                 log.info(String.format("An exception occurred during logging rate limit ipAddress to Discord:\n%s",e));
             }
