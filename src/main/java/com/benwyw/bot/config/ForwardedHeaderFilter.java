@@ -18,12 +18,14 @@ public class ForwardedHeaderFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
+        String referer = httpRequest.getHeader("referer");
+//        log.info(String.format("referer: %s", referer));
         String remoteAddr = request.getRemoteAddr();
-        log.info(String.format("remoteAddr: %s", remoteAddr));
-        String forwardedFor = httpRequest.getHeader("X-Forwarded-For");
-        log.info(String.format("forwardedFor: %s", forwardedFor));
+//        log.info(String.format("remoteAddr: %s", remoteAddr));
+//        String forwardedFor = httpRequest.getHeader("X-Forwarded-For");
+//        log.info(String.format("forwardedFor: %s", forwardedFor));
 //        if (forwardedFor != null && forwardedFor.equals("127.0.0.1")) {
-        if (remoteAddr != null && remoteAddr.equals("127.0.0.1")) {
+        if (remoteAddr != null && remoteAddr.equals("127.0.0.1") && referer != null && referer.startsWith("https://bot.benwyw.com/")) {
             // Request is coming from localhost, pass through filter chain
             chain.doFilter(request, response);
         } else {
