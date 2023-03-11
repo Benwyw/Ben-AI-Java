@@ -27,7 +27,7 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String ipAddress = request.getRemoteAddr();
+        String ipAddress = request.getHeader("X-Forwarded-For"); //request.getRemoteAddr();
         int requests = requestsPerIp.getOrDefault(ipAddress, 0);
         if (requests >= RATE_LIMIT) {
             try {
