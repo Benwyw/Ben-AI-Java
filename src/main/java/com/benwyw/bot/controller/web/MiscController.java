@@ -31,4 +31,9 @@ public class MiscController {
 		return miscService.getTitle();
 	}
 
+	@GetMapping("/userBase")
+	public Integer getUserBase() {
+		return miscService.getUserBase();
+	}
+
 }
