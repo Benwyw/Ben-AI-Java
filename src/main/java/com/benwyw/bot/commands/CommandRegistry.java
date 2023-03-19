@@ -1,5 +1,6 @@
 package com.benwyw.bot.commands;
 
+import com.benwyw.bot.commands.misc.MiscCommand;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
@@ -71,7 +72,8 @@ public class CommandRegistry extends ListenerAdapter {
                 new VolumeCommand(bot),
 
                 //Utility commands
-                new UserDetailsCommand(bot)
+                new UserDetailsCommand(bot),
+                new MiscCommand(bot)
                 // TODO new HelpCommand(bot)
         );
     }

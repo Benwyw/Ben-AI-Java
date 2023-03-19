@@ -1,8 +1,7 @@
 package com.benwyw.bot.listeners;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.benwyw.bot.SpringContext;
+import com.benwyw.bot.service.MiscService;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
@@ -10,14 +9,10 @@ import com.benwyw.bot.commands.CommandRegistry;
 import com.benwyw.bot.commands.RolesCommand;
 import com.benwyw.bot.data.GuildData;
 
-import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
 @Component
 public class CommandListener extends ListenerAdapter {
@@ -60,8 +55,11 @@ public class CommandListener extends ListenerAdapter {
 //		List<CommandData> commandData = new ArrayList<>();
 //		commandData.add(Commands.slash("welcome", "Get welcomed by the bot."));
 //		event.getGuild().updateCommands().addCommands(commandData).queue();
-		GuildData.get(event.getGuild());
-		event.getGuild().updateCommands().addCommands(CommandRegistry.unpackCommandData()).queue();
+		MiscService miscService = SpringContext.getBean(MiscService.class);
+		if (miscService.validateJoinedServers(event.getGuild())) {
+			GuildData.get(event.getGuild());
+			event.getGuild().updateCommands().addCommands(CommandRegistry.unpackCommandData()).queue();
+		}
 	}
 
 	/**
