@@ -5,7 +5,7 @@
 
   <groupId>com.benwyw</groupId>
   <artifactId>Ben-AI-Java</artifactId>
-  <version>v0.0.35</version>
+  <version>v0.0.36</version>
   <packaging>jar</packaging>
 
   <name>Ben-AI-Java</name>
@@ -41,7 +41,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.11</version>
+      <version>4.13.2</version>
       <scope>test</scope>
     </dependency>
 	<dependency>
@@ -52,7 +52,7 @@
 	<dependency>
 	  <groupId>org.projectlombok</groupId>
 	  <artifactId>lombok</artifactId>
-	  <version>1.18.24</version>
+	  <version>1.18.26</version>
 	</dependency>
 	<dependency>
 	  <groupId>org.slf4j</groupId>
