@@ -1,6 +1,5 @@
 package com.benwyw.bot.service;
 
-import com.benwyw.bot.service.EmbedService;
 import com.benwyw.util.embeds.EmbedUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Guild;
@@ -34,20 +33,26 @@ public class MiscService {
 	}
 
 	public Integer getUserBase() {
-		return shardManager.getGuilds().stream().mapToInt(guild -> guild.getMemberCount()).sum();
+//		Integer old = shardManager.getGuilds().stream().mapToInt(guild -> guild.getMemberCount()).sum();
+//		Integer old2 = Math.toIntExact(shardManager.getGuilds().stream().flatMap(guild -> guild.loadMembers().get().stream()).distinct().count());
+		return Math.toIntExact(shardManager.getGuilds().stream()
+				.flatMap(guild -> guild.loadMembers().get().stream())
+				.map(member -> member.getId())
+				.distinct() // filter out duplicate members
+				.count()); // count the remaining distinct members
 	}
 
 	public MessageEmbed validateJoinedServers() {
 		List<Guild> guildList = shardManager.getGuilds();
 		long ownerId = shardManager.retrieveApplicationInfo().complete().getOwner().getIdLong();
 
-		List<String> invalidGuildStrList = new ArrayList<String>();
-		List<String> validGuildStrList = new ArrayList<String>();
+		List<String> invalidGuildStrList = new ArrayList<>();
+		List<String> validGuildStrList = new ArrayList<>();
 
-		List<Guild> invalidGuildList = new ArrayList<Guild>();
-		List<Guild> validGuildList = new ArrayList<Guild>();
+		List<Guild> invalidGuildList = new ArrayList<>();
+		List<Guild> validGuildList = new ArrayList<>();
 
-		MessageEmbed messageEmbed = null;
+		MessageEmbed messageEmbed;
 
 		for(Guild guild : guildList) {
 			if (ObjectUtils.isEmpty(guild.retrieveMemberById(ownerId))) {

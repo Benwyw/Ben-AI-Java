@@ -2,6 +2,8 @@ package com.benwyw.bot.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -9,6 +11,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer {
 
     @Autowired
+    private Environment env;
+
+    @Autowired(required = false)
     private RateLimitInterceptor rateLimitInterceptor;
 
     @Override
@@ -23,6 +28,9 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(rateLimitInterceptor);
+
+        if (!env.acceptsProfiles(Profiles.of("local"))) {
+            registry.addInterceptor(rateLimitInterceptor);
+        }
     }
 }
