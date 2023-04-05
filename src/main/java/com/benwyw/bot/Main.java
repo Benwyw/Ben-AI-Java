@@ -14,6 +14,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -43,6 +44,7 @@ import net.dv8tion.jda.api.utils.MemberCachePolicy;
 @Configuration
 @EnableConfigurationProperties
 @EnableScheduling
+@EnableCaching
 //@PropertySource("classpath:application.properties")
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
 public class Main {

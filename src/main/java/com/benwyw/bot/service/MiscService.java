@@ -9,6 +9,10 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -24,6 +28,9 @@ public class MiscService {
 	@Autowired
 	EmbedService embedService;
 
+	@Autowired
+	private CacheManager cacheManager;
+
 	// TODO miscMapper
 //	@Autowired
 //	private MiscMapper miscMapper;
@@ -32,6 +39,7 @@ public class MiscService {
 		return "Ben-AI-Java";
 	}
 
+	@Cacheable(value = "userBaseCache", key = "'userBase'")
 	public Integer getUserBase() {
 //		Integer old = shardManager.getGuilds().stream().mapToInt(guild -> guild.getMemberCount()).sum();
 //		Integer old2 = Math.toIntExact(shardManager.getGuilds().stream().flatMap(guild -> guild.loadMembers().get().stream()).distinct().count());
@@ -40,6 +48,13 @@ public class MiscService {
 				.map(member -> member.getId())
 				.distinct() // filter out duplicate members
 				.count()); // count the remaining distinct members
+	}
+
+	@Scheduled(fixedDelay = 3600000) // run every hour
+	public void refreshUserBaseCache() {
+		Cache cache = cacheManager.getCache("userBaseCache");
+		cache.evict("userBase");
+		getUserBase(); // call getUserBase to refresh the cache
 	}
 
 	public MessageEmbed validateJoinedServers() {
