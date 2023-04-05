@@ -57,6 +57,27 @@ public class MiscService {
 		getUserBase(); // call getUserBase to refresh the cache
 	}
 
+	/**
+	 * Retrieves the user base data from the underlying data source without using the cache.
+	 * This method temporarily disables the cache to force a cache miss, retrieves the data from the underlying data source,
+	 * and puts the data back into the cache for subsequent calls to retrieve the data from the cache again.
+	 * This method should be used sparingly, as it can be expensive to retrieve data from the underlying data source every time.
+	 *
+	 * @return the Integer object containing the user base data from the underlying data source
+	 */
+	public Integer getUserBaseWithoutCache() {
+		Cache cache = cacheManager.getCache("userBaseCache"); // get the userBaseCache
+		cache.clear(); // clear the cache to force a cache miss
+
+		// retrieve the data from the underlying data source
+		Integer userBase = getUserBase();
+
+		// put the data back into the cache
+		cache.put("userBase", userBase);
+
+		return userBase;
+	}
+
 	public MessageEmbed validateJoinedServers() {
 		List<Guild> guildList = shardManager.getGuilds();
 		long ownerId = shardManager.retrieveApplicationInfo().complete().getOwner().getIdLong();
