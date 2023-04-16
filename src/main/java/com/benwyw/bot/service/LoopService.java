@@ -45,7 +45,7 @@ public class LoopService {
 	 * 1 hour = 3600000
 	 * 1 min = 60000
 	 */
-	@Scheduled(fixedRate = 60000)
+	@Scheduled(fixedRate = 3600000)
 	public void performTask() throws IOException {
 		List<MessageEmbed> bitDefenderList = getBitdefender();
 		if (bitDefenderList != null && !bitDefenderList.isEmpty()) {
