@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.benwyw.bot.mapper.LoopMapper">
+
+	<select id="getPublishedat" resultType="String">
+		select publishedat
+		from points
+		where type = #{type} and active = #{active}
+	</select>
+	
+	<update id="updatePublishedat" parameterType="com.benwyw.bot.data.Points">
+		update points
+		set publishedat = #{publishedat}
+		where type = #{type} and active = #{active}
+	</update>
+
+</mapper>
