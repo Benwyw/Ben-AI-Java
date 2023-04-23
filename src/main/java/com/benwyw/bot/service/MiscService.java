@@ -1,11 +1,17 @@
 package com.benwyw.bot.service;
 
+import com.benwyw.bot.config.DiscordProperties;
+import com.benwyw.bot.config.MiscProperties;
+import com.benwyw.util.embeds.EmbedColor;
 import com.benwyw.util.embeds.EmbedUtils;
 import lombok.extern.slf4j.Slf4j;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +21,8 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +38,12 @@ public class MiscService {
 
 	@Autowired
 	private CacheManager cacheManager;
+
+	@Autowired
+	private MiscProperties miscProperties;
+
+	@Autowired
+	private DiscordProperties discordProperties;
 
 	// TODO miscMapper
 //	@Autowired
@@ -178,6 +192,44 @@ public class MiscService {
 
 	public void messageToLog(String message) {
 		shardManager.getTextChannelById(809527650955296848L).sendMessage(message).queue();
+	}
+
+	public MessageEmbed announce(SlashCommandInteractionEvent event) {
+		try {
+			OptionMapping title = event.getOption("title");
+			OptionMapping content = event.getOption("content");
+			OptionMapping image = event.getOption("image");
+
+			EmbedBuilder embedBuilder = new EmbedBuilder();
+			if (title != null) {
+				embedBuilder.setTitle(title.getAsString());
+			} else {
+				embedBuilder.setTitle("Announcement");
+			}
+			if (image != null) {
+				embedBuilder.setThumbnail(image.getAsAttachment().getUrl());
+			}
+			embedBuilder.setDescription(content.getAsString());
+			embedBuilder.setColor(EmbedColor.DEFAULT.color);
+			embedBuilder.setFooter(String.valueOf(LocalDateTime.now(ZoneId.of("Asia/Hong_Kong"))));
+
+			MessageEmbed messaageEmbed = embedBuilder.build();
+
+			for (Long mainChannel : miscProperties.getAnnounce()) {
+				TextChannel textChannel = shardManager.getTextChannelById(mainChannel);
+				if (textChannel != null) {
+					textChannel.sendMessageEmbeds(messaageEmbed).queue();
+				} else {
+					shardManager.getTextChannelById(discordProperties.getChannels().get("FBenI.Logs")).sendMessageEmbeds(EmbedUtils.createError(String.format("MiscService.announce: send to channelId %s failed", mainChannel))).queue();
+				}
+			}
+		}
+		catch(Exception e) {
+			return EmbedUtils.createError(String.format("Operation failed.\n%s", e));
+		}
+		finally {
+			return EmbedUtils.createSuccess("Operation completed.");
+		}
 	}
 
 }
