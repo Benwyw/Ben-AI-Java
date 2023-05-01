@@ -49,6 +49,8 @@ public class MiscService {
 //	@Autowired
 //	private MiscMapper miscMapper;
 
+	public final static String logChannelName = "FBenI.Logs";
+
 	public String getTitle() {
 		return "Ben-AI-Java";
 	}
@@ -192,6 +194,25 @@ public class MiscService {
 
 	public void messageToLog(String message) {
 		shardManager.getTextChannelById(809527650955296848L).sendMessage(message).queue();
+	}
+
+	/**
+	 * message = log content
+	 * success = EmbedUtils.createDefault / EmbedUtils.createSuccess / EmbedUtils.createError
+	 * @param message
+	 * @param success
+	 */
+	public void messageToLog(String message, Boolean success) {
+		MessageEmbed embed = EmbedUtils.createDefault(message);
+		if (success != null) {
+			if (success) {
+				embed = EmbedUtils.createSuccess(message);
+			}
+			else {
+				embed = EmbedUtils.createError(message);
+			}
+		}
+		shardManager.getTextChannelById(discordProperties.getChannels().get(logChannelName)).sendMessageEmbeds(embed).queue();
 	}
 
 	public MessageEmbed announce(SlashCommandInteractionEvent event) {

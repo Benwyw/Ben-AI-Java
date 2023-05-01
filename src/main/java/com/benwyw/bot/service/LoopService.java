@@ -40,6 +40,9 @@ public class LoopService {
 	@Autowired
 	private LoopMapper loopMapper;
 
+	@Autowired
+	private MiscService miscService;
+
 	/**
 	 * milliseconds
 	 * 1 hour = 3600000
@@ -58,7 +61,8 @@ public class LoopService {
 						shardManager.getTextChannelById(loopChannels).sendMessageEmbeds(bitDefender).queue();
 					}
 					else {
-						shardManager.getTextChannelById(discordProperties.getChannels().get("FBenI.Logs")).sendMessageEmbeds(EmbedUtils.createError(String.format("LoopService.performTask: send to channelId %s failed", loopChannels))).queue(); // test channel
+						miscService.messageToLog(String.format("LoopService.performTask: send to channelId %s failed", loopChannels), false);
+
 					}
 				}
 			}
@@ -111,7 +115,7 @@ public class LoopService {
 			// Extract pubDate to check if already sent out the latest news
 			List<String> pubDates = extractTagContent(contentStr, "pubDate");
 			if (pubDates == null || pubDates.isEmpty() || StringUtils.isBlank(pubDates.get(0))) {
-				shardManager.getTextChannelById(discordProperties.getChannels().get("FBenI.Logs")).sendMessageEmbeds(EmbedUtils.createError("LoopService.getBitdefender: pubDates from web is blank, cannot be evaluated")).queue(); // test channel
+				miscService.messageToLog("LoopService.getBitdefender: pubDates from web is blank, cannot be evaluated", false);
 				return new ArrayList<>();
 			}
 			else {
@@ -122,17 +126,21 @@ public class LoopService {
 
 				String pubDateOld = loopMapper.getPublishedat(points);
 				if (StringUtils.isBlank(pubDateOld)) {
-					shardManager.getTextChannelById(discordProperties.getChannels().get("FBenI.Logs")).sendMessageEmbeds(EmbedUtils.createError("LoopService.getBitdefender: pubDateOld from Database is blank, cannot be evaluated")).queue(); // test channel
+					miscService.messageToLog("LoopService.getBitdefender: pubDateOld from Database is blank, cannot be evaluated", false);
+					return new ArrayList<>();
+				}
+				else if (StringUtils.isBlank(pubDate)) {
+					miscService.messageToLog("LoopService.getBitdefender: pubDate from Website is blank, cannot be evaluated", false);
 					return new ArrayList<>();
 				}
 				else {
-					if (pubDate.equals(pubDateOld)) {
+					if (pubDate.trim().equals(pubDateOld.trim())) {
 						return new ArrayList<>();
 					}
 					else {
 						points.setPublishedat(pubDate);
 						if (!loopMapper.updatePublishedat(points)) {
-							shardManager.getTextChannelById(discordProperties.getChannels().get("FBenI.Logs")).sendMessageEmbeds(EmbedUtils.createError("LoopService.getBitdefender: update pubDate --> pubDateOld to Database failed")).queue(); // test channel
+							miscService.messageToLog("LoopService.getBitdefender: update pubDate --> pubDateOld to Database failed", false);
 							return new ArrayList<>();
 						}
 					}
