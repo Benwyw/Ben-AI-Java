@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -193,14 +194,14 @@ public class MiscService {
 	}
 
 	public void messageToLog(String message) {
-		shardManager.getTextChannelById(809527650955296848L).sendMessage(message).queue();
+		Objects.requireNonNull(shardManager.getTextChannelById(809527650955296848L)).sendMessage(message).queue();
 	}
 
 	/**
 	 * message = log content
 	 * success = EmbedUtils.createDefault / EmbedUtils.createSuccess / EmbedUtils.createError
-	 * @param message
-	 * @param success
+	 * @param message the content of the message to send
+	 * @param success a boolean indicating whether the message is a success message or an error message
 	 */
 	public void messageToLog(String message, Boolean success) {
 		MessageEmbed embed = EmbedUtils.createDefault(message);
@@ -212,7 +213,7 @@ public class MiscService {
 				embed = EmbedUtils.createError(message);
 			}
 		}
-		shardManager.getTextChannelById(discordProperties.getChannels().get(logChannelName)).sendMessageEmbeds(embed).queue();
+		Objects.requireNonNull(shardManager.getTextChannelById(discordProperties.getChannels().get(logChannelName))).sendMessageEmbeds(embed).queue();
 	}
 
 	public MessageEmbed announce(SlashCommandInteractionEvent event) {
