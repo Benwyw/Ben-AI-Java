@@ -35,7 +35,7 @@ public class SwaggerService {
 	 * Utility - Handle workbook to output directory
 	 * @param workbook generated XSSFWorkbook
 	 * @return path to output file
-	 * @throws IOException
+	 * @throws IOException IOException
 	 */
 	@NotNull
 	private static Path getOutputFile(XSSFWorkbook workbook) throws IOException {
@@ -91,14 +91,14 @@ public class SwaggerService {
 	 * Convertor - JSON String to Excel, old approach
 	 * @param jsonString Swagger JSON text
 	 * @return bytes[] contains xlsx
-	 * @throws IOException
+	 * @throws IOException IOException
 	 */
 	public ResponseEntity<byte[]> jsonStringToExcel(String jsonString) throws IOException {
 		// Read the Swagger JSON file into a Map
 		ObjectMapper objectMapper = new ObjectMapper();
 //		Map<String, Object> data = objectMapper.readValue(new File("swagger.json"), Map.class);
 		String convertedJsonString = (String) objectMapper.readValue(jsonString, Map.class).get("jsonString");
-		Map<String, Object> data = objectMapper.readValue(convertedJsonString, Map.class);
+		Map<String, Object> data = objectMapper.readValue(convertedJsonString, new TypeReference<>() {});
 
 		XSSFWorkbook workbook = generateWorkbook(data);
 
@@ -143,25 +143,26 @@ public class SwaggerService {
 	 * Overall, using a StreamingResponseBody can help improve the efficiency and performance of file downloads in web applications.
 	 * @param jsonString Swagger JSON text
 	 * @return StreamingResponseBody contains xlsx
-	 * @throws IOException
+	 * @throws IOException IOException
 	 */
 	public ResponseEntity<StreamingResponseBody> generateExcelFromSwaggerJson(String jsonString) throws IOException {
 		// Read the Swagger JSON file into a Map
 		ObjectMapper objectMapper = new ObjectMapper();
-		String convertedJsonString = (String) objectMapper.readValue(jsonString, new TypeReference<Map<String, String>>() {}).get("jsonString");
-		Map<String, Object> data = objectMapper.readValue(convertedJsonString, new TypeReference<Map<String, Object>>() {});
+		String convertedJsonString = objectMapper.readValue(jsonString, new TypeReference<Map<String, String>>() {}).get("jsonString");
+		Map<String, Object> data = objectMapper.readValue(convertedJsonString, new TypeReference<>() {});
 
 		// Set the headers for the response
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
 		headers.setContentDisposition(ContentDisposition.attachment().filename("data.xlsx").build());
 
-		XSSFWorkbook workbook = generateWorkbook(data);
-
 		// Create a StreamingResponseBody to stream the contents of the workbook to the response output stream
 		StreamingResponseBody responseBody = outputStream -> {
-			workbook.write(outputStream);
-			workbook.close();
+			try (XSSFWorkbook workbook = generateWorkbook(data)) {
+				workbook.write(outputStream);
+			} catch (IOException e) {
+				log.error(e.toString());
+			}
 		};
 
 		return new ResponseEntity<>(responseBody, headers, HttpStatus.OK);
@@ -171,7 +172,7 @@ public class SwaggerService {
 	 * Convertor - Read JSON text from API RequestBody for local machine
 	 * @param jsonString Swagger JSON text
 	 * @return xlsx in output directory
-	 * @throws IOException
+	 * @throws IOException IOException
 	 */
 	public Resource generateExcelFromSwaggerJsonLocal(String jsonString) throws IOException {
 		// Read the Swagger JSON file into a Map
@@ -190,7 +191,7 @@ public class SwaggerService {
 
 	/**
 	 * Convertor - Read JSON text from swagger.json and output the Excel to output directory for Local machine
-	 * @throws IOException
+	 * @throws IOException IOException
 	 */
 	public void generateExcelFromSwaggerJson() throws IOException {
 		// Read the Swagger JSON file into a Map
