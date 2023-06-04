@@ -2,6 +2,7 @@ package com.benwyw.bot.service;
 
 import com.benwyw.bot.config.DiscordProperties;
 import com.benwyw.bot.config.MiscProperties;
+import com.benwyw.bot.data.MessageEmbedFile;
 import com.benwyw.util.embeds.EmbedColor;
 import com.benwyw.util.embeds.EmbedUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -45,6 +47,9 @@ public class MiscService {
 
 	@Autowired
 	private DiscordProperties discordProperties;
+
+	@Autowired
+	private SwaggerService swaggerService;
 
 	// TODO miscMapper
 //	@Autowired
@@ -252,6 +257,31 @@ public class MiscService {
 		finally {
 			return EmbedUtils.createSuccess("Operation completed.");
 		}
+	}
+
+	public MessageEmbedFile swaggerToExcel(SlashCommandInteractionEvent event) {
+		MessageEmbedFile messageEmbedFile = new MessageEmbedFile();
+		String msgSuffix = String.format(", you can also visit https://%s/swagge", miscProperties.getDomainName());
+
+		try {
+			OptionMapping file = event.getOption("json");
+			if (file != null) {
+				String fileExt = file.getAsAttachment().getFileExtension();
+				if (!"json".equals(fileExt)) {
+					messageEmbedFile.setMessageEmbed(EmbedUtils.createError("Require JSON file that ends with .json, you can also visit "));
+				}
+				messageEmbedFile.setFile(swaggerService.generateExcelFromSwaggerJson(file.getAsAttachment().getProxy().downloadToFile(File.createTempFile("swagger", fileExt)).get()));
+				messageEmbedFile.setMessageEmbed(EmbedUtils.createSuccess("Successfully generated"));
+				messageEmbedFile.setFileName(swaggerService.getFileName());
+			} else { // File is empty
+				messageEmbedFile.setMessageEmbed(EmbedUtils.createError(String.format("File is empty%s", msgSuffix)));
+			}
+		} catch(Exception e) {
+			messageToLog(String.format("MiscService - swaggerToExcel:\n%s", e));
+			messageEmbedFile.setMessageEmbed(EmbedUtils.createError(String.format("An unexpected error occurred%s", msgSuffix)));
+		}
+
+		return messageEmbedFile;
 	}
 
 }

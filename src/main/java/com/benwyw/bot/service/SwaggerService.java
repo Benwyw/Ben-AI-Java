@@ -15,6 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,22 +33,30 @@ public class SwaggerService {
 //	private ShardManager shardManager;
 
 	/**
+	 * Generate file name by system time
+	 * @return file name with timestamp
+	 */
+	public String getFileName() {
+		LocalDateTime now = LocalDateTime.now();
+		String formattedDate = now.format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
+		return String.format("swagger-%s.xlsx", formattedDate);
+	}
+
+	/**
 	 * Utility - Handle workbook to output directory
 	 * @param workbook generated XSSFWorkbook
 	 * @return path to output file
 	 * @throws IOException IOException
 	 */
 	@NotNull
-	private static Path getOutputFile(XSSFWorkbook workbook) throws IOException {
+	private Path getOutputFile(XSSFWorkbook workbook) throws IOException {
 		// Write the workbook to a file in the output directory
 		Path outputDir = Paths.get("output");
 		if (!Files.exists(outputDir)) {
 			Files.createDirectories(outputDir);
 		}
-		LocalDateTime now = LocalDateTime.now();
-		String formattedDate = now.format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
-		String filename = String.format("swagger-%s.xlsx", formattedDate);
-		Path outputFile = outputDir.resolve(filename);
+		String fileName = getFileName();
+		Path outputFile = outputDir.resolve(fileName);
 		workbook.write(Files.newOutputStream(outputFile));
 		workbook.close();
 		return outputFile;
@@ -180,8 +189,7 @@ public class SwaggerService {
 	public Resource generateExcelFromSwaggerJsonLocal(String jsonString) throws IOException {
 		// Read the Swagger JSON file into a Map
 		ObjectMapper objectMapper = new ObjectMapper();
-		Map<String, Object> data = objectMapper.readValue(jsonString, new TypeReference<Map<String, Object>>() {
-		});
+		Map<String, Object> data = objectMapper.readValue(jsonString, new TypeReference<>() {});
 
 		XSSFWorkbook workbook = generateWorkbook(data);
 
@@ -199,11 +207,34 @@ public class SwaggerService {
 	public void generateExcelFromSwaggerJson() throws IOException {
 		// Read the Swagger JSON file into a Map
 		ObjectMapper objectMapper = new ObjectMapper();
-		Map<String, Object> data = objectMapper.readValue(new File("swagger.json"), new TypeReference<Map<String, Object>>() {});
+		Map<String, Object> data = objectMapper.readValue(new File("swagger.json"), new TypeReference<>() {});
 
 		XSSFWorkbook workbook = generateWorkbook(data);
 
 		// Write the workbook to a file in the output directory
 		getOutputFile(workbook);
+	}
+
+	/**
+	 * Convertor - Read JSON text from submitted JSON file and return the Excel for Discord command
+	 * @throws IOException IOException
+	 */
+	public File generateExcelFromSwaggerJson(File file) throws IOException {
+		// Read the Swagger JSON file into a Map
+		ObjectMapper objectMapper = new ObjectMapper();
+		Map<String, Object> data = objectMapper.readValue(file, new TypeReference<>() {});
+
+		XSSFWorkbook workbook = generateWorkbook(data);
+
+		// Create a temp file
+		File tempFile = File.createTempFile("swagger-excel", ".xlsx");
+
+		// Write the workbook to the temp file
+		workbook.write(new FileOutputStream(tempFile));
+
+		log.info("tempFile.getName(): "+tempFile.getName());
+
+		// Return the temp file
+		return tempFile;
 	}
 }

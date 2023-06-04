@@ -4,6 +4,7 @@ import com.benwyw.bot.Main;
 import com.benwyw.bot.SpringContext;
 import com.benwyw.bot.commands.Category;
 import com.benwyw.bot.commands.Command;
+import com.benwyw.bot.data.MessageEmbedFile;
 import com.benwyw.bot.service.MiscService;
 import com.benwyw.util.embeds.EmbedUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +13,11 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
+import net.dv8tion.jda.api.utils.FileUpload;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.ObjectUtils;
+
+import java.io.File;
 
 /**
  * Command that configures user details related.
@@ -35,6 +40,11 @@ public class MiscCommand extends Command {
 						new OptionData(OptionType.ATTACHMENT, "image", "圖片")
 				)
 		);
+		this.subCommands.add(new SubcommandData("swagger_to_excel", "Convert Swagger text to Excel. (Web only)")
+				.addOptions(
+						new OptionData(OptionType.ATTACHMENT, "json", "JSON").setRequired(true)
+				)
+		);
 //        		.addOptions(new OptionData(OptionType.STRING, "riot_region", "RIOT LOL邊區")
 //        				.addChoice("TW", "TW")
 //        				.addChoice("NA", "NA")
@@ -51,12 +61,14 @@ public class MiscCommand extends Command {
 
 		MiscService miscService = SpringContext.getBean(MiscService.class);
 		MessageEmbed messageEmbed = null;
+		File file = null;
+		String fileName = null;
 //        String userId = event.getUser().getId();
         
         switch(event.getSubcommandName()) {
         	case "validate_joined_servers" -> {
-				/**
-				 * Owner only command
+				/*
+				  Owner only command
 				 */
 				if (event.getJDA().retrieveApplicationInfo().complete().getOwner().getId().equals(event.getUser().getId())) {
 					messageEmbed = miscService.validateJoinedServers();
@@ -66,8 +78,8 @@ public class MiscCommand extends Command {
 				}
         	}
 			case "announce" -> {
-				/**
-				 * Owner only command
+				/*
+				  Owner only command
 				 */
 				if (event.getJDA().retrieveApplicationInfo().complete().getOwner().getId().equals(event.getUser().getId())) {
 					messageEmbed = miscService.announce(event);
@@ -76,12 +88,28 @@ public class MiscCommand extends Command {
 					messageEmbed = EmbedUtils.createError("You do not have permission to do that.");
 				}
 			}
+			case "swagger_to_excel" -> {
+				MessageEmbedFile messageEmbedFile = miscService.swaggerToExcel(event);
+				messageEmbed = messageEmbedFile.getMessageEmbed();
+				file = messageEmbedFile.getFile();
+				fileName = messageEmbedFile.getFileName();
+			}
         }
 
 		if (ObjectUtils.isEmpty(messageEmbed)) {
 			messageEmbed = EmbedUtils.createError("messageEmbed is empty");
 		}
 
-        event.getHook().sendMessageEmbeds(messageEmbed).queue(); //EmbedUtils.createSuccess(text)
+		if (file != null) {
+			if (StringUtils.isNotBlank(fileName)) {
+				event.getHook().sendMessageEmbeds(messageEmbed).addFiles(FileUpload.fromData(file, fileName)).queue();
+			}
+			else {
+				event.getHook().sendMessageEmbeds(messageEmbed).addFiles(FileUpload.fromData(file)).queue();
+			}
+		}
+		else {
+			event.getHook().sendMessageEmbeds(messageEmbed).queue(); //EmbedUtils.createSuccess(text)
+		}
     }
 }

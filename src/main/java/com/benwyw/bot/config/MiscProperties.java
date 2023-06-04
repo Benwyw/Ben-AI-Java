@@ -16,4 +16,9 @@ public class MiscProperties {
 	 */
 	private List<Long> announce;
 
+	/*
+	misc.domain=${WEB.CATEGORY.ATTRIBUTE}
+	 */
+	private String domainName;
+
 }
