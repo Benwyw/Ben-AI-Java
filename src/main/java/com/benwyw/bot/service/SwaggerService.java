@@ -74,10 +74,21 @@ public class SwaggerService {
 
 		// Write headers for the summary, API method, and endpoint columns
 		Row headerRow = sheet.createRow(0);
-		headerRow.createCell(0).setCellValue("Function services");
-		headerRow.createCell(1).setCellValue("Program ID");
-		headerRow.createCell(2).setCellValue("HTTP Method");
-		headerRow.createCell(3).setCellValue("API Path");
+		headerRow.createCell(0).setCellValue("Module");
+		headerRow.createCell(1).setCellValue("Function services");
+		headerRow.createCell(2).setCellValue("Program ID");
+		headerRow.createCell(3).setCellValue("HTTP Method");
+		headerRow.createCell(4).setCellValue("API Path");
+
+		// Set module
+		String module = "";
+		Map<String, Map<String, Object>> infos = (Map<String, Map<String, Object>>) data.get("info");
+		for (String infoType : infos.keySet()) {
+			if ("title".equals(infoType)) {
+				module = String.valueOf(infos.get(infoType));
+				break;
+			}
+		}
 
 		// Loop through each endpoint and method in the Swagger JSON file and write the summary, API method, and endpoint to the worksheet
 		int row = 1;
@@ -89,10 +100,11 @@ public class SwaggerService {
 				String summary = (String) attributes.getOrDefault("summary", "");
 				String description = (String) attributes.getOrDefault("description", "");
 				Row dataRow = sheet.createRow(row++);
-				dataRow.createCell(0).setCellValue(summary);
-				dataRow.createCell(1).setCellValue(description);
-				dataRow.createCell(2).setCellValue(method);
-				dataRow.createCell(3).setCellValue(endpoint);
+				dataRow.createCell(0).setCellValue(module);
+				dataRow.createCell(1).setCellValue(summary);
+				dataRow.createCell(2).setCellValue(description);
+				dataRow.createCell(3).setCellValue(method.toUpperCase());
+				dataRow.createCell(4).setCellValue(endpoint);
 			}
 		}
 
