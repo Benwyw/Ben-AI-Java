@@ -5,7 +5,7 @@
 
   <groupId>com.benwyw</groupId>
   <artifactId>Ben-AI-Java</artifactId>
-  <version>v0.0.46</version>
+  <version>v0.0.47</version>
   <packaging>jar</packaging>
 
   <name>Ben-AI-Java</name>
@@ -173,6 +173,25 @@
 	  <groupId>org.springframework.boot</groupId>
 	  <artifactId>spring-boot-configuration-processor</artifactId>
 	  <optional>true</optional>
+	</dependency>
+
+	<!-- Jackson library for reading JSON files -->
+	<dependency>
+	  <groupId>com.fasterxml.jackson.core</groupId>
+	  <artifactId>jackson-databind</artifactId>
+	  <version>2.12.5</version>
+	</dependency>
+
+	<!-- Apache POI library for working with Excel files -->
+	<dependency>
+	  <groupId>org.apache.poi</groupId>
+	  <artifactId>poi</artifactId>
+	  <version>4.1.2</version>
+	</dependency>
+	<dependency>
+	  <groupId>org.apache.poi</groupId>
+	  <artifactId>poi-ooxml</artifactId>
+	  <version>4.1.2</version>
 	</dependency>
 
   </dependencies>
