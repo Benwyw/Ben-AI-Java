@@ -13,10 +13,9 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -220,6 +219,36 @@ public class SwaggerService {
 		// Read the Swagger JSON file into a Map
 		ObjectMapper objectMapper = new ObjectMapper();
 		Map<String, Object> data = objectMapper.readValue(new File("swagger.json"), new TypeReference<>() {});
+
+		XSSFWorkbook workbook = generateWorkbook(data);
+
+		// Write the workbook to a file in the output directory
+		getOutputFile(workbook);
+	}
+
+	/**
+	 * Convertor - Read JSON text from URL and output the Excel to output directory for Local machine
+	 * @throws IOException IOException
+	 */
+	public void generateExcelFromSwaggerJsonUrl() throws IOException {
+		// Fetch the Swagger JSON content from a URL
+		String swaggerJsonUrl = "https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/examples/v2.0/json/petstore-simple.json";
+		URL url = new URL(swaggerJsonUrl);
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		connection.setRequestMethod("GET");
+		connection.setRequestProperty("Accept", "application/json");
+		InputStream inputStream = connection.getInputStream();
+		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+		StringBuilder responseBuilder = new StringBuilder();
+		String line;
+		while ((line = bufferedReader.readLine()) != null) {
+			responseBuilder.append(line);
+		}
+		String swaggerJsonContent = responseBuilder.toString();
+
+		// Parse the Swagger JSON content into a Map
+		ObjectMapper objectMapper = new ObjectMapper();
+		Map<String, Object> data = objectMapper.readValue(swaggerJsonContent, new TypeReference<>() {});
 
 		XSSFWorkbook workbook = generateWorkbook(data);
 

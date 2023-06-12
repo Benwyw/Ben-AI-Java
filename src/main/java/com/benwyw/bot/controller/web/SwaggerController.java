@@ -109,4 +109,14 @@ public class SwaggerController {
 		swaggerService.generateExcelFromSwaggerJson();
 	}
 
+	/**
+	 * Generate Excel to output directory with Swagger JSON URL in Local machine
+	 * @throws IOException
+	 */
+	@GetMapping("/generateExcelFromSwaggerJsonUrl")
+	@Profile("local")
+	public void generateExcelFromSwaggerJsonUrl() throws IOException {
+		swaggerService.generateExcelFromSwaggerJsonUrl();
+	}
+
 }
