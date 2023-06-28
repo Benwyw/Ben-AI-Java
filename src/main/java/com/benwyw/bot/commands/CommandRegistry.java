@@ -27,6 +27,7 @@ import com.benwyw.bot.commands.music.VolumeCommand;
 import com.benwyw.bot.commands.user.UserDetailsCommand;
 import com.benwyw.bot.data.GuildData;
 import com.benwyw.util.embeds.EmbedUtils;
+import org.springframework.context.annotation.Profile;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -139,6 +140,7 @@ public class CommandRegistry extends ListenerAdapter {
      *
      * @param event executes when a guild is ready.
      */
+    @Profile("local")
     @Override
     public void onGuildReady(@NotNull GuildReadyEvent event) {
         // Get GuildData from database
