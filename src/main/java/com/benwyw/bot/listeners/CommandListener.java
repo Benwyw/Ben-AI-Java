@@ -1,18 +1,17 @@
 package com.benwyw.bot.listeners;
 
 import com.benwyw.bot.SpringContext;
-import com.benwyw.bot.service.MiscService;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.stereotype.Component;
-
 import com.benwyw.bot.commands.CommandRegistry;
 import com.benwyw.bot.commands.RolesCommand;
 import com.benwyw.bot.data.GuildData;
-
+import com.benwyw.bot.service.MiscService;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.stereotype.Component;
 
 @Component
 public class CommandListener extends ListenerAdapter {
@@ -65,10 +64,13 @@ public class CommandListener extends ListenerAdapter {
 	/**
 	 * Global command -- up to an hour to update (unlimited)
 	 */
-//	@Override
-//	public void onReady(ReadyEvent event) {
+	@Override
+	public void onReady(ReadyEvent event) {
 //		List<CommandData> commandData = new ArrayList<>();
 //		commandData.add(Commands.slash("welcome", "Get welcomed by the bot."));
 //		event.getJDA().updateCommands().addCommands(commandData).queue();
-//	}
+
+		// Register global slash commands
+		event.getJDA().updateCommands().addCommands(CommandRegistry.unpackCommandData()).queue(succ -> {}, fail -> {});
+	}
 }
