@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -34,6 +35,7 @@ public class CommandListener extends ListenerAdapter {
 	/**
 	 * Guild command -- instantly updated (max 100)
 	 */
+	@Profile("local")
 	@Override
 	public void onGuildReady(GuildReadyEvent event) {
 //		List<CommandData> commandData = new ArrayList<>();
@@ -64,6 +66,7 @@ public class CommandListener extends ListenerAdapter {
 	/**
 	 * Global command -- up to an hour to update (unlimited)
 	 */
+	@Profile("!local")
 	@Override
 	public void onReady(ReadyEvent event) {
 //		List<CommandData> commandData = new ArrayList<>();
