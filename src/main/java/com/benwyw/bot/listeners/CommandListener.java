@@ -20,15 +20,13 @@ public class CommandListener extends ListenerAdapter {
 	@Override
 	public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
 		String command = event.getName();
-		
-		switch(command) {
-		case "welcome":
-			String userTag = event.getUser().getAsTag();
-			event.reply(String.format("WELCOME **%s**!",userTag)).queue();
-			break;
-		case "roles":
-			new RolesCommand(event);
-			break;
+
+		switch (command) {
+			case "welcome" -> {
+				String userTag = event.getUser().getAsTag();
+				event.reply(String.format("WELCOME **%s**!", userTag)).queue();
+			}
+			case "roles" -> new RolesCommand(event);
 		}
 	}
 
@@ -46,9 +44,15 @@ public class CommandListener extends ListenerAdapter {
 //		if (event.getGuild().getIdLong() == 763404947500564500L) {
 //			
 //		}
-		GuildData.get(event.getGuild());
-		event.getGuild().updateCommands().addCommands(CommandRegistry.unpackCommandData()).queue();
-	
+
+		// Clear Global registered command, avoid duplications
+//		event.getJDA().updateCommands().addCommands(new ArrayList<>()).queue(succ -> {}, fail -> {});
+
+		MiscService miscService = SpringContext.getBean(MiscService.class);
+		if (miscService.validateJoinedServers(event.getGuild())) {
+			GuildData.get(event.getGuild());
+			event.getGuild().updateCommands().addCommands(CommandRegistry.unpackCommandData()).queue();
+		}
 	}
 
 	@Profile("local")
