@@ -48,11 +48,8 @@ public class CommandListener extends ListenerAdapter {
 		// Clear Global registered command, avoid duplications
 //		event.getJDA().updateCommands().addCommands(new ArrayList<>()).queue(succ -> {}, fail -> {});
 
-		MiscService miscService = SpringContext.getBean(MiscService.class);
-		if (miscService.validateJoinedServers(event.getGuild())) {
-			GuildData.get(event.getGuild());
-			event.getGuild().updateCommands().addCommands(CommandRegistry.unpackCommandData()).queue();
-		}
+		GuildData.get(event.getGuild());
+		event.getGuild().updateCommands().addCommands(CommandRegistry.unpackCommandData()).queue();
 	}
 
 	@Profile("local")
