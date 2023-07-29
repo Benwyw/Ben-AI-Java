@@ -259,6 +259,11 @@ public class MiscService {
 		}
 	}
 
+	/**
+	 * Convert Swagger to Excel
+	 * @param event
+	 * @return
+	 */
 	public MessageEmbedFile swaggerToExcel(SlashCommandInteractionEvent event) {
 		MessageEmbedFile messageEmbedFile = new MessageEmbedFile();
 		String msgSuffix = String.format(", you can also visit https://%s/swagge", miscProperties.getDomainName());

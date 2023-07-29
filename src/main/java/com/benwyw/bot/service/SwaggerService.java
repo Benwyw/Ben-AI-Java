@@ -11,6 +11,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.io.*;
@@ -22,6 +23,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -277,5 +279,122 @@ public class SwaggerService {
 
 		// Return the temp file
 		return tempFile;
+	}
+
+	/**
+	 * Thread sleep based on ms passed in
+	 * @param remainingTimeMillis ms
+	 */
+	private static void sleep(long remainingTimeMillis) {
+		while (remainingTimeMillis > 0) {
+			log.info("Sleeping for " + TimeUnit.MILLISECONDS.toSeconds(remainingTimeMillis) + " seconds remaining");
+
+			try {
+				Thread.sleep(Math.min(remainingTimeMillis, 1000)); // Sleep for up to 1 second at a time
+			} catch (Exception e) { // InterruptedException
+				e.printStackTrace();
+			}
+
+			remainingTimeMillis -= 1000; // Subtract 1 second from remaining time
+		}
+	}
+
+	/**
+	 * Trigger in background with real-time progress in server log only
+	 * Experimental thread sleep
+	 * @return Status
+	 */
+	public ResponseEntity<String> getThread() {
+		try {
+			new Thread(() -> {
+				log.info("Pause execution thread started");
+				try {
+					sleep(TimeUnit.SECONDS.toMillis(10));
+				} catch (Exception e) {
+					log.error("Sleep interrupted", e);
+				}
+			}).start();
+			return ResponseEntity.ok("Long running task started in the background.");
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(String.format("Error starting long running task: %s", e.getMessage()));
+		}
+	}
+
+//	public SseEmitter getProgress() {
+//		SseEmitter emitter = new SseEmitter();
+//
+//		new Thread(() -> {
+//			int total = 10;
+//			int progress = 0;
+//
+//			while (progress < total) {
+//				try {
+//					sleep(TimeUnit.SECONDS.toMillis(10)); // Sleep for 1 second
+//					progress++;
+//					double percentage = (double) progress / total * 100;
+//					emitter.send(SseEmitter.event().data(String.format("%.2f%%", percentage))); // Send progress update
+//				} catch (Exception e) {
+//					emitter.completeWithError(e); // Complete the emitter if an error occurs
+//					return;
+//				}
+//			}
+//
+//			emitter.complete(); // Complete the emitter when done
+//		}).start();
+//
+//		return emitter;
+//	}
+
+	/**
+	 * Thread sleep based on ms passed in
+	 * @param remainingTimeMillis ms
+	 * @param emitter SseEmitter to send progress updates to the client
+	 */
+	private static void sleep(long remainingTimeMillis, SseEmitter emitter) {
+		while (remainingTimeMillis > 0) {
+			float percentageComplete = 100 * (1 - ((float)remainingTimeMillis / TimeUnit.SECONDS.toMillis(10)));
+			try {
+				emitter.send(SseEmitter.event().data(percentageComplete));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			try {
+				Thread.sleep(Math.min(remainingTimeMillis, 1000)); // Sleep for up to 1 second at a time
+			} catch (Exception e) { // InterruptedException
+				e.printStackTrace();
+			}
+
+			remainingTimeMillis -= 1000; // Subtract 1 second from remaining time
+		}
+
+		try {
+			emitter.send(SseEmitter.event().data(100f)); // Report completion
+			emitter.complete();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Trigger with real-time progress to client directly
+	 * Experimental thread sleep
+	 * @return Status
+	 */
+	public SseEmitter getProgress() {
+		SseEmitter emitter = new SseEmitter();
+		try {
+			new Thread(() -> {
+				log.info("Pause execution thread started");
+				try {
+					sleep(TimeUnit.SECONDS.toMillis(10), emitter);
+				} catch (Exception e) {
+					log.error("Sleep interrupted", e);
+				}
+			}).start();
+		} catch (Exception e) {
+			emitter.completeWithError(e);
+		}
+		return emitter;
 	}
 }

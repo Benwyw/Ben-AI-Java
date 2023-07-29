@@ -7,11 +7,9 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
-import org.springframework.http.ContentDisposition;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.io.IOException;
@@ -36,8 +34,8 @@ public class SwaggerController {
 	 * Generate Excel with Swagger JSON passed in Frontend
 	 * Deprecated
 	 * @param jsonString Swagger JSON text
-	 * @return
-	 * @throws IOException
+	 * @return ResponseEntity<byte[]>
+	 * @throws IOException IOException
 	 */
 	@Deprecated
 	@PostMapping("/jsonStringToExcel")
@@ -49,8 +47,8 @@ public class SwaggerController {
 	/**
 	 * Generate Excel with Swagger JSON passed in Frontend
 	 * @param jsonString Swagger JSON text
-	 * @return
-	 * @throws IOException
+	 * @return ResponseEntity<StreamingResponseBody>
+	 * @throws IOException IOException
 	 */
 	@PostMapping("/generateExcelFromSwaggerJson")
 	public ResponseEntity<StreamingResponseBody> generateExcelFromSwaggerJson(@RequestBody String jsonString) throws IOException {
@@ -60,8 +58,8 @@ public class SwaggerController {
 	/**
 	 * Generate Excel to output directory with Swagger JSON passed in API call in Local machine
 	 * @param jsonString Swagger JSON text
-	 * @return
-	 * @throws IOException
+	 * @return ResponseEntity<Resource>
+	 * @throws IOException IOException
 	 */
 	@PostMapping("/generateExcelFromSwaggerJsonLocal")
 	@Profile("local")
@@ -81,11 +79,10 @@ public class SwaggerController {
 	 * Download file intend to work with generateExcelFromSwaggerJsonLocal in Local machine
 	 * @param filename in output directory
 	 * @return file download
-	 * @throws IOException
 	 */
 	@GetMapping("/download/{filename:.+}")
 	@Profile("local")
-	public ResponseEntity<Resource> downloadFile(@PathVariable String filename) throws IOException {
+	public ResponseEntity<Resource> downloadFile(@PathVariable String filename) {
 		// Create a FileSystemResource for the file and return it as the response body
 		Path file = Paths.get("output").resolve(filename);
 		Resource resource = new FileSystemResource(file.toFile());
@@ -101,7 +98,7 @@ public class SwaggerController {
 
 	/**
 	 * Generate Excel to output directory with Swagger JSON swagger.json file in Local machine
-	 * @throws IOException
+	 * @throws IOException IOException
 	 */
 	@GetMapping("/generateExcelFromSwaggerJson")
 	@Profile("local")
@@ -111,12 +108,35 @@ public class SwaggerController {
 
 	/**
 	 * Generate Excel to output directory with Swagger JSON URL in Local machine
-	 * @throws IOException
+	 * @throws IOException IOException
 	 */
 	@GetMapping("/generateExcelFromSwaggerJsonUrl")
 	@Profile("local")
 	public void generateExcelFromSwaggerJsonUrl() throws IOException {
 		swaggerService.generateExcelFromSwaggerJsonUrl();
+	}
+
+	/**
+	 * Trigger in background with real-time progress in server log only
+	 * Experiment with long-running task with Thread
+	 * @return Triggered message
+	 */
+	@GetMapping("/getThread")
+	@Profile("local")
+	@ResponseStatus(HttpStatus.OK)
+	public ResponseEntity<String> getThread() {
+		return swaggerService.getThread();
+	}
+
+	/**
+	 * Trigger with real-time progress to client directly
+	 * Experiment with long-running task with Thread
+	 * @return Real-time progress
+	 */
+	@GetMapping(value = "/getProgress", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	@Profile("local")
+	public SseEmitter getProgress() {
+		return swaggerService.getProgress();
 	}
 
 }
