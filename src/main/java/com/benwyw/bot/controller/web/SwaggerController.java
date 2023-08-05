@@ -139,4 +139,10 @@ public class SwaggerController {
 		return swaggerService.getProgress();
 	}
 
+	@GetMapping(value = "/triggerMultithread")
+	@Profile("local")
+	public void triggerMultithread() {
+		swaggerService.asyncMultithreadMethod();
+	}
+
 }

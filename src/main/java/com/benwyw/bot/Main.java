@@ -1,14 +1,21 @@
 package com.benwyw.bot;
 
-import java.net.UnknownHostException;
-import java.util.HashMap;
-
-import javax.security.auth.login.LoginException;
-import javax.sql.DataSource;
-
+import com.benwyw.bot.commands.CommandRegistry;
+import com.benwyw.bot.data.GuildData;
+import com.benwyw.bot.listeners.ButtonListener;
+import com.benwyw.bot.listeners.CommandListener;
+import com.benwyw.bot.listeners.MessageListener;
+import com.benwyw.bot.listeners.MusicListener;
+import io.github.cdimascio.dotenv.Dotenv;
+import jakarta.annotation.PreDestroy;
+import lombok.extern.slf4j.Slf4j;
+import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
+import net.dv8tion.jda.api.sharding.ShardManager;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -17,37 +24,38 @@ import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-import com.benwyw.bot.commands.CommandRegistry;
-import com.benwyw.bot.data.GuildData;
-import com.benwyw.bot.listeners.ButtonListener;
-import com.benwyw.bot.listeners.CommandListener;
-import com.benwyw.bot.listeners.MessageListener;
-import com.benwyw.bot.listeners.MusicListener;
-
-import io.github.cdimascio.dotenv.Dotenv;
-import jakarta.annotation.PreDestroy;
-import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.OnlineStatus;
-import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.requests.GatewayIntent;
-import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
-import net.dv8tion.jda.api.sharding.ShardManager;
-import net.dv8tion.jda.api.utils.MemberCachePolicy;
+import javax.sql.DataSource;
+import java.net.UnknownHostException;
 
 @Slf4j
 @Configuration
 @EnableConfigurationProperties
 @EnableScheduling
 @EnableCaching
+@EnableAsync
 //@PropertySource("classpath:application.properties")
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
 public class Main {
+
+//	@Configuration
+//	@EnableAsync
+//	public class AsyncConfiguration implements AsyncConfigurer {
+//		@Bean(name = "asyncExecutor")
+//		public Executor getAsyncExecutor() {
+//			ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+//			executor.setCorePoolSize(10);
+//			executor.setMaxPoolSize(20);
+//			executor.setQueueCapacity(100);
+//			executor.setThreadNamePrefix("AsyncExecutor-");
+//			executor.initialize();
+//			return executor;
+//		}
+//
+//		// Other overridden methods if needed
+//	}
 
 //	public final @NotNull Dotenv config;
 //	public final @NotNull ShardManager shardManager;

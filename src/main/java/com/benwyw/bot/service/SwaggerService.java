@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.*;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
@@ -23,6 +24,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -396,5 +398,65 @@ public class SwaggerService {
 			emitter.completeWithError(e);
 		}
 		return emitter;
+	}
+
+	@Async()
+	protected CompletableFuture<String> asyncMethod() {
+		/* Can be achieved with the same result, but only one static return at the end
+		return CompletableFuture.supplyAsync(() -> {
+		   return "Completed";
+		});
+		 */
+
+//		CompletableFuture<String> future = new CompletableFuture<>();
+//
+//		// Async logic here
+//		for (int i = 0; i < 10; i++) {
+//			log.info(String.format("%s - %s", Thread.currentThread().getName(), i));
+//		}
+//
+//		// Complete the future when the async task is finished
+//		future.complete(String.format("Async method completed successfully for %s", Thread.currentThread().getName()));
+//		return future;
+
+
+		return CompletableFuture.supplyAsync(() -> {
+
+			// Async logic here
+			for (int i = 0; i < 10; i++) {
+				log.info(String.format("%s - %s", Thread.currentThread().getName(), i));
+			}
+
+			// Complete the future when the async task is finished
+			return String.format("Async method completed successfully for %s", Thread.currentThread().getName());
+		});
+	}
+
+	@Async()
+	protected void anotherAsyncMethod(String str) {
+		log.info(str);
+	}
+
+	@Async()
+	public void asyncMultithreadMethod() {
+		log.info("Started future1");
+		CompletableFuture<String> future1 = asyncMethod();
+		log.info("Started future2");
+		CompletableFuture<String> future2 = asyncMethod();
+		log.info("Started future3");
+		CompletableFuture<String> future3 = asyncMethod();
+		log.info("Started future4");
+		CompletableFuture<String> future4 = asyncMethod();
+		log.info("Started future5");
+		CompletableFuture<String> future5 = asyncMethod();
+
+		CompletableFuture<Void> combinedFuture = CompletableFuture.allOf(future1, future2, future3, future4, future5);
+		combinedFuture.thenRun(() -> {
+			future1.thenAcceptAsync(this::anotherAsyncMethod); // result -> anotherAsyncMethod(result)
+			future2.thenAcceptAsync(this::anotherAsyncMethod);
+			future3.thenAcceptAsync(this::anotherAsyncMethod);
+			future4.thenAcceptAsync(this::anotherAsyncMethod);
+			future5.thenAcceptAsync(this::anotherAsyncMethod);
+		});
 	}
 }
