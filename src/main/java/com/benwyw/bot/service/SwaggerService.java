@@ -400,7 +400,7 @@ public class SwaggerService {
 		return emitter;
 	}
 
-	@Async()
+	@Async
 	protected CompletableFuture<String> asyncMethod() {
 		/* Can be achieved with the same result, but only one static return at the end
 		return CompletableFuture.supplyAsync(() -> {
@@ -432,12 +432,12 @@ public class SwaggerService {
 		});
 	}
 
-	@Async()
+	@Async
 	protected void anotherAsyncMethod(String str) {
 		log.info(str);
 	}
 
-	@Async()
+	@Async
 	public void asyncMultithreadMethod() {
 		log.info("Started future1");
 		CompletableFuture<String> future1 = asyncMethod();
