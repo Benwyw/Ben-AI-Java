@@ -12,7 +12,6 @@ import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Component;
@@ -38,10 +37,30 @@ public class CommandListener extends ListenerAdapter {
 		}
 	}
 
+//	private void clearCommands(GuildReadyEvent event) {
+//		// Clear Global registered command, avoid duplications
+//		event.getJDA().updateCommands().addCommands(new ArrayList<>()).queue(succ -> {}, fail -> {});
+//
+//		// Clear Guild registered command, avoid duplications
+//		event.getGuild().updateCommands().addCommands(new ArrayList<>()).queue(succ -> {}, fail -> {});
+//	}
+//
+//	private void clearCommands(GuildJoinEvent event) {
+//		// Clear Global registered command, avoid duplications
+//		event.getJDA().updateCommands().addCommands(new ArrayList<>()).queue(succ -> {}, fail -> {});
+//
+//		// Clear Guild registered command, avoid duplications
+//		event.getGuild().updateCommands().addCommands(new ArrayList<>()).queue(succ -> {}, fail -> {});
+//	}
+//
+//	private void clearCommands(ReadyEvent event) {
+//		// Clear Global registered command, avoid duplications
+//		event.getJDA().updateCommands().addCommands(new ArrayList<>()).queue(succ -> {}, fail -> {});
+//	}
+
 	/**
 	 * Guild command -- instantly updated (max 100)
 	 */
-	@Profile("local")
 	@Override
 	public void onGuildReady(GuildReadyEvent event) {
 //		List<CommandData> commandData = new ArrayList<>();
@@ -56,8 +75,13 @@ public class CommandListener extends ListenerAdapter {
 		// Clear Global registered command, avoid duplications
 //		event.getJDA().updateCommands().addCommands(new ArrayList<>()).queue(succ -> {}, fail -> {});
 
-		GuildData.get(event.getGuild());
-		event.getGuild().updateCommands().addCommands(CommandRegistry.unpackCommandData()).queue();
+		if (env.acceptsProfiles(Profiles.of("local"))) {
+			GuildData.get(event.getGuild());
+			event.getGuild().updateCommands().addCommands(CommandRegistry.unpackCommandData()).queue();
+		}
+		else {
+			event.getGuild().updateCommands().addCommands(new ArrayList<>()).queue(succ -> {}, fail -> {});
+		}
 	}
 
 	@Override
@@ -73,9 +97,6 @@ public class CommandListener extends ListenerAdapter {
 				event.getGuild().updateCommands().addCommands(CommandRegistry.unpackCommandData()).queue();
 			}
 			else {
-				// Clear Global registered command, avoid duplications
-				event.getJDA().updateCommands().addCommands(new ArrayList<>()).queue(succ -> {}, fail -> {});
-
 				// Register global slash commands
 				event.getJDA().updateCommands().addCommands(CommandRegistry.unpackCommandData()).queue(succ -> {}, fail -> {});
 			}
@@ -85,17 +106,15 @@ public class CommandListener extends ListenerAdapter {
 	/**
 	 * Global command -- up to an hour to update (unlimited)
 	 */
-	@Profile("!local")
 	@Override
 	public void onReady(ReadyEvent event) {
-//		List<CommandData> commandData = new ArrayList<>();
-//		commandData.add(Commands.slash("welcome", "Get welcomed by the bot."));
-//		event.getJDA().updateCommands().addCommands(commandData).queue();
+		if (!env.acceptsProfiles(Profiles.of("local"))) {
+	//		List<CommandData> commandData = new ArrayList<>();
+	//		commandData.add(Commands.slash("welcome", "Get welcomed by the bot."));
+	//		event.getJDA().updateCommands().addCommands(commandData).queue();
 
-		// Clear Global registered command, avoid duplications
-		event.getJDA().updateCommands().addCommands(new ArrayList<>()).queue(succ -> {}, fail -> {});
-
-		// Register global slash commands
-		event.getJDA().updateCommands().addCommands(CommandRegistry.unpackCommandData()).queue(succ -> {}, fail -> {});
+			// Register global slash commands
+			event.getJDA().updateCommands().addCommands(CommandRegistry.unpackCommandData()).queue(succ -> {}, fail -> {});
+		}
 	}
 }
