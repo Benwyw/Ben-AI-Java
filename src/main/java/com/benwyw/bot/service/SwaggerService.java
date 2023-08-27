@@ -2,7 +2,10 @@ package com.benwyw.bot.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.opencsv.CSVWriter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -16,6 +19,9 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.io.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
@@ -23,6 +29,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -458,5 +467,111 @@ public class SwaggerService {
 			future4.thenAcceptAsync(this::anotherAsyncMethod);
 			future5.thenAcceptAsync(this::anotherAsyncMethod);
 		});
+	}
+
+	/**
+	 * Print list of any object to line by line with CSVWriter
+	 * @param list List<T>
+	 * @param writer CSVWriter
+	 * @return CSVWriter
+	 * @throws NoSuchMethodException NoSuchMethodException
+	 * @throws InvocationTargetException InvocationTargetException
+	 * @throws IllegalAccessException IllegalAccessException
+	 */
+	private <T> CSVWriter printList(List<T> list, CSVWriter writer) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+		if (list == null || list.isEmpty() || ObjectUtils.isEmpty(list.get(0))) {
+			return writer;
+		}
+
+		// Get the list of property names from the first object in the list
+		T firstObject = list.get(0);
+		Field[] fields = firstObject.getClass().getDeclaredFields();
+		List<String> propertyNames = new ArrayList<>();
+		for (Field field : fields) {
+			propertyNames.add(field.getName());
+		}
+
+		// First row
+//		writer.writeNext(propertyNames.toArray(new String[0]));
+
+		// Write the values to the CSV file
+		for (T object : list) {
+			List<String> values = new ArrayList<>();
+
+			for(String propertyName : propertyNames) {
+				// Get the value of the property using reflection
+				Method method = object.getClass().getMethod("get" + StringUtils.capitalize(propertyName));
+				Object value = method.invoke(object);
+
+				// Convert the value to a string and add it to the list of values
+				if (value == null || value == "null") {
+					values.add("");
+				}
+				else if (value.toString().contains(",")) {
+					values.add(String.format("\"%s\"", value));
+				}
+				else {
+					values.add(String.format("=\"%s\"", value));
+				}
+			}
+
+			writer.writeNext(values.toArray(new String[0]));
+		}
+
+		return writer;
+	}
+
+	/**
+	 * Create CSV File
+	 * @return File
+	 * @throws Exception Exception
+	 */
+	public File createCSVFile() throws Exception {
+		// Temp variables for passed in object
+		List<String> upHeader = Arrays.asList("uH1", "uH2", "uH3");
+		List<String> upBody = Arrays.asList("uB1", "uB2", "uB3");
+		List<String> downHeader = Arrays.asList("dH1", "dH2", "dH3");
+		List<String> downBody = Arrays.asList("dB1", "dB2", "dB3");
+		String reportId = "Test";
+		String fileType = ".csv";
+		String dedicatedPath = "D:/";
+
+		// Construct unique file name
+		LocalDateTime localDateTime = LocalDateTime.now();
+		String date = localDateTime.format(DateTimeFormatter.BASIC_ISO_DATE);
+		String fileName = String.format("%s_%s_%s", reportId, date, fileType);
+		String fullPath = dedicatedPath + fileName;
+
+		// Additional pre-header operations adds here
+		// ...
+
+		// Create CSV File
+		File file = new File(fullPath);
+		File parentFile = file.getParentFile();
+		if (parentFile != null && !parentFile.exists()) {
+			parentFile.mkdirs();
+		}
+		file.createNewFile();
+
+		// Initialize writers
+		FileWriter fileWriter = new FileWriter(file, false);
+		CSVWriter csvWriter = new CSVWriter(fileWriter);
+
+		// Write to CSV
+		try {
+			// Header
+			for (int count = 0; count < upHeader.size(); count++) {
+				csvWriter.writeNext(new String[] {upHeader.get(count), upBody.get(count)});
+			}
+
+			// Body
+			csvWriter.writeNext(downHeader.toArray(String[]::new));
+			printList(downBody, csvWriter);
+		} finally {
+			csvWriter.flush();
+			csvWriter.close();
+		}
+
+		return file;
 	}
 }
