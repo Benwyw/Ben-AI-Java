@@ -11,11 +11,19 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
 
 @Component
 public class CommandListener extends ListenerAdapter {
+
+	@Autowired
+	private Environment env;
 
 	@Override
 	public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
@@ -52,7 +60,6 @@ public class CommandListener extends ListenerAdapter {
 		event.getGuild().updateCommands().addCommands(CommandRegistry.unpackCommandData()).queue();
 	}
 
-	@Profile("local")
 	@Override
 	public void onGuildJoin(@NotNull GuildJoinEvent event) {
 //		List<CommandData> commandData = new ArrayList<>();
@@ -60,8 +67,18 @@ public class CommandListener extends ListenerAdapter {
 //		event.getGuild().updateCommands().addCommands(commandData).queue();
 		MiscService miscService = SpringContext.getBean(MiscService.class);
 		if (miscService.validateJoinedServers(event.getGuild())) {
-			GuildData.get(event.getGuild());
-			event.getGuild().updateCommands().addCommands(CommandRegistry.unpackCommandData()).queue();
+
+			if (env.acceptsProfiles(Profiles.of("local"))) {
+				GuildData.get(event.getGuild());
+				event.getGuild().updateCommands().addCommands(CommandRegistry.unpackCommandData()).queue();
+			}
+			else {
+				// Clear Global registered command, avoid duplications
+				event.getJDA().updateCommands().addCommands(new ArrayList<>()).queue(succ -> {}, fail -> {});
+
+				// Register global slash commands
+				event.getJDA().updateCommands().addCommands(CommandRegistry.unpackCommandData()).queue(succ -> {}, fail -> {});
+			}
 		}
 	}
 
@@ -74,6 +91,9 @@ public class CommandListener extends ListenerAdapter {
 //		List<CommandData> commandData = new ArrayList<>();
 //		commandData.add(Commands.slash("welcome", "Get welcomed by the bot."));
 //		event.getJDA().updateCommands().addCommands(commandData).queue();
+
+		// Clear Global registered command, avoid duplications
+		event.getJDA().updateCommands().addCommands(new ArrayList<>()).queue(succ -> {}, fail -> {});
 
 		// Register global slash commands
 		event.getJDA().updateCommands().addCommands(CommandRegistry.unpackCommandData()).queue(succ -> {}, fail -> {});
