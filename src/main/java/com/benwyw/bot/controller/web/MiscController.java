@@ -32,4 +32,9 @@ public class MiscController {
 		return miscService.getUserBase();
 	}
 
+	@GetMapping("/version")
+	public String getVersion() {
+		return miscService.getVersion();
+	}
+
 }
