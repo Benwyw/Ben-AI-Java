@@ -45,6 +45,7 @@ public class MiscCommand extends Command {
 						new OptionData(OptionType.ATTACHMENT, "json", "JSON").setRequired(true)
 				)
 		);
+		this.subCommands.add(new SubcommandData("version", "Get bot version."));
 //        		.addOptions(new OptionData(OptionType.STRING, "riot_region", "RIOT LOL邊區")
 //        				.addChoice("TW", "TW")
 //        				.addChoice("NA", "NA")
@@ -93,6 +94,15 @@ public class MiscCommand extends Command {
 				messageEmbed = messageEmbedFile.getMessageEmbed();
 				file = messageEmbedFile.getFile();
 				fileName = messageEmbedFile.getFileName();
+			}
+			case "version" -> {
+				String version = miscService.getVersion();
+				if (StringUtils.isNotBlank(version)) {
+					messageEmbed = EmbedUtils.createSuccess(version);
+				}
+				else {
+					messageEmbed = EmbedUtils.createError("Version is empty.");
+				}
 			}
         }
 
