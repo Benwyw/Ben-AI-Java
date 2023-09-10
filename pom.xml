@@ -5,7 +5,7 @@
 
   <groupId>com.benwyw</groupId>
   <artifactId>Ben-AI-Java</artifactId>
-  <version>v0.0.58</version>
+  <version>v0.0.59</version>
   <packaging>jar</packaging>
 
   <name>Ben-AI-Java</name>
@@ -205,6 +205,13 @@
 		  <groupId>commons-io</groupId>
 		  <artifactId>commons-io</artifactId>
 		  <version>2.13.0</version>
+	  </dependency>
+
+	  <!-- https://mvnrepository.com/artifact/com.baomidou/mybatis-plus-extension -->
+	  <dependency>
+		  <groupId>com.baomidou</groupId>
+		  <artifactId>mybatis-plus-extension</artifactId>
+		  <version>3.5.3.2</version>
 	  </dependency>
 
   </dependencies>

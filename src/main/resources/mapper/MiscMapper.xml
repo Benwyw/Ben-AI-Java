@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.benwyw.bot.mapper.MiscMapper">
+
+	<resultMap id="featuresMap" type="com.benwyw.bot.data.Feature">
+		<id property="featureId" column="FEATURE_ID" />
+		<result property="featureName" column="FEATURE_NAME" />
+		<result property="featureDescription" column="FEATURE_DESCRIPTION" />
+		<result property="parentId" column="PARENT_ID" />
+	</resultMap>
+
+	<select id="getFeatures" resultMap="featuresMap">
+		SELECT *
+		FROM FEATURES
+		ORDER BY FEATURE_ID
+		OFFSET #{current}-1 ROWS
+		<if test="size > 0">
+		FETCH NEXT #{size} ROWS ONLY
+		</if>
+	</select>
+
+	<select id="getFeaturesCount" resultType="long">
+		SELECT COUNT(1)
+		FROM FEATURES
+	</select>
+
+</mapper>

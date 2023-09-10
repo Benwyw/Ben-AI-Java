@@ -1,8 +1,12 @@
 package com.benwyw.bot.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.benwyw.bot.config.DiscordProperties;
 import com.benwyw.bot.config.MiscProperties;
+import com.benwyw.bot.data.Feature;
 import com.benwyw.bot.data.MessageEmbedFile;
+import com.benwyw.bot.mapper.MiscMapper;
 import com.benwyw.util.embeds.EmbedColor;
 import com.benwyw.util.embeds.EmbedUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -51,9 +55,8 @@ public class MiscService {
 	@Autowired
 	private SwaggerService swaggerService;
 
-	// TODO miscMapper
-//	@Autowired
-//	private MiscMapper miscMapper;
+	@Autowired
+	private MiscMapper miscMapper;
 
 	public final static String logChannelName = "FBenI.Logs";
 
@@ -287,6 +290,13 @@ public class MiscService {
 		}
 
 		return messageEmbedFile;
+	}
+
+	public IPage<Feature> getFeatures(int pageNumber, int limit) {
+		Page<Feature> page = new Page<>(pageNumber, limit);
+		page.setRecords(miscMapper.getFeatures(page));
+		page.setTotal(miscMapper.getFeaturesCount());
+		return page;
 	}
 
 }
