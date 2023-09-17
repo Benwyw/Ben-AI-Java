@@ -7,7 +7,6 @@ import com.benwyw.bot.listeners.CommandListener;
 import com.benwyw.bot.listeners.MessageListener;
 import com.benwyw.bot.listeners.MusicListener;
 import io.github.cdimascio.dotenv.Dotenv;
-import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
@@ -86,20 +85,13 @@ public class Main {
 	
 	@Qualifier("musicListener")
 	public final @NotNull MusicListener musicListener = new MusicListener(config.get("SPOTIFY_CLIENT_ID"), config.get("SPOTIFY_TOKEN"));
-	
+
 	/**
-	 * Jda.
-	 *
-	 * @param discordUpListener   the discord up listener
-	 * @param discordDownListener the discord down listener
-	 * @param reactionListener    the reaction listener
-	 * @param messageListener     the message listener
-	 * @param updateRoleListener  the role Listener
-	 * @param slashCommandListener the slashCommand Listener
-	 * @param buttonClickListener the buttonClick Listener
-	 * @param voiceChannelListener the voice channel Listener
-	 * @param jdaToken            the jda token
-	 * @return the jda
+	 * JDA
+	 * @param commandListener CommandListener
+	 * @param buttonListener ButtonListener
+	 * @param messageListener MessageListener
+	 * @return ShardManager
 	 */
 	@Bean
 	ShardManager shardManager(@Qualifier("commandListener") final CommandListener commandListener,
@@ -179,10 +171,10 @@ public class Main {
 //		return new MongoTemplate(MongoClients.create("mongodb://localhost:27017"), "rdss");
 //	}
 
-	@PreDestroy
-	public void onExit() {
+//	@PreDestroy
+//	public void onExit() {
 		// TelegramService.sendToTelegram(Instant.now(), TelegramService.CDS_END);
-	}
+//	}
 	
 	// -------------
 	
