@@ -25,7 +25,8 @@ public class ForwardedHeaderFilter implements Filter {
 //        String forwardedFor = httpRequest.getHeader("X-Forwarded-For");
 //        log.info(String.format("forwardedFor: %s", forwardedFor));
 //        if (forwardedFor != null && forwardedFor.equals("127.0.0.1")) {
-        if (remoteAddr != null && remoteAddr.equals("127.0.0.1") && referer != null && referer.startsWith("https://bot.benwyw.com/")) {
+        String origin = httpRequest.getHeader("origin");
+        if ((remoteAddr != null && remoteAddr.equals("127.0.0.1") && referer != null && referer.startsWith("https://bot.benwyw.com/")) || origin.equals("https://bot.benwyw.com")) {
             // Request is coming from localhost, pass through filter chain
             chain.doFilter(request, response);
         } else {
