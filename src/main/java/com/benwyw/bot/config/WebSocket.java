@@ -24,7 +24,7 @@ public class WebSocket implements WebSocketMessageBrokerConfigurer {
     private long sessionCreationTime;
     private static CopyOnWriteArraySet<WebSocket> webSockets = new CopyOnWriteArraySet<>();
     private static ConcurrentHashMap<Integer, Session> sessionPool = new ConcurrentHashMap<Integer, Session>();
-    private static final long EXPIRATION_DURATION_IN_MILLISECONDS = 1 * 60 * 60 * 1000; // 1 hour in milliseconds
+    private static final long EXPIRATION_DURATION_IN_MILLISECONDS = 24 * 60 * 60 * 1000; // 24 hour in milliseconds
     private static final Integer DEFAULT_USER_ID = 1;
     private static final Integer SERVER_USER_ID = 0;
 
@@ -76,7 +76,7 @@ public class WebSocket implements WebSocketMessageBrokerConfigurer {
     }
 
     /**
-     * Session expire in 1 hour
+     * Session expire in 24 hour
      */
     @Scheduled(fixedDelay = EXPIRATION_DURATION_IN_MILLISECONDS)
     public void checkSessionExpiration() {
