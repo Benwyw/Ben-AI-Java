@@ -46,6 +46,10 @@ public class MiscCommand extends Command {
 				)
 		);
 		this.subCommands.add(new SubcommandData("version", "Get bot version."));
+		this.subCommands.add(new SubcommandData("unblock", "Remove IP from rate limit list.")
+				.addOptions(
+						new OptionData(OptionType.STRING, "ipaddress", "IP Address").setRequired(true)
+				));
 //        		.addOptions(new OptionData(OptionType.STRING, "riot_region", "RIOT LOL邊區")
 //        				.addChoice("TW", "TW")
 //        				.addChoice("NA", "NA")
@@ -102,6 +106,17 @@ public class MiscCommand extends Command {
 				}
 				else {
 					messageEmbed = EmbedUtils.createError("Version is empty.");
+				}
+			}
+			case "unblock" -> {
+				/*
+				  Owner only command
+				 */
+				if (event.getJDA().retrieveApplicationInfo().complete().getOwner().getId().equals(event.getUser().getId())) {
+					messageEmbed = miscService.removeFromRequestsPerIp(event);
+				}
+				else {
+					messageEmbed = EmbedUtils.createError("You do not have permission to do that.");
 				}
 			}
         }

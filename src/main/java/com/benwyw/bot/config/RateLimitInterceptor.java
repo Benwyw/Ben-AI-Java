@@ -5,7 +5,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -17,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
-@Profile("!local")
+//@Profile("!local")
 public class RateLimitInterceptor implements HandlerInterceptor {
 
     private static final int RATE_LIMIT = 100;
@@ -61,5 +60,20 @@ public class RateLimitInterceptor implements HandlerInterceptor {
             }
             return value;
         });
+    }
+
+    /**
+     * Remove IP Address from rate limit list
+     * @param ipAddress String
+     * @return String
+     */
+    public boolean removeFromRequestsPerIp(String ipAddress) {
+        if (requestsPerIp.containsKey(ipAddress)) {
+            requestsPerIp.remove(ipAddress);
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }

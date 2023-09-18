@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.benwyw.bot.config.DiscordProperties;
 import com.benwyw.bot.config.MiscProperties;
+import com.benwyw.bot.config.RateLimitInterceptor;
 import com.benwyw.bot.data.Feature;
 import com.benwyw.bot.data.MessageEmbedFile;
 import com.benwyw.bot.mapper.MiscMapper;
@@ -19,6 +20,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.Cache;
@@ -61,6 +63,9 @@ public class MiscService {
 
 	@Autowired
 	private MiscMapper miscMapper;
+
+	@Autowired
+	private RateLimitInterceptor rateLimitInterceptor;
 
 	public final static String logChannelName = "FBenI.Logs";
 
@@ -305,6 +310,28 @@ public class MiscService {
 		page.setRecords(miscMapper.getFeatures(page));
 		page.setTotal(miscMapper.getFeaturesCount());
 		return page;
+	}
+
+	/**
+	 * Remove IP Address from rate limit list
+	 * @param event SlashCommandInteractionEvent
+	 * @return MessageEmbed
+	 */
+	public MessageEmbed removeFromRequestsPerIp(SlashCommandInteractionEvent event) {
+		MessageEmbed messageEmbed;
+		String ipAddress = Objects.requireNonNull(event.getOption("ipaddress")).getAsString();
+		if (StringUtils.isNotBlank(ipAddress)) {
+			boolean isSuccessful = rateLimitInterceptor.removeFromRequestsPerIp(ipAddress);
+			if (isSuccessful) {
+				messageEmbed = EmbedUtils.createSuccess("Removed specified IP from rate limit list.");
+			} else {
+				messageEmbed = EmbedUtils.createError("Specified IP not found in rate limit list.");
+			}
+		}
+		else {
+			messageEmbed = EmbedUtils.createError("IP Address is empty");
+		}
+		return messageEmbed;
 	}
 
 }
