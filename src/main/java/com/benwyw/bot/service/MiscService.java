@@ -334,4 +334,26 @@ public class MiscService {
 		return messageEmbed;
 	}
 
+	/**
+	 * Command to send a private message to a user.
+	 * Usage: /dm <userID> <message>
+	 */
+	public void sendPrivateMessage(SlashCommandInteractionEvent event) {
+		String userId = event.getOption("userid").getAsString();
+		String messageToSend = event.getOption("message").getAsString();
+
+//		User user = event.getJDA().retrieveUserById(userId).queue();
+		event.getJDA().retrieveUserById(userId).queue(user -> {
+			System.out.println(user);
+			if (user != null) {
+				user.openPrivateChannel().queue((channel) -> {
+					channel.sendMessage(messageToSend).queue();
+				});
+			} else {
+				event.reply("User not found!").queue();
+			}
+		});
+
+	}
+
 }

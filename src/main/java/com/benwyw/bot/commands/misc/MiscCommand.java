@@ -50,6 +50,12 @@ public class MiscCommand extends Command {
 				.addOptions(
 						new OptionData(OptionType.STRING, "ipaddress", "IP Address").setRequired(true)
 				));
+		this.subCommands.add(new SubcommandData("dm", "Send a private message to a user.")
+				.addOptions(
+						new OptionData(OptionType.USER, "userid", "The user to send the message to.").setRequired(true),
+						new OptionData(OptionType.STRING, "message", "The message content to send.").setRequired(true)
+				)
+		);
 //        		.addOptions(new OptionData(OptionType.STRING, "riot_region", "RIOT LOL邊區")
 //        				.addChoice("TW", "TW")
 //        				.addChoice("NA", "NA")
@@ -114,6 +120,18 @@ public class MiscCommand extends Command {
 				 */
 				if (event.getJDA().retrieveApplicationInfo().complete().getOwner().getId().equals(event.getUser().getId())) {
 					messageEmbed = miscService.removeFromRequestsPerIp(event);
+				}
+				else {
+					messageEmbed = EmbedUtils.createError("You do not have permission to do that.");
+				}
+			}
+			case "dm" -> {
+				/*
+				  Owner only command
+				 */
+				if (event.getJDA().retrieveApplicationInfo().complete().getOwner().getId().equals(event.getUser().getId())) {
+					miscService.sendPrivateMessage(event);
+					messageEmbed = EmbedUtils.createDefault("Message sent.");
 				}
 				else {
 					messageEmbed = EmbedUtils.createError("You do not have permission to do that.");
