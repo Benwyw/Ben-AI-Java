@@ -10,13 +10,17 @@ import com.benwyw.bot.data.MessageEmbedFile;
 import com.benwyw.bot.mapper.MiscMapper;
 import com.benwyw.util.embeds.EmbedColor;
 import com.benwyw.util.embeds.EmbedUtils;
+import jakarta.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.apache.commons.lang3.ObjectUtils;
@@ -30,11 +34,14 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 
 @Slf4j
 @Service
@@ -354,6 +361,128 @@ public class MiscService {
 			}
 		});
 
+	}
+
+	/**
+	 * Command to delete message that contains specific keyword.
+	 * @param event SlashCommandInteractionEvent
+	 */
+	@Deprecated
+	public void deleteMessagesWithKeywordDeprecated(SlashCommandInteractionEvent event) {
+		String channelId = event.getMessageChannel().getId();
+		String keyword = event.getOption("keyword").getAsString();
+		LocalDate startDate = LocalDate.parse(event.getOption("start_date").getAsString(), DateTimeFormatter.BASIC_ISO_DATE);
+
+		TextChannel channel = shardManager.getTextChannelById(channelId);
+		if (channel == null) {
+			log.error("Channel not found for ID: " + channelId);
+			return;
+		}
+
+		channel.getIterableHistory().takeAsync(100).thenAccept(messages -> {
+			messages.stream()
+					.filter(message -> message.getContentDisplay().toLowerCase().contains(keyword.toLowerCase()))
+					.filter(message -> message.getTimeCreated().toLocalDate().isEqual(startDate) || message.getTimeCreated().toLocalDate().isAfter(startDate))
+					.forEach(message -> {
+						message.delete().queue(
+								success -> log.info("Deleted message with ID: " + message.getId()),
+								error -> log.error("Failed to delete message with ID: " + message.getId())
+						);
+					});
+		}).exceptionally(throwable -> {
+			log.error("Error retrieving messages from channel: " + channelId, throwable);
+			return null;
+		});
+	}
+
+	/**
+	 * Command to delete message that contains specific keyword upon received 2FA confirmation.
+	 * @param event SlashCommandInteractionEvent
+	 */
+	public String deleteMessagesWithKeyword(SlashCommandInteractionEvent event) {
+		String channelId = event.getMessageChannel().getId();
+		String keyword = event.getOption("keyword").getAsString();
+		LocalDate startDate = LocalDate.parse(event.getOption("start_date").getAsString(), DateTimeFormatter.BASIC_ISO_DATE);
+		String ownerId = event.getJDA().retrieveApplicationInfo().complete().getOwner().getId(); // Owner ID
+
+		TextChannel channel = shardManager.getTextChannelById(channelId);
+		if (channel == null) {
+			log.error("Channel not found for ID: " + channelId);
+			return "Channel not found for ID: " + channelId;
+		}
+
+		// Generate a random 5 capital letter code
+		String code = new Random().ints(5, 'A', 'Z'+1)
+				.collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+				.toString();
+
+		// Send a private message with the code to the owner
+		User owner = shardManager.getUserById(ownerId);
+		if (owner != null) {
+			owner.openPrivateChannel().queue(privateChannel -> {
+				privateChannel.sendMessage("Please reply with this code to confirm deletion: " + code).queue();
+
+				// Create a list to hold your listeners
+				List<ListenerAdapter> listeners = new ArrayList<>();
+
+				// Create a listener for the owner's reply
+				ListenerAdapter listener = new ListenerAdapter() {
+					@Override
+					public void onMessageReceived(@Nonnull MessageReceivedEvent e) {
+						if (e.getAuthor().equals(owner) && e.getChannel().getType() == ChannelType.PRIVATE && e.getMessage().getContentRaw().equals(code)) {
+							// Proceed with the deletion
+							channel.getIterableHistory().takeAsync(100).thenAccept(messages -> {
+								long count = messages.stream()
+										.filter(message -> message.getContentDisplay().toLowerCase().contains(keyword.toLowerCase()))
+										.filter(message -> message.getTimeCreated().toLocalDate().isEqual(startDate) || message.getTimeCreated().toLocalDate().isAfter(startDate))
+										.peek(message -> {
+											message.delete().queue(
+													success -> log.info("Deleted message with ID: " + message.getId()),
+													error -> log.error("Failed to delete message with ID: " + message.getId())
+											);
+										}).count();
+
+								// Send a message indicating the number of messages deleted
+								event.getHook().sendMessageEmbeds(EmbedUtils.createSuccess("Deleted " + count + " messages.")).queue();
+							}).exceptionally(throwable -> {
+								log.error("Error retrieving messages from channel: " + channelId, throwable);
+								return null;
+							});
+
+							// Remove the listener after handling the event
+							shardManager.removeEventListener(this);
+							listeners.remove(this);
+						}
+					}
+				};
+
+				shardManager.addEventListener(listener);
+				listeners.add(listener);
+
+				// Schedule a task to remove the listener after 5 minutes
+				new java.util.Timer().schedule(
+						new java.util.TimerTask() {
+							@Override
+							public void run() {
+								// Only remove the listener if it is in your list
+								if (listeners.contains(listener)) {
+									shardManager.removeEventListener(listener);
+									listeners.remove(listener);
+
+									// Send a message indicating request is expired
+									event.getHook().sendMessageEmbeds(EmbedUtils.createError("Deletion request expired.")).queue();
+								}
+							}
+						},
+						1 * 60 * 1000
+				);
+			});
+		} else {
+			log.error("Owner not found for ID: " + ownerId);
+			return "Owner not found for ID: " + ownerId;
+		}
+
+		return "Deletion request initiated.";
 	}
 
 }

@@ -56,6 +56,12 @@ public class MiscCommand extends Command {
 						new OptionData(OptionType.STRING, "message", "The message content to send.").setRequired(true)
 				)
 		);
+		this.subCommands.add(new SubcommandData("delete_messages", "Delete messages contains given keyword.")
+				.addOptions(
+						new OptionData(OptionType.STRING, "keyword", "The keyword message contains.").setRequired(true),
+						new OptionData(OptionType.STRING, "start_date", "The starting date.").setRequired(true)
+				)
+		);
 //        		.addOptions(new OptionData(OptionType.STRING, "riot_region", "RIOT LOL邊區")
 //        				.addChoice("TW", "TW")
 //        				.addChoice("NA", "NA")
@@ -132,6 +138,17 @@ public class MiscCommand extends Command {
 				if (event.getJDA().retrieveApplicationInfo().complete().getOwner().getId().equals(event.getUser().getId())) {
 					miscService.sendPrivateMessage(event);
 					messageEmbed = EmbedUtils.createDefault("Message sent.");
+				}
+				else {
+					messageEmbed = EmbedUtils.createError("You do not have permission to do that.");
+				}
+			}
+			case "delete_messages" -> {
+				/*
+				  Owner only command
+				 */
+				if (event.getJDA().retrieveApplicationInfo().complete().getOwner().getId().equals(event.getUser().getId())) {
+					messageEmbed = EmbedUtils.createDefault(miscService.deleteMessagesWithKeyword(event));
 				}
 				else {
 					messageEmbed = EmbedUtils.createError("You do not have permission to do that.");
