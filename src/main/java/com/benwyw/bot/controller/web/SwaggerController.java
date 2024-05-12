@@ -28,7 +28,7 @@ public class SwaggerController {
 //	CommandListener commandListener;
 	
 	@Autowired
-	SwaggerService swaggerService;
+	private SwaggerService swaggerService;
 
 	/**
 	 * Generate Excel with Swagger JSON passed in Frontend

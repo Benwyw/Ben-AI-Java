@@ -5,7 +5,7 @@
 
   <groupId>com.benwyw</groupId>
   <artifactId>Ben-AI-Java</artifactId>
-  <version>v0.0.72</version>
+  <version>v0.0.73</version>
   <packaging>jar</packaging>
 
   <name>Ben-AI-Java</name>
@@ -221,6 +221,13 @@
 	  <dependency>
 		  <groupId>org.springframework.boot</groupId>
 		  <artifactId>spring-boot-starter-websocket</artifactId>
+	  </dependency>
+
+	  <!-- swagger -->
+	  <dependency>
+		  <groupId>org.springdoc</groupId>
+		  <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+		  <version>2.5.0</version>
 	  </dependency>
 
   </dependencies>

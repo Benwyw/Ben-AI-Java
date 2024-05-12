@@ -99,3 +99,4 @@ src/main/java/com/.DS_Store
 /.settings/
 /swagger.json
 /output/
+/deployment/
