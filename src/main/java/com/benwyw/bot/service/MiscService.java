@@ -20,10 +20,11 @@ import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.sharding.ShardManager;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -132,13 +133,15 @@ public class MiscService {
 		MessageEmbed messageEmbed;
 
 		for(Guild guild : guildList) {
-			if (ObjectUtils.isEmpty(guild.retrieveMemberById(ownerId))) {
-				invalidGuildStrList.add(guild.getName());
-				invalidGuildList.add(guild);
-			}
-			else {
+			try {
+				guild.retrieveMemberById(ownerId).complete();
 				validGuildStrList.add(guild.getName());
 				validGuildList.add(guild);
+			} catch (ErrorResponseException e) {
+				if (e.getErrorCode() == ErrorResponse.UNKNOWN_MEMBER.getCode()) {
+					invalidGuildStrList.add(guild.getName());
+					invalidGuildList.add(guild);
+				}
 			}
 		}
 
@@ -177,13 +180,15 @@ public class MiscService {
 		boolean result = false;
 
 		for(Guild guild : guildList) {
-			if (ObjectUtils.isEmpty(guild.retrieveMemberById(ownerId))) {
-				invalidGuildStrList.add(guild.getName());
-				invalidGuildList.add(guild);
-			}
-			else {
+			try {
+				guild.retrieveMemberById(ownerId).complete();
 				validGuildStrList.add(guild.getName());
 				validGuildList.add(guild);
+			} catch (ErrorResponseException e) {
+				if (e.getErrorCode() == ErrorResponse.UNKNOWN_MEMBER.getCode()) {
+					invalidGuildStrList.add(guild.getName());
+					invalidGuildList.add(guild);
+				}
 			}
 		}
 
