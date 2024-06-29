@@ -13,10 +13,10 @@ on:
     branches: [ "main" ]
     paths:
       - 'pom.xml'
-  pull_request:
-    branches: [ "main" ]
-    paths:
-      - 'pom.xml'
+#  pull_request:
+#    branches: [ "main" ]
+#    paths:
+#      - 'pom.xml'
 
 jobs:
   build:
