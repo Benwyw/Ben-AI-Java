@@ -252,7 +252,7 @@ public class MiscService {
 			List<MessageEmbed> messageEmbedList = new ArrayList<>();
 			List<Long> targetChannelList = new ArrayList<>();
 
-			if (minecraft != null && !minecraft.getAsBoolean()) { // normal announcement
+			if (!(minecraft != null && minecraft.getAsBoolean())) { // normal announcement
 				if (title != null) {
 					embedBuilder.setTitle(title.getAsString());
 				} else {
