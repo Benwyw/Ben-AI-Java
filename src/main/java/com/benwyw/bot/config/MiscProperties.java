@@ -15,6 +15,7 @@ public class MiscProperties {
 	 * misc.LIST_NAME[INT]=${CHANNEL.PROPERTIES}
 	 */
 	private List<Long> announce;
+	private List<Long> announceMinecraft;
 
 	/*
 	misc.domain=${WEB.CATEGORY.ATTRIBUTE}

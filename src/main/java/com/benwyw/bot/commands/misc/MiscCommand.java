@@ -35,9 +35,10 @@ public class MiscCommand extends Command {
         this.subCommands.add(new SubcommandData("validate_joined_servers", "Validate server authorization. Owner only command."));
 		this.subCommands.add(new SubcommandData("announce", "Broadcast announcement. Owner only command.")
 				.addOptions(
-						new OptionData(OptionType.STRING, "content", "內容").setRequired(true),
+						new OptionData(OptionType.STRING, "content", "內容"),
 						new OptionData(OptionType.STRING, "title", "標題"),
-						new OptionData(OptionType.ATTACHMENT, "image", "圖片")
+						new OptionData(OptionType.ATTACHMENT, "image", "圖片"),
+						new OptionData(OptionType.BOOLEAN, "minecraft", "Minecraft server version update")
 				)
 		);
 		this.subCommands.add(new SubcommandData("swagger_to_excel", "Convert Swagger text to Excel. (Web only)")

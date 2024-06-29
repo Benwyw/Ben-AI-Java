@@ -39,6 +39,25 @@ public class LoopService {
 	@Autowired
 	private MiscService miscService;
 
+	@Autowired
+	private LogService logService;
+
+	@Scheduled(fixedRate = 60000 * 15)
+	public void healthCheckMinecraftServer() {
+		MessageEmbed messageEmbed = miscService.getHealthCheckMinecraftServerEmbed();
+
+		for (Long loopChannels : loopProperties.getMinecraftServer()) {
+			TextChannel textChannel = shardManager.getTextChannelById(loopChannels);
+			if (textChannel != null) {
+				Objects.requireNonNull(shardManager.getTextChannelById(loopChannels)).sendMessageEmbeds(messageEmbed).queue();
+			}
+			else {
+				logService.messageToLog(String.format("LoopService.healthCheckMinecraftServer: send to channelId %s failed", loopChannels), false);
+
+			}
+		}
+	}
+
 	/**
 	 * milliseconds
 	 * 1 hour = 3600000
@@ -57,7 +76,7 @@ public class LoopService {
 						Objects.requireNonNull(shardManager.getTextChannelById(loopChannels)).sendMessageEmbeds(bitDefender).queue();
 					}
 					else {
-						miscService.messageToLog(String.format("LoopService.performTask: send to channelId %s failed", loopChannels), false);
+						logService.messageToLog(String.format("LoopService.performTask: send to channelId %s failed", loopChannels), false);
 
 					}
 				}
@@ -97,14 +116,14 @@ public class LoopService {
 
 			String contentStr = content.toString();
 			if (StringUtils.isBlank(contentStr)) {
-				miscService.messageToLog("Bitdefender contentStr is empty.", false);
+				logService.messageToLog("Bitdefender contentStr is empty.", false);
 				return new ArrayList<>();
 			}
 
 			// Extract pubDate to check if already sent out the latest news
 			List<String> pubDates = extractTagContent(contentStr, "pubDate");
 			if (pubDates.isEmpty() || StringUtils.isBlank(pubDates.get(0))) {
-				miscService.messageToLog("LoopService.getBitdefender: pubDates from web is blank, cannot be evaluated", false);
+				logService.messageToLog("LoopService.getBitdefender: pubDates from web is blank, cannot be evaluated", false);
 				return new ArrayList<>();
 			}
 			else {
@@ -115,11 +134,11 @@ public class LoopService {
 
 				String pubDateOld = loopMapper.getPublishedat(points);
 				if (StringUtils.isBlank(pubDateOld)) {
-					miscService.messageToLog("LoopService.getBitdefender: pubDateOld from Database is blank, cannot be evaluated", false);
+					logService.messageToLog("LoopService.getBitdefender: pubDateOld from Database is blank, cannot be evaluated", false);
 					return new ArrayList<>();
 				}
 				else if (StringUtils.isBlank(pubDate)) {
-					miscService.messageToLog("LoopService.getBitdefender: pubDate from Website is blank, cannot be evaluated", false);
+					logService.messageToLog("LoopService.getBitdefender: pubDate from Website is blank, cannot be evaluated", false);
 					return new ArrayList<>();
 				}
 				else {
@@ -129,7 +148,7 @@ public class LoopService {
 					else {
 						points.setPublishedat(pubDate);
 						if (!loopMapper.updatePublishedat(points)) {
-							miscService.messageToLog("LoopService.getBitdefender: update pubDate --> pubDateOld to Database failed", false);
+							logService.messageToLog("LoopService.getBitdefender: update pubDate --> pubDateOld to Database failed", false);
 							return new ArrayList<>();
 						}
 					}
@@ -204,7 +223,7 @@ public class LoopService {
 			return messageEmbedList;
 		}
 		else {
-			miscService.messageToLog(String.format("Bitdefender response code: %s", responseCode), false);
+			logService.messageToLog(String.format("Bitdefender response code: %s", responseCode), false);
 			return new ArrayList<>();
 		}
 	}

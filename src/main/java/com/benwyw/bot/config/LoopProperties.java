@@ -15,5 +15,6 @@ public class LoopProperties {
 	 * loop.LIST_NAME[INT]=${CHANNEL.PROPERTIES}
 	 */
 	private List<Long> bitdefender;
+	private List<Long> minecraftServer;
 
 }

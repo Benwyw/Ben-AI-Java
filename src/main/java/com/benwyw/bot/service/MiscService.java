@@ -8,10 +8,12 @@ import com.benwyw.bot.config.RateLimitInterceptor;
 import com.benwyw.bot.data.Feature;
 import com.benwyw.bot.data.MessageEmbedFile;
 import com.benwyw.bot.mapper.MiscMapper;
+import com.benwyw.bot.service.common.APIService;
 import com.benwyw.util.embeds.EmbedColor;
 import com.benwyw.util.embeds.EmbedUtils;
 import jakarta.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
+import me.dilley.MineStat;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -33,6 +35,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.io.File;
 import java.time.LocalDate;
@@ -47,6 +50,8 @@ import java.util.Random;
 @Slf4j
 @Service
 public class MiscService {
+
+	private final static String NA = "N/A";
 	
 	@Autowired
 	ShardManager shardManager;
@@ -74,6 +79,15 @@ public class MiscService {
 
 	@Autowired
 	private RateLimitInterceptor rateLimitInterceptor;
+
+	@Autowired
+	private MinecraftService minecraftService;
+
+	@Autowired
+	private APIService apiService;
+
+	@Autowired
+	private LogService logService;
 
 	public final static String logChannelName = "FBenI.Logs";
 
@@ -154,12 +168,12 @@ public class MiscService {
 					defaultChannel.sendMessageEmbeds(EmbedUtils.createError("Leaving non-whitelisted Discord server.")).queue();
 				}
 			} catch(Exception e){
-				messageToLog(String.format("An exception when attempt to notify leaving non-whitelisted Discord server: %s\n%s", guild.getName(), e));
+				logService.messageToLog(String.format("An exception when attempt to notify leaving non-whitelisted Discord server: %s\n%s", guild.getName(), e));
 			} finally {
 				try {
 					guild.leave().queue();
 				} catch (Exception e) {
-					messageToLog(String.format("An exception when attempt to leave non-whitelisted Discord server: %s\n%s", guild.getName(), e));
+					logService.messageToLog(String.format("An exception when attempt to leave non-whitelisted Discord server: %s\n%s", guild.getName(), e));
 				}
 			}
 		}
@@ -203,12 +217,12 @@ public class MiscService {
 					defaultChannel.sendMessageEmbeds(EmbedUtils.createError("Leaving non-whitelisted Discord server.")).queue();
 				}
 			} catch(Exception e){
-				messageToLog(String.format("An exception when attempt to notify leaving non-whitelisted Discord server: %s\n%s", guild.getName(), e));
+				logService.messageToLog(String.format("An exception when attempt to notify leaving non-whitelisted Discord server: %s\n%s", guild.getName(), e));
 			} finally {
 				try {
 					guild.leave().queue();
 				} catch (Exception e) {
-					messageToLog(String.format("An exception when attempt to leave non-whitelisted Discord server: %s\n%s", guild.getName(), e));
+					logService.messageToLog(String.format("An exception when attempt to leave non-whitelisted Discord server: %s\n%s", guild.getName(), e));
 				}
 			}
 		}
@@ -222,65 +236,70 @@ public class MiscService {
 		return EmbedUtils.createSuccess("Operation completed.");
 	}
 
-	public void messageToLog(String message) {
-		Objects.requireNonNull(shardManager.getTextChannelById(809527650955296848L)).sendMessage(message).queue();
-	}
-
-	/**
-	 * message = log content
-	 * success = EmbedUtils.createDefault / EmbedUtils.createSuccess / EmbedUtils.createError
-	 * @param message the content of the message to send
-	 * @param success a boolean indicating whether the message is a success message or an error message
-	 */
-	public void messageToLog(String message, Boolean success) {
-		MessageEmbed embed = EmbedUtils.createDefault(message);
-		if (success != null) {
-			if (success) {
-				embed = EmbedUtils.createSuccess(message);
-			}
-			else {
-				embed = EmbedUtils.createError(message);
-			}
-		}
-		Objects.requireNonNull(shardManager.getTextChannelById(discordProperties.getChannels().get(logChannelName))).sendMessageEmbeds(embed).queue();
-	}
-
 	public MessageEmbed announce(SlashCommandInteractionEvent event) {
+		MessageEmbed masterMessageEmbed = EmbedUtils.createSuccess("Operation completed.");
 		try {
 			OptionMapping title = event.getOption("title");
 			OptionMapping content = event.getOption("content");
 			OptionMapping image = event.getOption("image");
+			OptionMapping minecraft = event.getOption("minecraft");
+
+			if ((ObjectUtils.isEmpty(content) || StringUtils.isBlank(content.getAsString()) ) && (ObjectUtils.isEmpty(minecraft) || !minecraft.getAsBoolean())) {
+				throw new RuntimeException("content is required when minecraft flag is false");
+			}
 
 			EmbedBuilder embedBuilder = new EmbedBuilder();
-			if (title != null) {
-				embedBuilder.setTitle(title.getAsString());
-			} else {
-				embedBuilder.setTitle("Announcement");
-			}
-			if (image != null) {
-				embedBuilder.setThumbnail(image.getAsAttachment().getUrl());
-			}
-			embedBuilder.setDescription(content.getAsString());
-			embedBuilder.setColor(EmbedColor.DEFAULT.color);
-			embedBuilder.setFooter(String.valueOf(LocalDateTime.now(ZoneId.of("Asia/Hong_Kong"))));
+			List<MessageEmbed> messageEmbedList = new ArrayList<>();
+			List<Long> targetChannelList = new ArrayList<>();
 
-			MessageEmbed messaageEmbed = embedBuilder.build();
+			if (minecraft != null && !minecraft.getAsBoolean()) { // normal announcement
+				if (title != null) {
+					embedBuilder.setTitle(title.getAsString());
+				} else {
+					embedBuilder.setTitle("Announcement");
+				}
+				if (image != null) {
+					embedBuilder.setThumbnail(image.getAsAttachment().getUrl());
+				}
+				embedBuilder.setDescription(content.getAsString());
+				embedBuilder.setColor(EmbedColor.DEFAULT.color);
+				embedBuilder.setFooter(String.valueOf(LocalDateTime.now(ZoneId.of("Asia/Hong_Kong"))));
 
-			for (Long mainChannel : miscProperties.getAnnounce()) {
+				messageEmbedList.add(embedBuilder.build());
+				targetChannelList = miscProperties.getAnnounce();
+			}
+			else { // is Minecraft
+				MessageEmbed healthCheckMinecraftServerEmbed = getHealthCheckMinecraftServerEmbed();
+
+				embedBuilder.setTitle(minecraftService.getMinecraftServerIp(), minecraftService.getMinecraftServerDynmap());
+				embedBuilder.setDescription(String.format("Updated to %s", healthCheckMinecraftServerEmbed.getFields().get(3).getValue()));
+				embedBuilder.setAuthor("Ben's Minecraft Server");
+				embedBuilder.setFooter(String.valueOf(LocalDateTime.now(ZoneId.of("Asia/Hong_Kong"))));
+				embedBuilder.setThumbnail("https://i.imgur.com/NssQKDi.png");
+				embedBuilder.setColor(EmbedColor.DEFAULT.color);
+
+				messageEmbedList.add(embedBuilder.build());
+				messageEmbedList.add(healthCheckMinecraftServerEmbed);
+
+				targetChannelList = miscProperties.getAnnounceMinecraft();
+			}
+
+			for (Long mainChannel : targetChannelList) {
 				TextChannel textChannel = shardManager.getTextChannelById(mainChannel);
 				if (textChannel != null) {
-					textChannel.sendMessageEmbeds(messaageEmbed).queue();
+					for (MessageEmbed messageEmbed : messageEmbedList) {
+						textChannel.sendMessageEmbeds(messageEmbed).queue();
+					}
 				} else {
 					shardManager.getTextChannelById(discordProperties.getChannels().get("FBenI.Logs")).sendMessageEmbeds(EmbedUtils.createError(String.format("MiscService.announce: send to channelId %s failed", mainChannel))).queue();
 				}
 			}
 		}
 		catch(Exception e) {
-			return EmbedUtils.createError(String.format("Operation failed.\n%s", e));
+			masterMessageEmbed = EmbedUtils.createError(String.format("Operation failed.\n%s", e));
 		}
-		finally {
-			return EmbedUtils.createSuccess("Operation completed.");
-		}
+
+		return masterMessageEmbed;
 	}
 
 	/**
@@ -306,7 +325,7 @@ public class MiscService {
 				messageEmbedFile.setMessageEmbed(EmbedUtils.createError(String.format("File is empty%s", msgSuffix)));
 			}
 		} catch(Exception e) {
-			messageToLog(String.format("MiscService - swaggerToExcel:\n%s", e));
+			logService.messageToLog(String.format("MiscService - swaggerToExcel:\n%s", e));
 			messageEmbedFile.setMessageEmbed(EmbedUtils.createError(String.format("An unexpected error occurred%s", msgSuffix)));
 		}
 
@@ -488,6 +507,28 @@ public class MiscService {
 		}
 
 		return "Deletion request initiated.";
+	}
+
+	public MessageEmbed getHealthCheckMinecraftServerEmbed() {
+		MineStat mineStat = minecraftService.getServerStatus();
+		String discordSRVStatus = shardManager.retrieveUserById(minecraftService.getDiscordUserDiscordSRV()).complete().getJDA().getPresence().getStatus().name();
+
+		String minecraftServerDynmap = minecraftService.getMinecraftServerDynmap();
+		boolean isAccessible = apiService.isAccessible(minecraftServerDynmap);
+
+		EmbedBuilder embedBuilder = new EmbedBuilder();
+		embedBuilder.setTitle(mineStat.getAddress(), minecraftServerDynmap);
+		embedBuilder.setAuthor("Ben's Minecraft Server");
+		embedBuilder.setFooter(String.valueOf(LocalDateTime.now(ZoneId.of("Asia/Hong_Kong"))));
+		embedBuilder.setThumbnail("https://i.imgur.com/NssQKDi.png");
+		embedBuilder.addField("Server", mineStat.isServerUp() ? EmbedUtils.GREEN_TICK : EmbedUtils.RED_X, true);
+		embedBuilder.addField("Discord", StringUtils.isNotBlank(discordSRVStatus) && "ONLINE".equalsIgnoreCase(discordSRVStatus) ? EmbedUtils.GREEN_TICK : EmbedUtils.RED_X, true);
+		embedBuilder.addField("Map", isAccessible ? EmbedUtils.GREEN_TICK : EmbedUtils.RED_X, true);
+		embedBuilder.addField("Version", mineStat.isServerUp() ? mineStat.getVersion() : NA, true);
+		embedBuilder.addField("Players", mineStat.isServerUp() ? String.format("%s/%s", mineStat.getCurrentPlayers(), mineStat.getMaximumPlayers()) : NA, true);
+//		embedBuilder.addField("Latency", mineStat.isServerUp() ? String.valueOf(mineStat.getLatency()) : NA, true);
+		embedBuilder.setColor(mineStat.isServerUp() ? EmbedColor.SUCCESS.color : EmbedColor.ERROR.color);
+		return embedBuilder.build();
 	}
 
 }
