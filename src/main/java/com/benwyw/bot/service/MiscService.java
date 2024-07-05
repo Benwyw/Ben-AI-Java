@@ -369,6 +369,7 @@ public class MiscService {
 	 * Command to send a private message to a user.
 	 * Usage: /dm <userID> <message>
 	 */
+	@Deprecated
 	public void sendPrivateMessage(SlashCommandInteractionEvent event) {
 		String userId = event.getOption("userid").getAsString();
 		String messageToSend = event.getOption("message").getAsString();

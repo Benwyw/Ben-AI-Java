@@ -101,7 +101,7 @@ public class Main {
 		final DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault(config.get("TOKEN"));
 		builder.setStatus(OnlineStatus.ONLINE);
 		builder.setActivity(Activity.watching("音樂幫到你"));
-		builder.enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES);
+		builder.enableIntents(GatewayIntent.GUILD_MEMBERS); // GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_PRESENCES
 		builder.addEventListeners(new CommandRegistry(this));
 //		builder.setMemberCachePolicy(MemberCachePolicy.ALL);
 //		builder.disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS,
