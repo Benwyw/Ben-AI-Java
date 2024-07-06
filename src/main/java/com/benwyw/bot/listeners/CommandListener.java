@@ -1,10 +1,8 @@
 package com.benwyw.bot.listeners;
 
-import com.benwyw.bot.SpringContext;
 import com.benwyw.bot.commands.CommandRegistry;
 import com.benwyw.bot.commands.RolesCommand;
 import com.benwyw.bot.data.GuildData;
-import com.benwyw.bot.service.MiscService;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -89,17 +87,14 @@ public class CommandListener extends ListenerAdapter {
 //		List<CommandData> commandData = new ArrayList<>();
 //		commandData.add(Commands.slash("welcome", "Get welcomed by the bot."));
 //		event.getGuild().updateCommands().addCommands(commandData).queue();
-		MiscService miscService = SpringContext.getBean(MiscService.class);
-		if (miscService.validateJoinedServers(event.getGuild())) {
 
-			if (env.acceptsProfiles(Profiles.of("local"))) {
-				GuildData.get(event.getGuild());
-				event.getGuild().updateCommands().addCommands(CommandRegistry.unpackCommandData()).queue();
-			}
-			else {
-				// Register global slash commands
-				event.getJDA().updateCommands().addCommands(CommandRegistry.unpackCommandData()).queue(succ -> {}, fail -> {});
-			}
+		if (env.acceptsProfiles(Profiles.of("local"))) {
+			GuildData.get(event.getGuild());
+			event.getGuild().updateCommands().addCommands(CommandRegistry.unpackCommandData()).queue();
+		}
+		else {
+			// Register global slash commands
+			event.getJDA().updateCommands().addCommands(CommandRegistry.unpackCommandData()).queue(succ -> {}, fail -> {});
 		}
 	}
 

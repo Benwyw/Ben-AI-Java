@@ -22,10 +22,8 @@ import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,12 +50,9 @@ import java.util.Random;
 public class MiscService {
 
 	private final static String NA = "N/A";
-	
-	@Autowired
-	ShardManager shardManager;
 
 	@Autowired
-	EmbedService embedService;
+	private ShardManager shardManager;
 
 	@Autowired
 	private CacheManager cacheManager;
@@ -97,13 +92,16 @@ public class MiscService {
 
 	@Cacheable(value = "userBaseCache", key = "'userBase'")
 	public Integer getUserBase() {
-//		Integer old = shardManager.getGuilds().stream().mapToInt(guild -> guild.getMemberCount()).sum();
-//		Integer old2 = Math.toIntExact(shardManager.getGuilds().stream().flatMap(guild -> guild.loadMembers().get().stream()).distinct().count());
-		return Math.toIntExact(shardManager.getGuilds().stream()
-				.flatMap(guild -> guild.loadMembers().get().stream())
-				.map(member -> member.getId())
-				.distinct() // filter out duplicate members
-				.count()); // count the remaining distinct members
+		return shardManager.getGuilds().stream()
+				.mapToInt(Guild::getMemberCount)
+				.sum();
+
+		// deprecated and disabled due to privileged intents
+//		return Math.toIntExact(shardManager.getGuilds().stream()
+//				.flatMap(guild -> guild.loadMembers().get().stream())
+//				.map(member -> member.getId())
+//				.distinct() // filter out duplicate members
+//				.count()); // count the remaining distinct members
 	}
 
 	@Scheduled(fixedDelay = 3600000) // run every hour
@@ -135,99 +133,7 @@ public class MiscService {
 	}
 
 	public MessageEmbed validateJoinedServers() {
-		List<Guild> guildList = shardManager.getGuilds();
-		long ownerId = shardManager.retrieveApplicationInfo().complete().getOwner().getIdLong();
-
-		List<String> invalidGuildStrList = new ArrayList<>();
-		List<String> validGuildStrList = new ArrayList<>();
-
-		List<Guild> invalidGuildList = new ArrayList<>();
-		List<Guild> validGuildList = new ArrayList<>();
-
-		MessageEmbed messageEmbed;
-
-		for(Guild guild : guildList) {
-			try {
-				guild.retrieveMemberById(ownerId).complete();
-				validGuildStrList.add(guild.getName());
-				validGuildList.add(guild);
-			} catch (ErrorResponseException e) {
-				if (e.getErrorCode() == ErrorResponse.UNKNOWN_MEMBER.getCode()) {
-					invalidGuildStrList.add(guild.getName());
-					invalidGuildList.add(guild);
-				}
-			}
-		}
-
-		messageEmbed = messageToOwner(embedService.validateJoinedServers(validGuildStrList, invalidGuildStrList));
-
-		for(Guild guild : invalidGuildList) {
-			try {
-				TextChannel defaultChannel = guild.getDefaultChannel().asTextChannel();
-				if (defaultChannel != null) {
-					defaultChannel.sendMessageEmbeds(EmbedUtils.createError("Leaving non-whitelisted Discord server.")).queue();
-				}
-			} catch(Exception e){
-				logService.messageToLog(String.format("An exception when attempt to notify leaving non-whitelisted Discord server: %s\n%s", guild.getName(), e));
-			} finally {
-				try {
-					guild.leave().queue();
-				} catch (Exception e) {
-					logService.messageToLog(String.format("An exception when attempt to leave non-whitelisted Discord server: %s\n%s", guild.getName(), e));
-				}
-			}
-		}
-
-		return messageEmbed;
-	}
-
-	public boolean validateJoinedServers(Guild guildVerify) {
-		List<Guild> guildList = shardManager.getGuilds();
-		long ownerId = shardManager.retrieveApplicationInfo().complete().getOwner().getIdLong();
-
-		List<String> invalidGuildStrList = new ArrayList<String>();
-		List<String> validGuildStrList = new ArrayList<String>();
-
-		List<Guild> invalidGuildList = new ArrayList<Guild>();
-		List<Guild> validGuildList = new ArrayList<Guild>();
-
-		boolean result = false;
-
-		for(Guild guild : guildList) {
-			try {
-				guild.retrieveMemberById(ownerId).complete();
-				validGuildStrList.add(guild.getName());
-				validGuildList.add(guild);
-			} catch (ErrorResponseException e) {
-				if (e.getErrorCode() == ErrorResponse.UNKNOWN_MEMBER.getCode()) {
-					invalidGuildStrList.add(guild.getName());
-					invalidGuildList.add(guild);
-				}
-			}
-		}
-
-		messageToOwner(embedService.validateJoinedServers(validGuildStrList, invalidGuildStrList));
-		if (validGuildList.contains(guildVerify))
-			result = true;
-
-		for(Guild guild : invalidGuildList) {
-			try {
-				TextChannel defaultChannel = guild.getDefaultChannel().asTextChannel();
-				if (defaultChannel != null) {
-					defaultChannel.sendMessageEmbeds(EmbedUtils.createError("Leaving non-whitelisted Discord server.")).queue();
-				}
-			} catch(Exception e){
-				logService.messageToLog(String.format("An exception when attempt to notify leaving non-whitelisted Discord server: %s\n%s", guild.getName(), e));
-			} finally {
-				try {
-					guild.leave().queue();
-				} catch (Exception e) {
-					logService.messageToLog(String.format("An exception when attempt to leave non-whitelisted Discord server: %s\n%s", guild.getName(), e));
-				}
-			}
-		}
-
-		return result;
+		return EmbedUtils.createDefault("This command is temporarily disabled.");
 	}
 
 	public MessageEmbed messageToOwner(MessageEmbed messageEmbed) {

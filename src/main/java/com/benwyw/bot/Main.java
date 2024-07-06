@@ -10,7 +10,6 @@ import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.jetbrains.annotations.NotNull;
@@ -101,7 +100,10 @@ public class Main {
 		final DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault(config.get("TOKEN"));
 		builder.setStatus(OnlineStatus.ONLINE);
 		builder.setActivity(Activity.watching("音樂幫到你"));
-		builder.enableIntents(GatewayIntent.GUILD_MEMBERS); // GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_PRESENCES
+
+		//disable all intent
+//		builder.enableIntents(GatewayIntent.GUILD_MEMBERS); // GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_PRESENCES
+
 		builder.addEventListeners(new CommandRegistry(this));
 //		builder.setMemberCachePolicy(MemberCachePolicy.ALL);
 //		builder.disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS,
