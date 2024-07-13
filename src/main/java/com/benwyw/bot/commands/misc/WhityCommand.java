@@ -7,6 +7,7 @@ import com.benwyw.bot.commands.Command;
 import com.benwyw.bot.data.ModeConstant;
 import com.benwyw.bot.service.WhityService;
 import com.benwyw.util.embeds.EmbedUtils;
+import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -26,6 +27,8 @@ import java.io.File;
  */
 @Slf4j
 public class WhityCommand extends Command {
+
+	private final static String ownerId = Dotenv.configure().load().get("OWNER_ID");
 
     public WhityCommand(Main bot) {
         super(bot);
@@ -61,7 +64,7 @@ public class WhityCommand extends Command {
 				/*
 				  Owner only command
 				 */
-				if (event.getJDA().retrieveApplicationInfo().complete().getOwner().getId().equals(event.getUser().getId())) {
+				if (ownerId.equals(event.getUser().getId())) {
 					messageEmbed = whityService.weight(event);
 				}
 				else {

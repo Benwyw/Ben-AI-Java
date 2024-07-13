@@ -11,6 +11,7 @@ import com.benwyw.bot.mapper.MiscMapper;
 import com.benwyw.bot.service.common.APIService;
 import com.benwyw.util.embeds.EmbedColor;
 import com.benwyw.util.embeds.EmbedUtils;
+import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
 import me.dilley.MineStat;
@@ -49,6 +50,7 @@ import java.util.Random;
 @Service
 public class MiscService {
 
+	private final static String ownerId = Dotenv.configure().load().get("OWNER_ID");
 	private final static String NA = "N/A";
 
 	@Autowired
@@ -334,7 +336,6 @@ public class MiscService {
 		String channelId = event.getMessageChannel().getId();
 		String keyword = event.getOption("keyword").getAsString();
 		LocalDate startDate = LocalDate.parse(event.getOption("start_date").getAsString(), DateTimeFormatter.BASIC_ISO_DATE);
-		String ownerId = event.getJDA().retrieveApplicationInfo().complete().getOwner().getId(); // Owner ID
 
 		TextChannel channel = shardManager.getTextChannelById(channelId);
 		if (channel == null) {
