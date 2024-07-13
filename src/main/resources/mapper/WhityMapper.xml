@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.benwyw.bot.mapper.WhityMapper">
+
+	<select id="getWhityWeight" resultType="com.benwyw.bot.data.WhityWeight">
+		SELECT *
+		FROM WHITY_WEIGHT
+		ORDER BY RECORD_ID
+		OFFSET #{current}-1 ROWS
+		<if test="size > 0">
+			FETCH NEXT #{size} ROWS ONLY
+		</if>
+	</select>
+
+	<select id="getWhityWeightCount" resultType="long">
+		SELECT COUNT(1)
+		FROM WHITY_WEIGHT
+	</select>
+
+	<insert id="insert">
+		INSERT INTO WHITY_WEIGHT(
+			<if test='recordId != null and recordId != ""'>RECORD_ID,</if>
+			RECORD_DATE, KG, REMARKS
+		)
+		VALUES(
+			<if test='recordId != null and recordId != ""'>#{recordId},</if>
+			#{recordDate}, #{kg}, #{remarks}
+		)
+	</insert>
+
+	<select id="select" resultType="com.benwyw.bot.data.WhityWeight">
+		SELECT *
+		FROM WHITY_WEIGHT
+		ORDER BY RECORD_ID
+	</select>
+
+	<update id="update">
+		UPDATE WHITY_WEIGHT
+		SET RECORD_DATE = #{recordDate}, KG = #{kg}, REMARKS = #{remarks}
+		WHERE RECORD_ID = #{recordId}
+	</update>
+
+	<delete id="delete">
+		DELETE WHITY_WEIGHT
+		WHERE RECORD_ID = #{recordId}
+	</delete>
+
+	<select id="selectLatest" resultType="com.benwyw.bot.data.WhityWeight">
+		SELECT *
+		FROM WHITY_WEIGHT
+		WHERE RECORD_ID = (
+			SELECT MAX(RECORD_ID)
+			FROM WHITY_WEIGHT
+			WHERE RECORD_DATE = (
+				SELECT MAX(RECORD_DATE)
+				FROM WHITY_WEIGHT)
+			)
+	</select>
+
+</mapper>

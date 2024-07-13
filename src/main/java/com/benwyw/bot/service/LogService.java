@@ -33,15 +33,18 @@ public class LogService {
 	 * @param success a boolean indicating whether the message is a success message or an error message
 	 */
 	public void messageToLog(String message, Boolean success) {
-		MessageEmbed embed = EmbedUtils.createDefault(message);
-		if (success != null) {
-			if (success) {
-				embed = EmbedUtils.createSuccess(message);
+		try {
+			MessageEmbed embed = EmbedUtils.createDefault(message);
+			if (success != null) {
+				if (success) {
+					embed = EmbedUtils.createSuccess(message);
+				} else {
+					embed = EmbedUtils.createError(message);
+				}
 			}
-			else {
-				embed = EmbedUtils.createError(message);
-			}
+			Objects.requireNonNull(shardManager.getTextChannelById(discordProperties.getChannels().get(logChannelName))).sendMessageEmbeds(embed).queue();
+		} catch(Exception e) {
+			log.error("Failed to publish log to Discord at messageToLog");
 		}
-		Objects.requireNonNull(shardManager.getTextChannelById(discordProperties.getChannels().get(logChannelName))).sendMessageEmbeds(embed).queue();
 	}
 }

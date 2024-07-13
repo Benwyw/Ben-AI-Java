@@ -1,6 +1,13 @@
 package com.benwyw.bot.commands;
 
+import com.benwyw.bot.Main;
+import com.benwyw.bot.commands.greetings.GreetCommand;
 import com.benwyw.bot.commands.misc.MiscCommand;
+import com.benwyw.bot.commands.misc.WhityCommand;
+import com.benwyw.bot.commands.music.*;
+import com.benwyw.bot.commands.user.UserDetailsCommand;
+import com.benwyw.bot.data.GuildData;
+import com.benwyw.util.embeds.EmbedUtils;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
@@ -11,22 +18,6 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import org.jetbrains.annotations.NotNull;
-
-import com.benwyw.bot.Main;
-import com.benwyw.bot.commands.greetings.GreetCommand;
-import com.benwyw.bot.commands.music.NowPlayingCommand;
-import com.benwyw.bot.commands.music.PauseCommand;
-import com.benwyw.bot.commands.music.PlayCommand;
-import com.benwyw.bot.commands.music.QueueCommand;
-import com.benwyw.bot.commands.music.RepeatCommand;
-import com.benwyw.bot.commands.music.ResumeCommand;
-import com.benwyw.bot.commands.music.SeekCommand;
-import com.benwyw.bot.commands.music.SkipCommand;
-import com.benwyw.bot.commands.music.StopCommand;
-import com.benwyw.bot.commands.music.VolumeCommand;
-import com.benwyw.bot.commands.user.UserDetailsCommand;
-import com.benwyw.bot.data.GuildData;
-import com.benwyw.util.embeds.EmbedUtils;
 import org.springframework.context.annotation.Profile;
 
 import java.util.ArrayList;
@@ -74,7 +65,8 @@ public class CommandRegistry extends ListenerAdapter {
 
                 //Utility commands
                 new UserDetailsCommand(bot),
-                new MiscCommand(bot)
+                new MiscCommand(bot),
+                new WhityCommand(bot)
                 // TODO new HelpCommand(bot)
         );
     }
