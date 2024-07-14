@@ -75,6 +75,14 @@ public class WhityService {
 		return page;
 	}
 
+	private StringBuilder append(StringBuilder stringBuilder, String appendText) {
+		if (!stringBuilder.isEmpty()) {
+			stringBuilder.append("\n");
+		}
+		stringBuilder.append(appendText);
+		return stringBuilder;
+	}
+
 	public MessageEmbed weight(SlashCommandInteractionEvent event) {
 		MessageEmbed masterMessageEmbed = EmbedUtils.createSuccess("Operation completed.");
 		try {
@@ -139,17 +147,30 @@ public class WhityService {
 			embedBuilder.setThumbnail("https://i.imgur.com/b81zA3M.png");
 
 			if (ModeConstant.SELECT.equals(modeStr)) {
+				StringBuilder recordIdSb = new StringBuilder();
+				StringBuilder recordDateSb = new StringBuilder();
+				StringBuilder kgSb = new StringBuilder();
+				StringBuilder remarksSb = new StringBuilder();
+
 				for (WhityWeight whityWeightItem : whityWeightList) {
 					dateStr = String.valueOf(whityWeightItem.getRecordDate());
 					weightStr = String.valueOf(whityWeightItem.getKg());
 					remarksStr = whityWeightItem.getRemarks();
 
-					embedBuilder.addField("RECORD_ID", whityWeightItem.getRecordId().toString(), true);
-					embedBuilder.addField("RECORD_DATE", dateStr != null ? dateStr : NULL, true);
-					embedBuilder.addField("KG", weightStr != null ? weightStr : NULL, true);
-					embedBuilder.addField("REMARKS", remarksStr != null? remarksStr : NULL, true);
-					embedBuilder.addBlankField(false);
+					append(recordIdSb, whityWeightItem.getRecordId().toString());
+					append(recordDateSb, dateStr != null ? dateStr : NULL);
+					append(kgSb, weightStr != null ? weightStr : NULL);
+
+					if (!StringUtils.isBlank(remarksStr)) {
+						kgSb.append(String.format(" (%s)", remarksStr));
+					}
+//					append(remarksSb, remarksStr != null? remarksStr : NULL);
+
 				}
+
+				embedBuilder.addField("RECORD_ID", recordIdSb.toString(), true);
+				embedBuilder.addField("RECORD_DATE", recordDateSb.toString(), true);
+				embedBuilder.addField("KG (REMARKS)", kgSb.toString(), true);
 			}
 			else {
 				embedBuilder.addField("Date", dateStr != null ? dateStr : "", true);
