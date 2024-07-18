@@ -31,7 +31,7 @@
 	<select id="select" resultType="com.benwyw.bot.data.WhityWeight">
 		SELECT *
 		FROM WHITY_WEIGHT
-		ORDER BY RECORD_ID
+		ORDER BY RECORD_DATE DESC, RECORD_ID DESC
 	</select>
 
 	<update id="update">
