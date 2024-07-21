@@ -13,6 +13,8 @@ import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import dev.lavalink.youtube.clients.*;
+import dev.lavalink.youtube.clients.skeleton.Client;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Member;
@@ -62,7 +64,7 @@ public class MusicListener extends ListenerAdapter {
         playerManager.registerSourceManager(new AppleMusicSourceManager(null, mediaAPIToken, "hk", playerManager));
 
         // Add YT support
-        playerManager.registerSourceManager(new dev.lavalink.youtube.YoutubeAudioSourceManager());
+        playerManager.registerSourceManager(new dev.lavalink.youtube.YoutubeAudioSourceManager(/*allowSearch:*/ true, new Client[] { new MusicWithThumbnail(), new WebWithThumbnail(), new AndroidTestsuiteWithThumbnail(), new TvHtml5EmbeddedWithThumbnail(), new AndroidLiteWithThumbnail(), new MediaConnectWithThumbnail(), new IosWithThumbnail() }));
 
         // Add audio player to source manager
         AudioSourceManagers.registerRemoteSources(playerManager, com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager.class);

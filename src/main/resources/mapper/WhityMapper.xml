@@ -5,7 +5,7 @@
 	<select id="getWhityWeight" resultType="com.benwyw.bot.data.WhityWeight">
 		SELECT *
 		FROM WHITY_WEIGHT
-		ORDER BY RECORD_ID
+		ORDER BY RECORD_DATE DESC, RECORD_ID DESC
 		OFFSET #{current}-1 ROWS
 		<if test="size > 0">
 			FETCH NEXT #{size} ROWS ONLY
