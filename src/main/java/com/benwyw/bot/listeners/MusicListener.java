@@ -4,7 +4,6 @@ import com.benwyw.bot.data.GuildData;
 import com.benwyw.bot.handler.MusicHandler;
 import com.benwyw.util.SecurityUtils;
 import com.benwyw.util.embeds.EmbedUtils;
-import com.github.topisenpai.lavasrc.applemusic.AppleMusicSourceManager;
 import com.github.topisenpai.lavasrc.spotify.SpotifySourceManager;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
@@ -15,7 +14,6 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import dev.lavalink.youtube.clients.*;
 import dev.lavalink.youtube.clients.skeleton.Client;
-import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -60,11 +58,11 @@ public class MusicListener extends ListenerAdapter {
         this.playerManager.registerSourceManager(new SpotifySourceManager(null, clientId, clientSecret, countryCode, playerManager));
 
         // Add Apple Music support
-        String mediaAPIToken = Dotenv.configure().load().get("APPLE_MUSIC_TOKEN");
-        playerManager.registerSourceManager(new AppleMusicSourceManager(null, mediaAPIToken, "hk", playerManager));
+//        String mediaAPIToken = Dotenv.configure().load().get("APPLE_MUSIC_TOKEN");
+//        playerManager.registerSourceManager(new AppleMusicSourceManager(null, mediaAPIToken, "hk", playerManager));
 
         // Add YT support
-        playerManager.registerSourceManager(new dev.lavalink.youtube.YoutubeAudioSourceManager(/*allowSearch:*/ true, new Client[] { new MusicWithThumbnail(), new WebWithThumbnail(), new AndroidTestsuiteWithThumbnail(), new TvHtml5EmbeddedWithThumbnail(), new AndroidLiteWithThumbnail(), new MediaConnectWithThumbnail(), new IosWithThumbnail() }));
+        playerManager.registerSourceManager(new dev.lavalink.youtube.YoutubeAudioSourceManager(/*allowSearch:*/ true, new Client[] { new MusicWithThumbnail(), new WebWithThumbnail(), new AndroidTestsuiteWithThumbnail(), new TvHtml5EmbeddedWithThumbnail(), new AndroidLiteWithThumbnail(), new MediaConnectWithThumbnail(), new IosWithThumbnail(), new AndroidMusicWithThumbnail() }));
 
         // Add audio player to source manager
         AudioSourceManagers.registerRemoteSources(playerManager, com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager.class);

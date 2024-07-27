@@ -5,7 +5,7 @@
 
   <groupId>com.benwyw</groupId>
   <artifactId>Ben-AI-Java</artifactId>
-  <version>v0.1.6</version>
+  <version>v0.1.7</version>
   <packaging>jar</packaging>
 
   <name>Ben-AI-Java</name>
@@ -49,9 +49,9 @@
 		  <url>https://repo.maven.apache.org/maven2/</url>
 	  </repository>
 	  <repository>
-		  <id>maven_central_sonatype</id>
-		  <name>Maven Central Sonatype</name>
-		  <url>https://central.sonatype.com/artifact/</url>
+		  <id>TopiWTF-releases</id>
+		  <name>Topis Maven Repo</name>
+		  <url>https://maven.topi.wtf/#/releases</url>
 	  </repository>
   </repositories>
 
@@ -95,17 +95,17 @@
 	<dependency>
 	  <groupId>dev.lavalink.youtube</groupId>
 	  <artifactId>common</artifactId>
-	  <version>1.4.0</version>
+	  <version>1.5.0</version>
 	</dependency>
 	<dependency>
 	  <groupId>dev.lavalink.youtube</groupId>
 	  <artifactId>v2</artifactId>
-	  <version>1.4.0</version>
+	  <version>1.5.0</version>
 	</dependency>
 	<dependency>
       <groupId>com.github.TopiSenpai.LavaSrc</groupId>
       <artifactId>lavasrc</artifactId>
-      <version>3.2.0</version>
+      <version>3.2.10</version>
   	</dependency>
   	
   	<!-- Jackson -->
