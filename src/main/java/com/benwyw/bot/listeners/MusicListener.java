@@ -139,6 +139,7 @@ public class MusicListener extends ListenerAdapter {
             guildData.musicHandler = new MusicHandler(playerManager.createPlayer());
         }
         manager.setSendingHandler(guildData.musicHandler);
+        manager.setSelfDeafened(true);
         Objects.requireNonNull(guildData.musicHandler).setLogChannel(logChannel);
         guildData.musicHandler.setPlayChannel(channel);
         manager.openAudioConnection(channel);

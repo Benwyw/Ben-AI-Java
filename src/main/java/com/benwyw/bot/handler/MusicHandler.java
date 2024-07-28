@@ -255,7 +255,7 @@ public class MusicHandler implements AudioSendHandler {
 
         @Override
         public void onTrackException(AudioPlayer player, AudioTrack track, @NotNull FriendlyException exception) {
-            String msg = "An error occurred! " + exception.getMessage();
+            String msg = String.format("You're advised to use <@!1267103861542490162> due to an error occurred! %s", exception.getMessage());
             handler.logChannel.sendMessageEmbeds(EmbedUtils.createError(msg)).queue();
             exception.printStackTrace();
         }
