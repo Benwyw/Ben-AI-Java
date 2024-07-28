@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,7 @@ import java.util.Objects;
 
 @Slf4j
 @Service
+@ConditionalOnProperty(name = "benaijava.enableLoopService", havingValue = "true", matchIfMissing = true)
 public class LoopService {
 
 	@Autowired
