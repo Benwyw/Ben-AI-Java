@@ -5,7 +5,7 @@
 
   <groupId>com.benwyw</groupId>
   <artifactId>Ben-AI-Java</artifactId>
-  <version>v0.1.9</version>
+  <version>v0.1.10</version>
   <packaging>jar</packaging>
 
   <name>Ben-AI-Java</name>
@@ -14,7 +14,7 @@
   <parent>
 	<groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.0.2</version>
+    <version>3.3.2</version>
   </parent>
 
   <properties>
@@ -65,17 +65,12 @@
 	<dependency>
 	  <groupId>net.dv8tion</groupId>
 	  <artifactId>JDA</artifactId>
-	  <version>5.0.0</version>
+	  <version>5.0.2</version>
 	</dependency>
 	<dependency>
 	  <groupId>org.projectlombok</groupId>
 	  <artifactId>lombok</artifactId>
 	  <version>1.18.32</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.slf4j</groupId>
-	  <artifactId>slf4j-simple</artifactId>
-	  <version>2.0.6</version>
 	</dependency>
 	<dependency>
 	  <groupId>org.slf4j</groupId>
@@ -91,6 +86,12 @@
       <groupId>dev.arbjerg</groupId>
       <artifactId>lavaplayer</artifactId>
       <version>2.2.1</version>
+	  <exclusions>
+	  	<exclusion>
+		  <groupId>commons-logging</groupId>
+		  <artifactId>commons-logging</artifactId>
+		</exclusion>
+	  </exclusions>
 	</dependency>
 	<dependency>
 	  <groupId>dev.lavalink.youtube</groupId>
@@ -120,44 +121,20 @@
 	    <groupId>org.mybatis.spring.boot</groupId>
 	    <artifactId>mybatis-spring-boot-starter</artifactId>
 	    <version>3.0.3</version>
-	    <exclusions>
-	        <exclusion>
-	            <groupId>ch.qos.logback</groupId>
-	            <artifactId>logback-classic</artifactId>
-	        </exclusion>
-	    </exclusions>
 	</dependency>
 	
     <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-web</artifactId>
-        <exclusions>
-	        <exclusion>
-	            <groupId>ch.qos.logback</groupId>
-	            <artifactId>logback-classic</artifactId>
-	        </exclusion>
-	    </exclusions>
     </dependency>
     <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-test</artifactId>
         <scope>test</scope>
-        <exclusions>
-	        <exclusion>
-	            <groupId>ch.qos.logback</groupId>
-	            <artifactId>logback-classic</artifactId>
-	        </exclusion>
-	    </exclusions>
     </dependency>
     <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-actuator</artifactId>
-        <exclusions>
-	        <exclusion>
-	            <groupId>ch.qos.logback</groupId>
-	            <artifactId>logback-classic</artifactId>
-	        </exclusion>
-	    </exclusions>
     </dependency>
     
     <!-- https://mvnrepository.com/artifact/com.oracle.database.jdbc/ojdbc10 -->
@@ -165,12 +142,6 @@
 	    <groupId>com.oracle.database.jdbc</groupId>
 	    <artifactId>ojdbc10</artifactId>
 	    <version>19.18.0.0</version>
-	</dependency>
-	
-	<dependency>
-	    <groupId>org.springframework</groupId>
-	    <artifactId>spring-jdbc</artifactId>
-	    <version>6.0.4</version>
 	</dependency>
 	
 	<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
@@ -204,22 +175,25 @@
 	</dependency>
 
 	<!-- Jackson library for reading JSON files -->
+	<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
 	<dependency>
 	  <groupId>com.fasterxml.jackson.core</groupId>
 	  <artifactId>jackson-databind</artifactId>
-	  <version>2.12.7.1</version>
+	  <version>2.17.2</version>
 	</dependency>
 
-	<!-- Apache POI library for working with Excel files -->
+	  <!-- Apache POI library for working with Excel files -->
+	<!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
 	<dependency>
 	  <groupId>org.apache.poi</groupId>
 	  <artifactId>poi</artifactId>
-	  <version>5.2.3</version>
+	  <version>5.3.0</version>
 	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml -->
 	<dependency>
 	  <groupId>org.apache.poi</groupId>
 	  <artifactId>poi-ooxml</artifactId>
-	  <version>5.2.5</version>
+	  <version>5.3.0</version>
 	</dependency>
 
 	  <!-- https://mvnrepository.com/artifact/com.opencsv/opencsv -->
