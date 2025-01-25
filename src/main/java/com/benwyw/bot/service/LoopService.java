@@ -9,6 +9,8 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -23,10 +25,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static com.benwyw.util.embeds.EmbedUtils.RED_X;
+
 @Slf4j
 @Service
 @ConditionalOnProperty(name = "benaijava.enableLoopService", havingValue = "true", matchIfMissing = true)
 public class LoopService {
+	private final Logger logger = LoggerFactory.getLogger(LoopService.class);
 
 	@Autowired
 	@SuppressWarnings("unused")
@@ -48,15 +53,27 @@ public class LoopService {
 	public void healthCheckMinecraftServer() {
 		MessageEmbed messageEmbed = miscService.getHealthCheckMinecraftServerEmbed();
 
-		for (Long loopChannels : loopProperties.getMinecraftServer()) {
-			TextChannel textChannel = shardManager.getTextChannelById(loopChannels);
-			if (textChannel != null) {
-				Objects.requireNonNull(shardManager.getTextChannelById(loopChannels)).sendMessageEmbeds(messageEmbed).queue();
-			}
-			else {
-				logService.messageToLog(String.format("LoopService.healthCheckMinecraftServer: send to channelId %s failed", loopChannels), false);
+		boolean hasRedX = messageEmbed.getFields().stream()
+				.filter(field -> "Server".equals(field.getName()) || "Discord".equals(field.getName()) || "Map".equals(field.getName()))
+				.anyMatch(field -> RED_X.equals(field.getValue()));
 
+		// alert the server status only if one of the service is down
+		if (hasRedX) {
+			// Handle the case where any of the fields have EmbedUtils.RED_X
+			logger.debug("hasRedX: true");
+			for (Long loopChannels : loopProperties.getMinecraftServer()) {
+				TextChannel textChannel = shardManager.getTextChannelById(loopChannels);
+				if (textChannel != null) {
+					Objects.requireNonNull(shardManager.getTextChannelById(loopChannels)).sendMessageEmbeds(messageEmbed).queue();
+				}
+				else {
+					logService.messageToLog(String.format("LoopService.healthCheckMinecraftServer: send to channelId %s failed", loopChannels), false);
+
+				}
 			}
+		}
+		else {
+			logger.debug("hasRedX: false");
 		}
 	}
 
