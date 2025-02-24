@@ -46,7 +46,7 @@ jobs:
         echo "VERSION=$version" >> $GITHUB_ENV
         
     - name: Save artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: "Ben-AI-Java-${{ env.VERSION }}"
         path: "target/Ben-AI-Java-${{ env.VERSION }}.jar"
