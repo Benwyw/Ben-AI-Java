@@ -13,7 +13,7 @@
 		SELECT *
 		FROM FEATURES
 		ORDER BY FEATURE_ID
-		OFFSET #{current}-1 ROWS
+		OFFSET (#{current}-1) * #{size} ROWS
 		<if test="size > 0">
 		FETCH NEXT #{size} ROWS ONLY
 		</if>

@@ -6,7 +6,7 @@
 		SELECT *
 		FROM WHITY_WEIGHT
 		ORDER BY RECORD_DATE DESC, RECORD_ID DESC
-		OFFSET #{current}-1 ROWS
+		OFFSET (#{current}-1) * #{size} ROWS
 		<if test="size > 0">
 			FETCH NEXT #{size} ROWS ONLY
 		</if>
