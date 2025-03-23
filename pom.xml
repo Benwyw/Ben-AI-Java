@@ -5,7 +5,7 @@
 
   <groupId>com.benwyw</groupId>
   <artifactId>Ben-AI-Java</artifactId>
-  <version>v0.1.15</version>
+  <version>v0.1.16</version>
   <packaging>jar</packaging>
 
   <name>Ben-AI-Java</name>
@@ -52,6 +52,10 @@
 		  <id>TopiWTF-releases</id>
 		  <name>Topis Maven Repo</name>
 		  <url>https://maven.topi.wtf/#/releases</url>
+	  </repository>
+	  <repository>
+		  <id>project-libs</id>
+		  <url>file://${project.basedir}/project-libs</url>
 	  </repository>
   </repositories>
 
@@ -235,6 +239,134 @@
 		  <version>3.0.6</version>
 	  </dependency>
 
+	  <!-- Report -->
+	  <dependency>
+		  <groupId>com.crystaldecisions</groupId>
+		  <artifactId>CrystalReportsRuntime</artifactId>
+		  <version>12.0</version>
+		  <scope>system</scope>
+		  <systemPath>${project.basedir}/libs/CrystalReportsRuntime.jar</systemPath>
+	  </dependency>
+	  <dependency>
+		  <groupId>com.crystaldecisions</groupId>
+		  <artifactId>CrystalCommon2</artifactId>
+		  <version>12.0</version>
+		  <scope>system</scope>
+		  <systemPath>${project.basedir}/libs/CrystalCommon2.jar</systemPath>
+	  </dependency>
+	  <dependency>
+		  <groupId>com.azalea</groupId>
+		  <artifactId>ufl.barcode.1.0</artifactId>
+		  <version>1.0</version>
+		  <scope>system</scope>
+		  <systemPath>${project.basedir}/libs/com.azalea.ufl.barcode.1.0.jar</systemPath>
+	  </dependency>
+	  <dependency>
+		  <groupId>org.apache.commons</groupId>
+		  <artifactId>commons-collections</artifactId>
+		  <version>3.2.2</version>
+		  <scope>system</scope>
+		  <systemPath>${project.basedir}/libs/commons-collections-3.2.2.jar</systemPath>
+	  </dependency>
+	  <dependency>
+		  <groupId>org.apache.commons</groupId>
+		  <artifactId>commons-configuration</artifactId>
+		  <version>1.2</version>
+		  <scope>system</scope>
+		  <systemPath>${project.basedir}/libs/commons-configuration-1.2.jar</systemPath>
+	  </dependency>
+	  <dependency>
+		  <groupId>org.apache.commons</groupId>
+		  <artifactId>commons-lang</artifactId>
+		  <version>2.1</version>
+		  <scope>system</scope>
+		  <systemPath>${project.basedir}/libs/commons-lang-2.1.jar</systemPath>
+	  </dependency>
+<!--	  <dependency>-->
+<!--		  <groupId>org.apache.commons</groupId>-->
+<!--		  <artifactId>commons-logging</artifactId>-->
+<!--		  <version>1.2</version>-->
+<!--		  <scope>system</scope>-->
+<!--		  <systemPath>${project.basedir}/libs/commons-logging.jar</systemPath>-->
+<!--	  </dependency>-->
+	  <dependency>
+		  <groupId>com.crystaldecisions</groupId>
+		  <artifactId>cvom</artifactId>
+		  <version>1.0</version>
+		  <scope>system</scope>
+		  <systemPath>${project.basedir}/libs/cvom.jar</systemPath>
+	  </dependency>
+	  <dependency>
+		  <groupId>com.oracle</groupId>
+		  <artifactId>jai_imageio</artifactId>
+		  <version>1.0</version>
+		  <scope>system</scope>
+		  <systemPath>${project.basedir}/libs/jai_imageio.jar</systemPath>
+	  </dependency>
+	  <dependency>
+		  <groupId>com.database</groupId>
+		  <artifactId>JDBInterface</artifactId>
+		  <version>1.0</version>
+		  <scope>system</scope>
+		  <systemPath>${project.basedir}/libs/JDBInterface.jar</systemPath>
+	  </dependency>
+<!--	  <dependency>-->
+<!--		  <groupId>org.json</groupId>-->
+<!--		  <artifactId>json</artifactId>-->
+<!--		  <version>1.0</version>-->
+<!--		  <scope>system</scope>-->
+<!--		  <systemPath>${project.basedir}/libs/json.jar</systemPath>-->
+<!--	  </dependency>-->
+	  <dependency>
+		  <groupId>com.security</groupId>
+		  <artifactId>keycodeDecoder</artifactId>
+		  <version>1.0</version>
+		  <scope>system</scope>
+		  <systemPath>${project.basedir}/libs/keycodeDecoder.jar</systemPath>
+	  </dependency>
+<!--	  <dependency>-->
+<!--		  <groupId>org.apache.logging</groupId>-->
+<!--		  <artifactId>log4j-api</artifactId>-->
+<!--		  <version>2.17.1</version>-->
+<!--		  <scope>system</scope>-->
+<!--		  <systemPath>${project.basedir}/libs/log4j-api.jar</systemPath>-->
+<!--	  </dependency>-->
+<!--	  <dependency>-->
+<!--		  <groupId>org.apache.logging</groupId>-->
+<!--		  <artifactId>log4j-core</artifactId>-->
+<!--		  <version>2.17.1</version>-->
+<!--		  <scope>system</scope>-->
+<!--		  <systemPath>${project.basedir}/libs/log4j-core.jar</systemPath>-->
+<!--	  </dependency>-->
+	  <dependency>
+		  <groupId>com.crystaldecisions</groupId>
+		  <artifactId>logging</artifactId>
+		  <version>1.0</version>
+		  <scope>system</scope>
+		  <systemPath>${project.basedir}/libs/logging.jar</systemPath>
+	  </dependency>
+	  <dependency>
+		  <groupId>com.graphics</groupId>
+		  <artifactId>pfjgraphics</artifactId>
+		  <version>1.0</version>
+		  <scope>system</scope>
+		  <systemPath>${project.basedir}/libs/pfjgraphics.jar</systemPath>
+	  </dependency>
+	  <dependency>
+		  <groupId>org.codehaus.xpp3</groupId>
+		  <artifactId>xpp3</artifactId>
+		  <version>1.1.4</version>
+		  <scope>system</scope>
+		  <systemPath>${project.basedir}/libs/xpp3.jar</systemPath>
+	  </dependency>
+	  <dependency>
+		  <groupId>com.ibm</groupId>
+		  <artifactId>icu</artifactId>
+		  <version>64.2.0</version>
+		  <scope>system</scope>
+		  <systemPath>${project.basedir}/libs/com.ibm.icu_64.2.0.v20190507-1337.jar</systemPath>
+	  </dependency>
+
   </dependencies>
 
   <build>
@@ -244,6 +376,7 @@
 		    <artifactId>spring-boot-maven-plugin</artifactId>
 		    <configuration>
 		        <executable>true</executable>
+				<includeSystemScope>true</includeSystemScope>
 		    </configuration>
             <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-shade-plugin -->
             <!--
@@ -267,5 +400,14 @@
             </executions>-->
         </plugin>
     </plugins>
+	<testSourceDirectory>src/test/java</testSourceDirectory>
+	<resources>
+	  <resource>
+		  <directory>src/main/resources</directory>
+		  <excludes>
+			  <exclude>**/*.jar</exclude>
+		  </excludes>
+	  </resource>
+	</resources>
   </build>
 </project>
