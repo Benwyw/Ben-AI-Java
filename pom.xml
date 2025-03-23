@@ -310,13 +310,13 @@
 		  <scope>system</scope>
 		  <systemPath>${project.basedir}/libs/JDBInterface.jar</systemPath>
 	  </dependency>
-	  <dependency>
-		  <groupId>org.json</groupId>
-		  <artifactId>json</artifactId>
-		  <version>1.0</version>
-		  <scope>system</scope>
-		  <systemPath>${project.basedir}/libs/json.jar</systemPath>
-	  </dependency>
+<!--	  <dependency>-->
+<!--		  <groupId>org.json</groupId>-->
+<!--		  <artifactId>json</artifactId>-->
+<!--		  <version>1.0</version>-->
+<!--		  <scope>system</scope>-->
+<!--		  <systemPath>${project.basedir}/libs/json.jar</systemPath>-->
+<!--	  </dependency>-->
 	  <dependency>
 		  <groupId>com.security</groupId>
 		  <artifactId>keycodeDecoder</artifactId>

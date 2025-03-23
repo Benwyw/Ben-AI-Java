@@ -66,7 +66,7 @@ public class ReportController {
 	@GetMapping("/generate-test-report-2")
 	public ResponseEntity<StreamingResponseBody> generateTestReport2(
 			//@RequestParam(defaultValue = "C:\\Users\\User\\Downloads\\GeneralRpt.rpt") String reportPath,
-			@RequestParam(defaultValue = "Tester") String userName) throws IOException, ReportSDKException {
+			@RequestParam(defaultValue = "Tester") String userName) {
 		// Set the response headers
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
