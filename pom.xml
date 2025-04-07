@@ -367,6 +367,18 @@
 		  <systemPath>${project.basedir}/libs/com.ibm.icu_64.2.0.v20190507-1337.jar</systemPath>
 	  </dependency>
 
+	  <!-- JasperReports Library -->
+	  <dependency>
+		  <groupId>net.sf.jasperreports</groupId>
+		  <artifactId>jasperreports</artifactId>
+		  <version>7.0.2</version>
+	  </dependency>
+	  <dependency>
+		  <groupId>net.sf.jasperreports</groupId>
+		  <artifactId>jasperreports-pdf</artifactId>
+		  <version>7.0.2</version>
+	  </dependency>
+
   </dependencies>
 
   <build>

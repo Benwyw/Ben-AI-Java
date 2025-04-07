@@ -1,12 +1,19 @@
 package com.benwyw.bot.controller.web;
 
+import com.benwyw.bot.data.ReportData;
 import com.benwyw.bot.service.ReportService;
 import com.crystaldecisions.sdk.occa.report.lib.ReportSDKException;
 import lombok.extern.slf4j.Slf4j;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,8 +21,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.*;
 
 @Slf4j
 @RestController
@@ -111,6 +120,46 @@ public class ReportController {
 		return ResponseEntity.ok()
 				.headers(headers)
 				.body(reportData);
+	}
+
+
+	// Jasper below
+	@GetMapping("/api/download-report")
+	@Profile("local")
+	public ResponseEntity<InputStreamResource> downloadReport() throws JRException {
+		// Path to the compiled JasperReport (.jasper file)
+		String reportPath = "src/main/resources/report/Cherry_Landscape.jasper"; // TODO to be corrected for remote server
+
+		// Parameters to pass to the report
+		Map<String, Object> parameters = new HashMap<>();
+		parameters.put("ReportTitle", "Sample Report");
+		parameters.put("Author", "Spring Boot Application");
+
+		// Sample data source (List of objects or data)
+		List<ReportData> dataList = new ArrayList<>();
+		dataList.add(new ReportData("John Doe", 29, "USA"));
+		dataList.add(new ReportData("Jane Smith", 34, "UK"));
+		dataList.add(new ReportData("Alice Brown", 25, "Canada"));
+
+		// Wrap the data source
+		JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(dataList);
+
+		// Fill the report
+		JasperPrint jasperPrint = JasperFillManager.fillReport(reportPath, parameters, dataSource);
+
+		// Export the report to PDF format
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		JasperExportManager.exportReportToPdfStream(jasperPrint, outputStream);
+
+		// Prepare for download
+		ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Content-Disposition", "attachment; filename=report.pdf");
+
+		return ResponseEntity.ok()
+				.headers(headers)
+				.contentType(MediaType.APPLICATION_PDF)
+				.body(new InputStreamResource(inputStream));
 	}
 
 }
