@@ -35,6 +35,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Slf4j
 @Service
@@ -196,6 +198,45 @@ public class SwaggerService {
 		StreamingResponseBody responseBody = outputStream -> {
 			try (XSSFWorkbook workbook = generateWorkbook(data)) {
 				workbook.write(outputStream);
+			} catch (IOException e) {
+				log.error(e.toString());
+			}
+		};
+
+		return new ResponseEntity<>(responseBody, headers, HttpStatus.OK);
+	}
+
+	/**
+	 * Multiple XSSFWorkbook to Zip file
+	 * @param jsonString Swagger JSON text
+	 * @return ResponseEntity<StreamingResponseBody>
+	 * @throws IOException IOException
+	 */
+	public ResponseEntity<StreamingResponseBody> generateExcelZipFromSwaggerJson(String jsonString) throws IOException {
+		ObjectMapper objectMapper = new ObjectMapper();
+		String convertedJsonString = objectMapper.readValue(jsonString, new TypeReference<Map<String, String>>() {}).get("jsonString");
+		Map<String, Object> data = objectMapper.readValue(convertedJsonString, new TypeReference<>() {});
+
+		// 假设你有多个 workbook
+		List<XSSFWorkbook> workbooks = new ArrayList<>();
+		workbooks.add(generateWorkbook(data));
+		workbooks.add(generateWorkbook(data)); // 示例：添加第二个 workbook
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+		headers.setContentDisposition(ContentDisposition.attachment().filename("data.zip").build());
+
+		StreamingResponseBody responseBody = outputStream -> {
+			try (ZipOutputStream zipOut = new ZipOutputStream(outputStream)) {
+				int idx = 1;
+				for (XSSFWorkbook workbook : workbooks) {
+					String entryName = "data" + idx++ + ".xlsx";
+					zipOut.putNextEntry(new ZipEntry(entryName));
+					workbook.write(zipOut);
+					zipOut.closeEntry();
+					workbook.close();
+				}
+				zipOut.finish();
 			} catch (IOException e) {
 				log.error(e.toString());
 			}

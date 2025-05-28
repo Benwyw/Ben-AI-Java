@@ -56,6 +56,17 @@ public class SwaggerController {
 	}
 
 	/**
+	 * Generate Excel Zip with Swagger JSON passed in API call
+	 * @param jsonString Swagger JSON text
+	 * @return ResponseEntity<StreamingResponseBody>
+	 * @throws IOException IOException
+	 */
+	@PostMapping("/generateExcelZipFromSwaggerJson")
+	public ResponseEntity<StreamingResponseBody> generateExcelZipFromSwaggerJson(@RequestBody String jsonString) throws IOException {
+		return swaggerService.generateExcelZipFromSwaggerJson(jsonString);
+	}
+
+	/**
 	 * Generate Excel to output directory with Swagger JSON passed in API call in Local machine
 	 * @param jsonString Swagger JSON text
 	 * @return ResponseEntity<Resource>
