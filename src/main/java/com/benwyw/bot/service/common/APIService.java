@@ -55,7 +55,7 @@ public class APIService {
 		try {
 			URL url = new URL(serverUrl);
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			connection.setRequestMethod("HEAD");
+			connection.setRequestMethod("GET");
 
 			int responseCode = connection.getResponseCode();
 			if (responseCode == HttpURLConnection.HTTP_OK) {
