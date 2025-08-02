@@ -1,24 +1,38 @@
 package com.benwyw.bot.commands.music;
 
-import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import com.benwyw.bot.Main;
 import com.benwyw.bot.commands.Category;
 import com.benwyw.bot.commands.Command;
 import com.benwyw.bot.handler.MusicHandler;
 import com.benwyw.util.embeds.EmbedUtils;
+import jakarta.annotation.PostConstruct;
+import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Command that searches and plays music.
  *
  * @author Benwyw
  */
+@Component
 public class PlayCommand extends Command {
+
+    private static Set<String> ALLOWED_GUILD_IDS;
+    private static final Logger logger = org.slf4j.LoggerFactory.getLogger(PlayCommand.class);
+
+    @Value("${music.allowedGuilds}")
+    private String allowedGuilds;
 
     public PlayCommand(Main bot) {
         super(bot);
@@ -28,7 +42,21 @@ public class PlayCommand extends Command {
         this.args.add(new OptionData(OptionType.STRING, "song", "Song to search for or a link to the song", true));
     }
 
+    @PostConstruct
+    private void init() {
+        // Initialize the set of allowed guild IDs from the configuration
+        ALLOWED_GUILD_IDS = new HashSet<>(Arrays.asList(allowedGuilds.split(",")));
+        logger.info("PlayCommand initialized with allowed guilds: {}", ALLOWED_GUILD_IDS);
+    }
+
     public void execute(SlashCommandInteractionEvent event) {
+        String guildId = event.getGuild().getId();
+        if (!ALLOWED_GUILD_IDS.contains(guildId)) {
+            String text = "This command is not available in this server.";
+            event.replyEmbeds(EmbedUtils.createError(text)).setEphemeral(true).queue();
+            return;
+        }
+
         String song = event.getOption("song").getAsString();
         MusicHandler music = bot.musicListener.getMusic(event, true);
         if (music == null) return;

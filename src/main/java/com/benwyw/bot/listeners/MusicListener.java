@@ -12,8 +12,10 @@ import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import dev.lavalink.youtube.YoutubeAudioSourceManager;
 import dev.lavalink.youtube.clients.*;
 import dev.lavalink.youtube.clients.skeleton.Client;
+import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -24,6 +26,8 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.net.MalformedURLException;
@@ -39,7 +43,10 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class MusicListener extends ListenerAdapter {
 
+    private static final Logger logger = LoggerFactory.getLogger(MusicListener.class);
     private final @NotNull AudioPlayerManager playerManager;
+    private final static String USE_NEW_REFRESH_TOKEN = Dotenv.configure().load().get("USE_NEW_REFRESH_TOKEN");
+    private final static String REFRESH_TOKEN = Dotenv.configure().load().get("REFRESH_TOKEN");
     
     public MusicListener() {
 		this.playerManager = null;
@@ -62,7 +69,22 @@ public class MusicListener extends ListenerAdapter {
 //        playerManager.registerSourceManager(new AppleMusicSourceManager(null, mediaAPIToken, "hk", playerManager));
 
         // Add YT support
-        playerManager.registerSourceManager(new dev.lavalink.youtube.YoutubeAudioSourceManager(/*allowSearch:*/ true, new Client[] { new MusicWithThumbnail(), new WebWithThumbnail(), new AndroidVrWithThumbnail(), new TvHtml5EmbeddedWithThumbnail(), new AndroidWithThumbnail(), new MWebWithThumbnail(), new IosWithThumbnail(), new AndroidMusicWithThumbnail() }));
+        YoutubeAudioSourceManager youtubeAudioSourceManager = new dev.lavalink.youtube.YoutubeAudioSourceManager(/*allowSearch:*/ true, new Client[] { new MusicWithThumbnail(), new WebWithThumbnail(), new AndroidVrWithThumbnail(), new TvHtml5EmbeddedWithThumbnail(), new AndroidWithThumbnail(), new MWebWithThumbnail(), new IosWithThumbnail(), new AndroidMusicWithThumbnail() });
+        if ("true".equals(USE_NEW_REFRESH_TOKEN)) {
+            youtubeAudioSourceManager.useOauth2(null, false);
+        }
+        else if (REFRESH_TOKEN != null && !REFRESH_TOKEN.isEmpty()) {
+            try {
+                youtubeAudioSourceManager.useOauth2(REFRESH_TOKEN, true);
+            } catch (FriendlyException e) {
+                logger.error("Failed to set YouTube OAuth2 refresh token: " + e.getMessage());
+            }
+        }
+        else {
+            logger.warn("No YouTube OAuth2 refresh token provided. YouTube search may not work.");
+
+        }
+        playerManager.registerSourceManager(youtubeAudioSourceManager);
 
         // Add audio player to source manager
         AudioSourceManagers.registerRemoteSources(playerManager, com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager.class);
