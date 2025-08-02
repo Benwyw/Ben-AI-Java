@@ -5,7 +5,7 @@
 
   <groupId>com.benwyw</groupId>
   <artifactId>Ben-AI-Java</artifactId>
-  <version>v0.2.3</version>
+  <version>v0.2.4</version>
   <packaging>jar</packaging>
 
   <name>Ben-AI-Java</name>
@@ -100,12 +100,12 @@
 	<dependency>
 	  <groupId>dev.lavalink.youtube</groupId>
 	  <artifactId>common</artifactId>
-	  <version>1.5.0</version>
+	  <version>1.13.4</version>
 	</dependency>
 	<dependency>
 	  <groupId>dev.lavalink.youtube</groupId>
 	  <artifactId>v2</artifactId>
-	  <version>1.5.0</version>
+	  <version>1.13.4</version>
 	</dependency>
 	<dependency>
       <groupId>com.github.TopiSenpai.LavaSrc</groupId>

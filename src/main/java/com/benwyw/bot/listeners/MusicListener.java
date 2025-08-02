@@ -62,7 +62,7 @@ public class MusicListener extends ListenerAdapter {
 //        playerManager.registerSourceManager(new AppleMusicSourceManager(null, mediaAPIToken, "hk", playerManager));
 
         // Add YT support
-        playerManager.registerSourceManager(new dev.lavalink.youtube.YoutubeAudioSourceManager(/*allowSearch:*/ true, new Client[] { new MusicWithThumbnail(), new WebWithThumbnail(), new AndroidTestsuiteWithThumbnail(), new TvHtml5EmbeddedWithThumbnail(), new AndroidLiteWithThumbnail(), new MediaConnectWithThumbnail(), new IosWithThumbnail(), new AndroidMusicWithThumbnail() }));
+        playerManager.registerSourceManager(new dev.lavalink.youtube.YoutubeAudioSourceManager(/*allowSearch:*/ true, new Client[] { new MusicWithThumbnail(), new WebWithThumbnail(), new AndroidVrWithThumbnail(), new TvHtml5EmbeddedWithThumbnail(), new AndroidWithThumbnail(), new MWebWithThumbnail(), new IosWithThumbnail(), new AndroidMusicWithThumbnail() }));
 
         // Add audio player to source manager
         AudioSourceManagers.registerRemoteSources(playerManager, com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager.class);
