@@ -5,10 +5,22 @@
 	<select id="getWhityWeight" resultType="com.benwyw.bot.data.WhityWeight">
 		SELECT *
 		FROM WHITY_WEIGHT
-		ORDER BY RECORD_DATE DESC, RECORD_ID DESC
-		OFFSET (#{current}-1) * #{size} ROWS
-		<if test="size > 0">
-			FETCH NEXT #{size} ROWS ONLY
+		<if test="sortBy != null and sortBy.size() > 0">
+			ORDER BY
+			<foreach collection="sortBy" item="col" index="idx" separator=", ">
+				${col}
+				<choose>
+					<when test="sortDesc[idx]">DESC</when>
+					<otherwise>ASC</otherwise>
+				</choose>
+			</foreach>
+		</if>
+		<if test="sortBy == null or sortBy.size() == 0">
+			ORDER BY RECORD_DATE DESC, RECORD_ID DESC
+		</if>
+		OFFSET (#{page.current}-1) * #{page.size} ROWS
+		<if test="page.size > 0">
+			FETCH NEXT #{page.size} ROWS ONLY
 		</if>
 	</select>
 

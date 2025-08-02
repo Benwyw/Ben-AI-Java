@@ -5,7 +5,7 @@
 
   <groupId>com.benwyw</groupId>
   <artifactId>Ben-AI-Java</artifactId>
-  <version>v0.2.6</version>
+  <version>v0.2.7</version>
   <packaging>jar</packaging>
 
   <name>Ben-AI-Java</name>

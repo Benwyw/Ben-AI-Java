@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.benwyw.bot.data.ModeConstant;
 import com.benwyw.bot.data.WhityWeight;
+import com.benwyw.bot.data.WhityWeightDbReq;
+import com.benwyw.bot.data.WhityWeightReq;
 import com.benwyw.bot.mapper.WhityMapper;
 import com.benwyw.util.FormatUtil;
 import com.benwyw.util.embeds.EmbedColor;
@@ -68,9 +70,13 @@ public class WhityService {
 		getLatestWhityWeight(); // call getLatestWhityWeight to refresh the cache
 	}
 
-	public IPage<WhityWeight> getWhityWeight(int pageNumber, int limit) {
-		Page<WhityWeight> page = new Page<>(pageNumber, limit);
-		page.setRecords(whityMapper.getWhityWeight(page));
+	public IPage<WhityWeight> getWhityWeight(WhityWeightReq whityWeightReq) {
+		Page<WhityWeight> page = new Page<>(whityWeightReq.getPageNumber(), whityWeightReq.getLimit());
+		WhityWeightDbReq whityWeightDbReq = new WhityWeightDbReq();
+		whityWeightDbReq.setPage(page);
+		whityWeightDbReq.setSortBy(whityWeightReq.getSortBy());
+		whityWeightDbReq.setSortDesc(whityWeightReq.getSortDesc());
+		page.setRecords(whityMapper.getWhityWeight(whityWeightDbReq));
 		page.setTotal(whityMapper.getWhityWeightCount());
 		return page;
 	}
