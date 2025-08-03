@@ -1,25 +1,25 @@
 package com.benwyw.bot.handler;
 
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.audio.AudioSendHandler;
-import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import com.benwyw.bot.listeners.MusicListener;
-import com.benwyw.util.SecurityUtils;
 import com.benwyw.util.embeds.EmbedColor;
 import com.benwyw.util.embeds.EmbedUtils;
-import com.github.topisenpai.lavasrc.mirror.MirroringAudioTrack;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;
+import lombok.Getter;
+import lombok.Setter;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.audio.AudioSendHandler;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
@@ -29,7 +29,11 @@ import java.util.LinkedList;
  *
  * @author Benwyw
  */
+@Getter
+@Setter
 public class MusicHandler implements AudioSendHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(MusicHandler.class);
 
     /** LavaPlayer essentials. */
     public final @NotNull AudioPlayer audioPlayer;
@@ -114,18 +118,6 @@ public class MusicHandler implements AudioSendHandler {
     public void skipTrack() {
         isSkip = true;
         audioPlayer.getPlayingTrack().setPosition(audioPlayer.getPlayingTrack().getDuration());
-    }
-
-    /**
-     * Skips to a specified track in the queue.
-     *
-     * @param pos Position in the queue to skip to.
-     */
-    public void skipTo(int pos) {
-        if (pos > 1) {
-            queue.subList(1, pos).clear();
-        }
-        skipTrack();
     }
 
     /**
@@ -247,7 +239,7 @@ public class MusicHandler implements AudioSendHandler {
                 // Play next track in queue
                 handler.isSkip = false;
                 handler.queue.removeFirst();
-                if (endReason.mayStartNext && handler.queue.size() > 0) {
+                if (endReason.mayStartNext && !handler.queue.isEmpty()) {
                     player.playTrack(handler.queue.getFirst());
                 }
             }
@@ -257,7 +249,7 @@ public class MusicHandler implements AudioSendHandler {
         public void onTrackException(AudioPlayer player, AudioTrack track, @NotNull FriendlyException exception) {
             String msg = String.format("You're advised to use <@!1267103861542490162> due to an error occurred! %s", exception.getMessage());
             handler.logChannel.sendMessageEmbeds(EmbedUtils.createError(msg)).queue();
-            exception.printStackTrace();
+            log.error("Track exception", exception);
         }
 
         @Override
@@ -277,11 +269,13 @@ public class MusicHandler implements AudioSendHandler {
      * @return a URL to the song video thumbnail.
      */
     private static String getThumbnail(AudioTrack track) {
-        String domain = SecurityUtils.getDomain(track.getInfo().uri);
-        if (domain.equalsIgnoreCase("spotify") || domain.equalsIgnoreCase("apple")) {
-            return ((MirroringAudioTrack) track).getArtworkURL();
+        if (track.getInfo().artworkUrl != null) {
+            return track.getInfo().artworkUrl;
         }
-        return String.format("https://img.youtube.com/vi/%s/0.jpg", track.getIdentifier());
+        if ("youtube".equals(track.getSourceManager().getSourceName())) {
+            return String.format("https://img.youtube.com/vi/%s/0.jpg", track.getIdentifier());
+        }
+        return null;
     }
 
     /**

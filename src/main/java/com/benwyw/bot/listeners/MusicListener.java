@@ -4,7 +4,7 @@ import com.benwyw.bot.data.GuildData;
 import com.benwyw.bot.handler.MusicHandler;
 import com.benwyw.util.SecurityUtils;
 import com.benwyw.util.embeds.EmbedUtils;
-import com.github.topisenpai.lavasrc.spotify.SpotifySourceManager;
+import com.github.topi314.lavasrc.spotify.SpotifySourceManager;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
@@ -14,7 +14,6 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
 import dev.lavalink.youtube.clients.*;
-import dev.lavalink.youtube.clients.skeleton.Client;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Member;
@@ -28,6 +27,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.net.MalformedURLException;
@@ -44,32 +45,26 @@ import java.util.concurrent.TimeUnit;
 public class MusicListener extends ListenerAdapter {
 
     private static final Logger logger = LoggerFactory.getLogger(MusicListener.class);
-    private final @NotNull AudioPlayerManager playerManager;
+    private final AudioPlayerManager playerManager;
     private final static String USE_NEW_REFRESH_TOKEN = Dotenv.configure().load().get("USE_NEW_REFRESH_TOKEN");
     private final static String REFRESH_TOKEN = Dotenv.configure().load().get("REFRESH_TOKEN");
-    
-    public MusicListener() {
-		this.playerManager = null;
-    }
 
     /**
      * Setup audio player manager.
      */
-    public MusicListener(String spotifyClientId, String spotifyClientSecret) {
+    @Autowired
+    public MusicListener(@Qualifier("spotifyClientId") String spotifyClientId, @Qualifier("spotifyClientSecret") String spotifyClientSecret) {
         this.playerManager = new DefaultAudioPlayerManager();
 
         // Add Spotify support
-        String clientId = spotifyClientId;
-        String clientSecret = spotifyClientSecret;
-        String countryCode = "HK";
-        this.playerManager.registerSourceManager(new SpotifySourceManager(null, clientId, clientSecret, countryCode, playerManager));
+        this.playerManager.registerSourceManager(new SpotifySourceManager(null, spotifyClientId, spotifyClientSecret, "HK", this.playerManager));
 
         // Add Apple Music support
 //        String mediaAPIToken = Dotenv.configure().load().get("APPLE_MUSIC_TOKEN");
 //        playerManager.registerSourceManager(new AppleMusicSourceManager(null, mediaAPIToken, "hk", playerManager));
 
         // Add YT support
-        YoutubeAudioSourceManager youtubeAudioSourceManager = new dev.lavalink.youtube.YoutubeAudioSourceManager(/*allowSearch:*/ true, new Client[] { new MusicWithThumbnail(), new WebWithThumbnail(), new AndroidVrWithThumbnail(), new TvHtml5EmbeddedWithThumbnail(), new AndroidWithThumbnail(), new MWebWithThumbnail(), new IosWithThumbnail(), new AndroidMusicWithThumbnail() });
+        YoutubeAudioSourceManager youtubeAudioSourceManager = new dev.lavalink.youtube.YoutubeAudioSourceManager(/*allowSearch:*/ true, new MusicWithThumbnail(), new WebWithThumbnail(), new AndroidVrWithThumbnail(), new TvHtml5EmbeddedWithThumbnail(), new AndroidWithThumbnail(), new MWebWithThumbnail(), new IosWithThumbnail(), new AndroidMusicWithThumbnail());
         if ("true".equals(USE_NEW_REFRESH_TOKEN)) {
             youtubeAudioSourceManager.useOauth2(null, false);
         }
@@ -87,7 +82,7 @@ public class MusicListener extends ListenerAdapter {
         playerManager.registerSourceManager(youtubeAudioSourceManager);
 
         // Add audio player to source manager
-        AudioSourceManagers.registerRemoteSources(playerManager, com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager.class);
+        AudioSourceManagers.registerRemoteSources(playerManager);
     }
 
     /**
@@ -118,6 +113,9 @@ public class MusicListener extends ListenerAdapter {
      */
     @Nullable
     public MusicHandler getMusic(@NotNull SlashCommandInteractionEvent event, boolean skipQueueCheck) {
+        if (event.getGuild() == null) {
+            return null;
+        }
         GuildData settings = GuildData.get(event.getGuild());
         // Check if user is in voice channel
         if (!inChannel(Objects.requireNonNull(event.getMember()))) {
@@ -151,7 +149,7 @@ public class MusicListener extends ListenerAdapter {
     /**
      * Joins a voice channel.
      *
-     * @para guildData    The GuilData instance for this guild.
+     * @param guildData    The GuilData instance for this guild.
      * @param channel    The Voice Channel.
      * @param logChannel A log channel to notify users.
      */
@@ -186,6 +184,9 @@ public class MusicListener extends ListenerAdapter {
      * @param userID   The ID of the user that added this track.
      */
     public void addTrack(SlashCommandInteractionEvent event, String url, String userID) {
+        if (event.getGuild() == null) {
+            return;
+        }
         MusicHandler music = GuildData.get(event.getGuild()).musicHandler;
         if (music == null) return;
 
@@ -251,7 +252,7 @@ public class MusicListener extends ListenerAdapter {
                 data.musicHandler.disconnect();
                 event.getGuild().getAudioManager().closeAudioConnection();
             }
-            log.info(String.format("Only bot left in voice channel: %s, leaving...", String.valueOf(event.getChannelLeft())));
+            log.info("Only bot left in voice channel: {}, leaving...", event.getChannelLeft());
     	}
     	
     	if (event.getChannelJoined() != null) { // move

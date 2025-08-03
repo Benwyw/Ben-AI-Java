@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -81,9 +82,10 @@ public class Main {
 
 	public final @NotNull Dotenv config = Dotenv.configure().load();
 	public @NotNull ShardManager shardManager;
-	
+
+	@Autowired
 	@Qualifier("musicListener")
-	public final @NotNull MusicListener musicListener = new MusicListener(config.get("SPOTIFY_CLIENT_ID"), config.get("SPOTIFY_TOKEN"));
+	public MusicListener musicListener;
 
 	/**
 	 * JDA
@@ -95,7 +97,8 @@ public class Main {
 	@Bean
 	ShardManager shardManager(@Qualifier("commandListener") final CommandListener commandListener,
 			@Qualifier("buttonListener") final ButtonListener buttonListener,
-			@Qualifier("messageListener") final MessageListener messageListener) {
+			@Qualifier("messageListener") final MessageListener messageListener,
+			MusicListener musicListener) {
 		log.info("Inside JDA");
 		final DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault(config.get("TOKEN"));
 		builder.setStatus(OnlineStatus.ONLINE);
@@ -113,20 +116,12 @@ public class Main {
 //		builder.setLargeThreshold(50);
 		try {
 			final ShardManager shardManager = builder.build();
+			shardManager.addEventListener(
+					commandListener,
+					buttonListener,
+					messageListener,
+					musicListener);
 			GuildData.init(this);
-			shardManager.addEventListener(commandListener, musicListener, buttonListener, messageListener);
-			
-//			final JDA jda = builder.build();
-			log.info("Inside GuildData");
-			
-//			jda.awaitReady();
-//			jda.getGuildById(Properties.GUILD_ROBLOX_DISCORD_ID).updateCommands()
-//			   .addCommands(new CommandData(SlashCommandConstants.COMMAND_HELP, "Shows all current commands"))
-//			   .addCommands(new CommandData(SlashCommandConstants.COMMAND_ABOUT, "About the bot"))
-//			   .addCommands(new CommandData(SlashCommandConstants.COMMAND_USER_INFO, "Shows information about the user").addOption(OptionType.USER, "user", "The user to see the info", true))
-//			   .addCommands(new CommandData(SlashCommandConstants.COMMAND_ROBLOX_USER_INFO, "Shows information about the Roblox user").addOption(OptionType.STRING, "username", "The username to see the info", true))
-//			   //.addCommands(new CommandData(SlashCommandConstants.COMMAND_SCAN_URL, "Checks URL for viruses").addOption(OptionType.STRING, "url", "The url to see the info", true))
-//			   .queue();
 			return shardManager;
 		} catch (final Exception e) {
 			log.error(String.valueOf(e));
