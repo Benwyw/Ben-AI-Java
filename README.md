@@ -1,6 +1,4 @@
-## 👨‍💻 Full-Stack Developer
+# Ben-AI-Java
+[![Java CI with Maven](https://github.com/Benwyw/Ben-AI-Java/actions/workflows/maven.yml/badge.svg?branch=main)](https://github.com/Benwyw/Ben-AI-Java/actions/workflows/maven.yml)
 
-- 🛠️ Tech Stack: Java (Spring Boot), Vue.js (Vuetify)
-- 🚀 Projects: [Ben-AI-Java](https://github.com/Benwyw/Ben-AI-Java), [ben-ai-java-frontend](https://github.com/Benwyw/ben-ai-java-frontend)
-- 🌐 Website: [bot.benwyw.com](https://bot.benwyw.com/)
-- 🎮 Hobby: Coding personal projects
+Multi-purposes Java Discord Bot, Spring Boot Backend for [ben-ai-java](https://github.com/Benwyw/ben-ai-java-frontend/).
