@@ -1,422 +1,422 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.benwyw</groupId>
-  <artifactId>Ben-AI-Java</artifactId>
-  <version>v0.2.8</version>
-  <packaging>jar</packaging>
+    <groupId>com.benwyw</groupId>
+    <artifactId>Ben-AI-Java</artifactId>
+    <version>v0.2.8</version>
+    <packaging>jar</packaging>
 
-  <name>Ben-AI-Java</name>
-  <url>http://www.benwyw.com</url>
-  
-  <parent>
-	<groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.3.2</version>
-  </parent>
+    <name>Ben-AI-Java</name>
+    <url>http://www.benwyw.com</url>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <start-class>com.benwyw.bot.Main</start-class>
-    <maven.compiler.source>19</maven.compiler.source>
-    <maven.compiler.target>19</maven.compiler.target>
-    <mainClass>com.benwyw.bot.Main</mainClass>
-  </properties>
-  
-  <repositories>
-	<repository>
-	  <id>dv8tion</id>
-	  <name>m2-dv8tion</name>
-	  <url>https://m2.dv8tion.net/releases</url>
-	</repository>
-	<repository>
-      <id>jitpack</id>
-      <url>https://jitpack.io</url>
-  	</repository>
-	  <repository>
-		  <id>lavalink</id>
-		  <url>https://maven.lavalink.dev/snapshots</url>
-	  </repository>
-	  <repository>
-		  <id>lavalink_release</id>
-		  <url>https://maven.lavalink.dev/releases</url>
-	  </repository>
-	  <repository>
-		  <id>maven_central</id>
-		  <name>Maven Central</name>
-		  <url>https://repo.maven.apache.org/maven2/</url>
-	  </repository>
-	  <repository>
-		  <id>TopiWTF-releases</id>
-		  <name>Topis Maven Repo</name>
-		  <url>https://maven.topi.wtf/#/releases</url>
-	  </repository>
-	  <repository>
-		  <id>project-libs</id>
-		  <url>file://${project.basedir}/project-libs</url>
-	  </repository>
-  </repositories>
-
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.13.2</version>
-      <scope>test</scope>
-    </dependency>
-	<dependency>
-	  <groupId>net.dv8tion</groupId>
-	  <artifactId>JDA</artifactId>
-	  <version>5.6.1</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.projectlombok</groupId>
-	  <artifactId>lombok</artifactId>
-	  <version>1.18.32</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.slf4j</groupId>
-	  <artifactId>slf4j-api</artifactId>
-	  <version>2.0.6</version>
-	</dependency>
-	<dependency>
-	  <groupId>io.github.cdimascio</groupId>
-	  <artifactId>java-dotenv</artifactId>
-	  <version>5.2.2</version>
-	</dependency>
-	<dependency>
-      <groupId>dev.arbjerg</groupId>
-      <artifactId>lavaplayer</artifactId>
-      <version>2.2.4</version>
-	  <exclusions>
-	  	<exclusion>
-		  <groupId>commons-logging</groupId>
-		  <artifactId>commons-logging</artifactId>
-		</exclusion>
-	  </exclusions>
-	</dependency>
-	<dependency>
-	  <groupId>dev.lavalink.youtube</groupId>
-	  <artifactId>common</artifactId>
-	  <version>1.13.4</version>
-	</dependency>
-	<dependency>
-	  <groupId>dev.lavalink.youtube</groupId>
-	  <artifactId>v2</artifactId>
-	  <version>1.13.4</version>
-	</dependency>
-	<dependency>
-      <groupId>com.github.TopiSenpai.LavaSrc</groupId>
-      <artifactId>lavasrc</artifactId>
-      <version>3.2.10</version>
-  	</dependency>
-  	
-  	<!-- Jackson -->
-	<dependency>
-	    <groupId>com.fasterxml.jackson.core</groupId>
-	    <artifactId>jackson-core</artifactId>
-	</dependency>
-  	
-  	<!-- Spring Framework -->
-  	<!-- https://mvnrepository.com/artifact/org.mybatis.spring.boot/mybatis-spring-boot-starter -->
-	<dependency>
-	    <groupId>org.mybatis.spring.boot</groupId>
-	    <artifactId>mybatis-spring-boot-starter</artifactId>
-	    <version>3.0.5</version>
-	</dependency>
-	
-    <dependency>
+    <parent>
         <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-test</artifactId>
-        <scope>test</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-actuator</artifactId>
-    </dependency>
-    
-    <!-- https://mvnrepository.com/artifact/com.oracle.database.jdbc/ojdbc10 -->
-	<dependency>
-	    <groupId>com.oracle.database.jdbc</groupId>
-	    <artifactId>ojdbc10</artifactId>
-	    <version>19.18.0.0</version>
-	</dependency>
-	
-	<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
-	<dependency>
-	    <groupId>org.apache.commons</groupId>
-	    <artifactId>commons-lang3</artifactId>
-	    <version>3.14.0</version>
-	</dependency>
-	
-	<!-- https://mvnrepository.com/artifact/org.json/json -->
-	<dependency>
-	    <groupId>org.json</groupId>
-	    <artifactId>json</artifactId>
-	    <version>20240303</version>
-	</dependency>
-	<!-- Use correct spring-context-support version for Spring Boot 3.3.2 -->
-	<dependency>
-	  <groupId>org.springframework</groupId>
-	  <artifactId>spring-context-support</artifactId>
-	  <version>6.1.9</version>
-	</dependency>
-	<!-- Add Caffeine dependency -->
-	<dependency>
-	  <groupId>com.github.ben-manes.caffeine</groupId>
-	  <artifactId>caffeine</artifactId>
-	  <version>3.1.8</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.springframework.boot</groupId>
-	  <artifactId>spring-boot-configuration-processor</artifactId>
-	  <optional>true</optional>
-	</dependency>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.3.2</version>
+    </parent>
 
-	<!-- Jackson library for reading JSON files -->
-	<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
-	<dependency>
-	  <groupId>com.fasterxml.jackson.core</groupId>
-	  <artifactId>jackson-databind</artifactId>
-	  <version>2.17.2</version>
-	</dependency>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <start-class>com.benwyw.bot.Main</start-class>
+        <maven.compiler.source>19</maven.compiler.source>
+        <maven.compiler.target>19</maven.compiler.target>
+        <mainClass>com.benwyw.bot.Main</mainClass>
+    </properties>
 
-	  <!-- Apache POI library for working with Excel files -->
-	<!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
-	<dependency>
-	  <groupId>org.apache.poi</groupId>
-	  <artifactId>poi</artifactId>
-	  <version>5.3.0</version>
-	</dependency>
-	<!-- Upgrade poi-ooxml to 5.2.5 (latest stable, 5.3.0 has CVEs) -->
-	<dependency>
-	  <groupId>org.apache.poi</groupId>
-	  <artifactId>poi-ooxml</artifactId>
-	  <version>5.2.5</version>
-	</dependency>
+    <repositories>
+        <repository>
+            <id>dv8tion</id>
+            <name>m2-dv8tion</name>
+            <url>https://m2.dv8tion.net/releases</url>
+        </repository>
+        <repository>
+            <id>jitpack</id>
+            <url>https://jitpack.io</url>
+        </repository>
+        <repository>
+            <id>lavalink</id>
+            <url>https://maven.lavalink.dev/snapshots</url>
+        </repository>
+        <repository>
+            <id>lavalink_release</id>
+            <url>https://maven.lavalink.dev/releases</url>
+        </repository>
+        <repository>
+            <id>maven_central</id>
+            <name>Maven Central</name>
+            <url>https://repo.maven.apache.org/maven2/</url>
+        </repository>
+        <repository>
+            <id>TopiWTF-releases</id>
+            <name>Topis Maven Repo</name>
+            <url>https://maven.topi.wtf/#/releases</url>
+        </repository>
+        <repository>
+            <id>project-libs</id>
+            <url>file://${project.basedir}/project-libs</url>
+        </repository>
+    </repositories>
 
-	  <!-- https://mvnrepository.com/artifact/com.opencsv/opencsv -->
-	  <dependency>
-		  <groupId>com.opencsv</groupId>
-		  <artifactId>opencsv</artifactId>
-		  <version>5.9</version>
-	  </dependency>
-
-	  <!-- Upgrade commons-io to 2.15.1 (latest as of 2024-06) -->
-	  <dependency>
-		  <groupId>commons-io</groupId>
-		  <artifactId>commons-io</artifactId>
-		  <version>2.15.1</version>
-	  </dependency>
-
-	  <!-- https://mvnrepository.com/artifact/com.baomidou/mybatis-plus-extension -->
-	  <dependency>
-		  <groupId>com.baomidou</groupId>
-		  <artifactId>mybatis-plus-extension</artifactId>
-		  <version>3.5.3.2</version>
-	  </dependency>
-
-	  <dependency>
-		  <groupId>org.springframework.boot</groupId>
-		  <artifactId>spring-boot-starter-websocket</artifactId>
-	  </dependency>
-
-	  <!-- swagger -->
-	  <dependency>
-		  <groupId>org.springdoc</groupId>
-		  <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-		  <version>2.5.0</version>
-	  </dependency>
-
-	  <!-- Minecraft -->
-	  <dependency>
-		  <groupId>io.github.fragland</groupId>
-		  <artifactId>MineStat</artifactId>
-		  <version>3.0.6</version>
-	  </dependency>
-
-	  <!-- Report -->
-	  <dependency>
-		  <groupId>com.crystaldecisions</groupId>
-		  <artifactId>CrystalReportsRuntime</artifactId>
-		  <version>12.0</version>
-		  <scope>system</scope>
-		  <systemPath>${project.basedir}/libs/CrystalReportsRuntime.jar</systemPath>
-	  </dependency>
-	  <dependency>
-		  <groupId>com.crystaldecisions</groupId>
-		  <artifactId>CrystalCommon2</artifactId>
-		  <version>12.0</version>
-		  <scope>system</scope>
-		  <systemPath>${project.basedir}/libs/CrystalCommon2.jar</systemPath>
-	  </dependency>
-	  <dependency>
-		  <groupId>com.azalea</groupId>
-		  <artifactId>ufl.barcode.1.0</artifactId>
-		  <version>1.0</version>
-		  <scope>system</scope>
-		  <systemPath>${project.basedir}/libs/com.azalea.ufl.barcode.1.0.jar</systemPath>
-	  </dependency>
-	  <dependency>
-		  <groupId>com.oracle</groupId>
-		  <artifactId>jai_imageio</artifactId>
-		  <version>1.0</version>
-		  <scope>system</scope>
-		  <systemPath>${project.basedir}/libs/jai_imageio.jar</systemPath>
-	  </dependency>
-	  <dependency>
-		  <groupId>com.database</groupId>
-		  <artifactId>JDBInterface</artifactId>
-		  <version>1.0</version>
-		  <scope>system</scope>
-		  <systemPath>${project.basedir}/libs/JDBInterface.jar</systemPath>
-	  </dependency>
-	  <dependency>
-		  <groupId>com.security</groupId>
-		  <artifactId>keycodeDecoder</artifactId>
-		  <version>1.0</version>
-		  <scope>system</scope>
-		  <systemPath>${project.basedir}/libs/keycodeDecoder.jar</systemPath>
-	  </dependency>
-	  <dependency>
-		  <groupId>com.crystaldecisions</groupId>
-		  <artifactId>logging</artifactId>
-		  <version>1.0</version>
-		  <scope>system</scope>
-		  <systemPath>${project.basedir}/libs/logging.jar</systemPath>
-	  </dependency>
-	  <dependency>
-		  <groupId>com.graphics</groupId>
-		  <artifactId>pfjgraphics</artifactId>
-		  <version>1.0</version>
-		  <scope>system</scope>
-		  <systemPath>${project.basedir}/libs/pfjgraphics.jar</systemPath>
-	  </dependency>
-	  <dependency>
-		  <groupId>org.codehaus.xpp3</groupId>
-		  <artifactId>xpp3</artifactId>
-		  <version>1.1.4</version>
-		  <scope>system</scope>
-		  <systemPath>${project.basedir}/libs/xpp3.jar</systemPath>
-	  </dependency>
-	  <dependency>
-		  <groupId>com.ibm</groupId>
-		  <artifactId>icu</artifactId>
-		  <version>64.2.0</version>
-		  <scope>system</scope>
-		  <systemPath>${project.basedir}/libs/com.ibm.icu_64.2.0.v20190507-1337.jar</systemPath>
-	  </dependency>
-	  <dependency>
-		  <groupId>org.apache.commons</groupId>
-		  <artifactId>commons-collections4</artifactId>
-		  <version>4.4</version>
-	  </dependency>
-
-	  <!-- JasperReports Library -->
-	  <dependency>
-		  <groupId>net.sf.jasperreports</groupId>
-		  <artifactId>jasperreports</artifactId>
-		  <version>7.0.2</version>
-	  </dependency>
-	  <dependency>
-		  <groupId>net.sf.jasperreports</groupId>
-		  <artifactId>jasperreports-pdf</artifactId>
-		  <version>7.0.2</version>
-	  </dependency>
-
-  </dependencies>
-
-  <dependencyManagement>
     <dependencies>
-      <!-- Override vulnerable logback version -->
-      <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-classic</artifactId>
-        <version>1.5.6</version>
-        <scope>runtime</scope>
-        <exclusions>
-          <exclusion>
-            <groupId>org.codehaus.janino</groupId>
-            <artifactId>janino</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-core</artifactId>
-        <version>1.5.6</version>
-        <scope>runtime</scope>
-      </dependency>
-      <!-- Override json-smart and xmlunit-core to latest -->
-      <dependency>
-        <groupId>net.minidev</groupId>
-        <artifactId>json-smart</artifactId>
-        <version>2.5.1</version>
-      </dependency>
-      <dependency>
-        <groupId>org.xmlunit</groupId>
-        <artifactId>xmlunit-core</artifactId>
-        <version>2.9.1</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.dv8tion</groupId>
+            <artifactId>JDA</artifactId>
+            <version>5.6.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.32</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.6</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.cdimascio</groupId>
+            <artifactId>java-dotenv</artifactId>
+            <version>5.2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.arbjerg</groupId>
+            <artifactId>lavaplayer</artifactId>
+            <version>2.2.4</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>dev.lavalink.youtube</groupId>
+            <artifactId>common</artifactId>
+            <version>1.13.4</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.lavalink.youtube</groupId>
+            <artifactId>v2</artifactId>
+            <version>1.13.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.TopiSenpai.LavaSrc</groupId>
+            <artifactId>lavasrc</artifactId>
+            <version>3.2.10</version>
+        </dependency>
 
-  <build>
-    <plugins>
-        <plugin>
-			<groupId>org.springframework.boot</groupId>
-		    <artifactId>spring-boot-maven-plugin</artifactId>
-		    <configuration>
-		        <executable>true</executable>
-				<includeSystemScope>true</includeSystemScope>
-		    </configuration>
-            <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-shade-plugin -->
-            <!--
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-shade-plugin</artifactId>
-            <version>3.3.0</version>
-            <executions>
-                <execution>
-                    <phase>package</phase>
-                    <goals>
-                        <goal>shade</goal>
-                    </goals>
-                    <configuration>
-                        <transformers>
-                            <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                <mainClass>${mainClass
-            <version>3.3.0</version>
-            <executions>
-                <execution>
-                    <phase>package</phase>
-                    <goals>
-                        <goal>shade</goal>
-                    </goals>
-                    <configuration>
-                        <transformers>
-                            <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                <mainClass>${mainClass}</mainClass>
-                            </transformer>
-                        </transformers>
-                    </configuration>
-                </execution>
-            </executions>-->
-        </plugin>
-    </plugins>
-	<testSourceDirectory>src/test/java</testSourceDirectory>
-	<resources>
-	  <resource>
-		  <directory>src/main/resources</directory>
-		  <excludes>
-			  <exclude>**/*.jar</exclude>
-		  </excludes>
-	  </resource>
-	</resources>
-  </build>
+        <!-- Jackson -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+
+        <!-- Spring Framework -->
+        <!-- https://mvnrepository.com/artifact/org.mybatis.spring.boot/mybatis-spring-boot-starter -->
+        <dependency>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-starter</artifactId>
+            <version>3.0.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.oracle.database.jdbc/ojdbc10 -->
+        <dependency>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>ojdbc10</artifactId>
+            <version>19.18.0.0</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.14.0</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.json/json -->
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20240303</version>
+        </dependency>
+        <!-- Use correct spring-context-support version for Spring Boot 3.3.2 -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+            <version>6.1.9</version>
+        </dependency>
+        <!-- Add Caffeine dependency -->
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+            <version>3.1.8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Jackson library for reading JSON files -->
+        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.17.2</version>
+        </dependency>
+
+        <!-- Apache POI library for working with Excel files -->
+        <!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>5.3.0</version>
+        </dependency>
+        <!-- Upgrade poi-ooxml to 5.2.5 (latest stable, 5.3.0 has CVEs) -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.2.5</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.opencsv/opencsv -->
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>5.9</version>
+        </dependency>
+
+        <!-- Upgrade commons-io to 2.15.1 (latest as of 2024-06) -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.15.1</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.baomidou/mybatis-plus-extension -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-extension</artifactId>
+            <version>3.5.3.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+
+        <!-- swagger -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.5.0</version>
+        </dependency>
+
+        <!-- Minecraft -->
+        <dependency>
+            <groupId>io.github.fragland</groupId>
+            <artifactId>MineStat</artifactId>
+            <version>3.0.6</version>
+        </dependency>
+
+        <!-- Report -->
+        <dependency>
+            <groupId>com.crystaldecisions</groupId>
+            <artifactId>CrystalReportsRuntime</artifactId>
+            <version>12.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/CrystalReportsRuntime.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.crystaldecisions</groupId>
+            <artifactId>CrystalCommon2</artifactId>
+            <version>12.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/CrystalCommon2.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.azalea</groupId>
+            <artifactId>ufl.barcode.1.0</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/com.azalea.ufl.barcode.1.0.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>jai_imageio</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/jai_imageio.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.database</groupId>
+            <artifactId>JDBInterface</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/JDBInterface.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.security</groupId>
+            <artifactId>keycodeDecoder</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/keycodeDecoder.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.crystaldecisions</groupId>
+            <artifactId>logging</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/logging.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.graphics</groupId>
+            <artifactId>pfjgraphics</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/pfjgraphics.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.xpp3</groupId>
+            <artifactId>xpp3</artifactId>
+            <version>1.1.4</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/xpp3.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.ibm</groupId>
+            <artifactId>icu</artifactId>
+            <version>64.2.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/com.ibm.icu_64.2.0.v20190507-1337.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>4.4</version>
+        </dependency>
+
+        <!-- JasperReports Library -->
+        <dependency>
+            <groupId>net.sf.jasperreports</groupId>
+            <artifactId>jasperreports</artifactId>
+            <version>7.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.jasperreports</groupId>
+            <artifactId>jasperreports-pdf</artifactId>
+            <version>7.0.2</version>
+        </dependency>
+
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Override vulnerable logback version -->
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>1.5.6</version>
+                <scope>runtime</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.codehaus.janino</groupId>
+                        <artifactId>janino</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>1.5.6</version>
+                <scope>runtime</scope>
+            </dependency>
+            <!-- Override json-smart and xmlunit-core to latest -->
+            <dependency>
+                <groupId>net.minidev</groupId>
+                <artifactId>json-smart</artifactId>
+                <version>2.5.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.xmlunit</groupId>
+                <artifactId>xmlunit-core</artifactId>
+                <version>2.9.1</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <executable>true</executable>
+                    <includeSystemScope>true</includeSystemScope>
+                </configuration>
+                <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-shade-plugin -->
+                <!--
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.3.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>${mainClass
+                <version>3.3.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>${mainClass}</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>-->
+            </plugin>
+        </plugins>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <excludes>
+                    <exclude>**/*.jar</exclude>
+                </excludes>
+            </resource>
+        </resources>
+    </build>
 </project>
