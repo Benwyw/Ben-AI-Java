@@ -3,7 +3,7 @@ package com.benwyw.bot.commands.music;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import org.jetbrains.annotations.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import com.benwyw.bot.Main;
 import com.benwyw.bot.commands.Category;

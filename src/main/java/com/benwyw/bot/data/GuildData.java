@@ -1,7 +1,7 @@
 package com.benwyw.bot.data;
 
 import net.dv8tion.jda.api.entities.Guild;
-import org.jetbrains.annotations.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import com.benwyw.bot.Main;
 import com.benwyw.bot.handler.MusicHandler;

@@ -23,8 +23,8 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.lang.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +64,7 @@ public class MusicListener extends ListenerAdapter {
 //        playerManager.registerSourceManager(new AppleMusicSourceManager(null, mediaAPIToken, "hk", playerManager));
 
         // Add YT support
-        YoutubeAudioSourceManager youtubeAudioSourceManager = new dev.lavalink.youtube.YoutubeAudioSourceManager(/*allowSearch:*/ true, new MusicWithThumbnail(), new WebWithThumbnail(), new AndroidVrWithThumbnail(), new TvHtml5EmbeddedWithThumbnail(), new AndroidWithThumbnail(), new MWebWithThumbnail(), new IosWithThumbnail(), new AndroidMusicWithThumbnail());
+        YoutubeAudioSourceManager youtubeAudioSourceManager = new dev.lavalink.youtube.YoutubeAudioSourceManager(/*allowSearch:*/ true, new MusicWithThumbnail(), new WebWithThumbnail(), new AndroidVrWithThumbnail(), new TvHtml5EmbeddedWithThumbnail(), new MWebWithThumbnail(), new IosWithThumbnail(), new AndroidMusicWithThumbnail()); // Removed new AndroidWithThumbnail() as it's broken according to the warning
         if ("true".equals(USE_NEW_REFRESH_TOKEN)) {
             youtubeAudioSourceManager.useOauth2(null, false);
         }

@@ -16,8 +16,8 @@ import net.dv8tion.jda.api.audio.AudioSendHandler;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.lang.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
