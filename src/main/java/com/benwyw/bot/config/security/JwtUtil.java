@@ -8,23 +8,21 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
 import javax.crypto.SecretKey;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
+import java.util.UUID;
 
 public class JwtUtil {
     private static final Dotenv config = Dotenv.configure().ignoreIfMissing().load();
-
-    // Example: a Base64-encoded 256-bit key (generated once and stored securely in .env)
-    // Generate your own: Jwts.SIG.HS256.key().build() then Base64 encode it
     private static final String SECRET = config.get("JWT_SECRET");
-
-    private static final SecretKey KEY =
-            Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET));
+    private static final SecretKey KEY = Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET));
 
     private static final long ACCESS_TOKEN_EXPIRY =
-            Long.parseLong(config.get("JWT_ACCESS_TOKEN_EXPIRY", "900000"));
-
+            Long.parseLong(config.get("JWT_ACCESS_TOKEN_EXPIRY", "900000")); // ms
     private static final long REFRESH_TOKEN_EXPIRY =
-            Long.parseLong(config.get("JWT_REFRESH_TOKEN_EXPIRY", "604800000"));
+            Long.parseLong(config.get("JWT_REFRESH_TOKEN_EXPIRY", "604800000")); // ms
 
     public static String generateAccessToken(String username) {
         return Jwts.builder()
@@ -35,39 +33,58 @@ public class JwtUtil {
                 .compact();
     }
 
-    public static String generateRefreshToken(String username) {
-        return Jwts.builder()
+    // Pair object
+    public static class RefreshTokenPair {
+        private final String token;
+        private final String jti;
+        private final OffsetDateTime expiresAt;
+        public RefreshTokenPair(String token, String jti, OffsetDateTime expiresAt) {
+            this.token = token; this.jti = jti; this.expiresAt = expiresAt;
+        }
+        public String getToken() { return token; }
+        public String getJti() { return jti; }
+        public OffsetDateTime getExpiresAt() { return expiresAt; }
+    }
+
+    public static RefreshTokenPair generateRefreshTokenWithJti(String username) {
+        String jti = UUID.randomUUID().toString();
+        long expMs = System.currentTimeMillis() + REFRESH_TOKEN_EXPIRY;
+        String token = Jwts.builder()
                 .subject(username)
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRY))
+                .id(jti) // jti
                 .claim("type", "refresh")
+                .issuedAt(new Date())
+                .expiration(new Date(expMs))
                 .signWith(KEY)
                 .compact();
+        return new RefreshTokenPair(token, jti,
+                OffsetDateTime.ofInstant(Instant.ofEpochMilli(expMs), ZoneOffset.UTC));
     }
 
     public static String validateAccessToken(String token) {
         try {
-            Claims claims = Jwts.parser()
-                    .verifyWith(KEY)
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
+            Claims claims = Jwts.parser().verifyWith(KEY).build()
+                    .parseSignedClaims(token).getPayload();
             return claims.getSubject();
         } catch (JwtException e) {
             return null;
         }
     }
 
-    public static String validateRefreshToken(String token) {
-        try {
-            Claims claims = Jwts.parser()
-                    .verifyWith(KEY)
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
+    public static class RefreshTokenInfo {
+        private final String username;
+        private final String jti;
+        public RefreshTokenInfo(String username, String jti) { this.username = username; this.jti = jti; }
+        public String getUsername() { return username; }
+        public String getJti() { return jti; }
+    }
 
-            String type = claims.get("type", String.class);
-            return "refresh".equals(type) ? claims.getSubject() : null;
+    public static RefreshTokenInfo parseRefreshToken(String token) {
+        try {
+            Claims claims = Jwts.parser().verifyWith(KEY).build()
+                    .parseSignedClaims(token).getPayload();
+            if (!"refresh".equals(claims.get("type", String.class))) return null;
+            return new RefreshTokenInfo(claims.getSubject(), claims.getId()); // jti
         } catch (JwtException e) {
             return null;
         }
