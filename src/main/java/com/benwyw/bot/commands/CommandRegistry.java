@@ -5,7 +5,7 @@ import com.benwyw.bot.commands.greetings.GreetCommand;
 import com.benwyw.bot.commands.misc.MiscCommand;
 import com.benwyw.bot.commands.misc.WhityCommand;
 import com.benwyw.bot.commands.music.*;
-import com.benwyw.bot.commands.security.UserCommand;
+import com.benwyw.bot.commands.security.AuthCommand;
 import com.benwyw.bot.commands.user.UserDetailsCommand;
 import com.benwyw.bot.data.GuildData;
 import com.benwyw.util.embeds.EmbedUtils;
@@ -68,7 +68,7 @@ public class CommandRegistry extends ListenerAdapter {
                 new UserDetailsCommand(bot),
                 new MiscCommand(bot),
                 new WhityCommand(bot),
-                new UserCommand(bot)
+                new AuthCommand(bot)
                 // TODO new HelpCommand(bot)
         );
     }

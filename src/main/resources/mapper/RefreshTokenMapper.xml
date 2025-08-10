@@ -54,4 +54,8 @@
       ]]>
     </update>
 
+    <delete id="deleteTokensByUserId">
+        DELETE FROM USER_REFRESH_TOKENS WHERE USER_ID = #{userId}
+    </delete>
+
 </mapper>

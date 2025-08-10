@@ -13,5 +13,6 @@ public interface RefreshTokenMapper {
     int revokeAllForUser(@Param("userId") Long userId);
     int purgeExpiredOrRevoked();
     int countExpiredOrRevoked();
+    int deleteTokensByUserId(@Param("userId") long userId);
 
 }

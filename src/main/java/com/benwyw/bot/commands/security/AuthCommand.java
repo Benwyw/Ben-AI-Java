@@ -25,29 +25,37 @@ import java.io.File;
  * @author Benwyw
  */
 @Slf4j
-public class UserCommand extends Command {
+public class AuthCommand extends Command {
 
 	private final static String ownerId = Dotenv.configure().load().get("OWNER_ID");
 
-    public UserCommand(Main bot) {
+    public AuthCommand(Main bot) {
         super(bot);
-        this.name = "user";
-        this.description = "User operations.";
+        this.name = "auth";
+        this.description = "Auth operations.";
         this.category = Category.UTILITY;
         this.subCommands.add(new SubcommandData("user-insert", "Insert a new application user")
                 .addOptions(
                         new OptionData(OptionType.STRING, "username", "Username").setRequired(true).setMaxLength(64),
                         new OptionData(OptionType.STRING, "password", "Password").setRequired(true), // will be hashed
                         new OptionData(OptionType.STRING, "email", "Email address").setRequired(false).setMaxLength(255),
-                        new OptionData(OptionType.STRING, "role", "Role (e.g. USER, ADMIN)").setRequired(false).setMaxLength(50),
-                        new OptionData(OptionType.STRING, "status", "Account status (e.g. ACTIVE, LOCKED)").setRequired(false).setMaxLength(20),
+                        new OptionData(OptionType.STRING, "role", "Role (e.g. USER, ADMIN)").setRequired(false).setMaxLength(50)
+                                .addChoice("USER", "USER")
+                                .addChoice("ADMIN", "ADMIN"),
+                        new OptionData(OptionType.STRING, "status", "Account status (e.g. ACTIVE, LOCKED)").setRequired(false).setMaxLength(20)
+                                .addChoice("ACTIVE", "ACTIVE")
+                                .addChoice("LOCKED", "LOCKED"),
                         new OptionData(OptionType.STRING, "remarks", "Remarks / notes").setRequired(false).setMaxLength(255)
                 )
         );
-        new SubcommandData("user-delete", "Delete a user by ID")
-                .addOptions(new OptionData(OptionType.INTEGER, "userid", "The ID of the user to delete").setRequired(true));
+        this.subCommands.add(
+        new SubcommandData("user-delete", "Delete a user by username")
+                .addOptions(new OptionData(OptionType.STRING, "username", "The username of the user to delete").setRequired(true))
+        );
+        this.subCommands.add(
         new SubcommandData("token-purge", "Delete expired or revoked refresh tokens")
-                .addOptions(new OptionData(OptionType.BOOLEAN, "dryrun", "Only count; don’t delete"));
+                .addOptions(new OptionData(OptionType.BOOLEAN, "dryrun", "Only count; don’t delete"))
+        );
     }
 
     @Override
@@ -64,10 +72,10 @@ public class UserCommand extends Command {
                 messageEmbed = authService.insertUserFromEvent(event);
             }
             case "token-purge" -> {
-                event.replyEmbeds(authService.purgeRefreshTokensFromEvent(event)).queue();
+                messageEmbed = authService.purgeRefreshTokensFromEvent(event);
             }
             case "user-delete" -> {
-                event.replyEmbeds(authService.deleteUserFromEvent(event)).queue();
+                messageEmbed = authService.deleteUserFromEvent(event);
             }
         }
 

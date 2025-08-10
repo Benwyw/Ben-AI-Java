@@ -184,8 +184,15 @@ public class AuthService {
 
     @Transactional
     public MessageEmbed deleteUserFromEvent(SlashCommandInteractionEvent event) {
-        long userId = Objects.requireNonNull(event.getOption("userid")).getAsLong();
-        int affected = userMapper.deleteUserById(userId);
+        String username = Objects.requireNonNull(event.getOption("username")).getAsString();
+
+        // delete tokens first
+        User u = userMapper.findByUsername(username);
+        if (u != null) {
+            refreshTokenMapper.deleteTokensByUserId(u.getId());
+        }
+        // then delete user
+        int affected = userMapper.deleteUserByUsername(username);
 
         EmbedBuilder eb = new EmbedBuilder();
         eb.setTitle("User Maintenance", "https://your-docs-url.example/users");
