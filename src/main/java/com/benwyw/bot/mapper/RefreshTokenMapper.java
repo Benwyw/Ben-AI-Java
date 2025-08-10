@@ -11,5 +11,7 @@ public interface RefreshTokenMapper {
                 @Param("tokenHash") String tokenHash);
     int revokeByJti(@Param("jti") String jti);
     int revokeAllForUser(@Param("userId") Long userId);
+    int purgeExpiredOrRevoked();
+    int countExpiredOrRevoked();
 
 }

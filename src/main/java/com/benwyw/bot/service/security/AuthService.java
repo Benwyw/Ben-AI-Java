@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 public class AuthService {
@@ -162,6 +163,39 @@ public class AuthService {
     private String getOptionValue(SlashCommandInteractionEvent event, String name) {
         OptionMapping opt = event.getOption(name);
         return opt != null ? opt.getAsString() : null;
+    }
+
+    @Transactional
+    public MessageEmbed purgeRefreshTokensFromEvent(SlashCommandInteractionEvent event) {
+        boolean dryRun = event.getOption("dryrun") != null && event.getOption("dryrun").getAsBoolean();
+        int affected = dryRun ? refreshTokenMapper.countExpiredOrRevoked()
+                : refreshTokenMapper.purgeExpiredOrRevoked();
+
+        EmbedBuilder eb = new EmbedBuilder();
+        eb.setTitle("Refresh Token Maintenance", "https://your-docs-url.example/tokens");
+        eb.setDescription(dryRun ? "DRY-RUN completed" : "PURGE executed");
+        eb.setAuthor("AuthService");
+        eb.setFooter(String.valueOf(LocalDateTime.now(ZoneId.of("Asia/Hong_Kong"))));
+        eb.setThumbnail("https://i.imgur.com/b81zA3M.png");
+        eb.addField(dryRun ? "Rows that would be deleted" : "Rows deleted", String.valueOf(affected), true);
+        eb.setColor(EmbedColor.SUCCESS.color);
+        return eb.build();
+    }
+
+    @Transactional
+    public MessageEmbed deleteUserFromEvent(SlashCommandInteractionEvent event) {
+        long userId = Objects.requireNonNull(event.getOption("userid")).getAsLong();
+        int affected = userMapper.deleteUserById(userId);
+
+        EmbedBuilder eb = new EmbedBuilder();
+        eb.setTitle("User Maintenance", "https://your-docs-url.example/users");
+        eb.setDescription("User deletion executed");
+        eb.setAuthor("AuthService");
+        eb.setFooter(String.valueOf(LocalDateTime.now(ZoneId.of("Asia/Hong_Kong"))));
+        eb.setThumbnail("https://i.imgur.com/b81zA3M.png");
+        eb.addField("Rows deleted", String.valueOf(affected), true);
+        eb.setColor(EmbedColor.SUCCESS.color);
+        return eb.build();
     }
 
 }

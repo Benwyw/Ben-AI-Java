@@ -44,20 +44,30 @@ public class UserCommand extends Command {
                         new OptionData(OptionType.STRING, "remarks", "Remarks / notes").setRequired(false).setMaxLength(255)
                 )
         );
+        new SubcommandData("user-delete", "Delete a user by ID")
+                .addOptions(new OptionData(OptionType.INTEGER, "userid", "The ID of the user to delete").setRequired(true));
+        new SubcommandData("token-purge", "Delete expired or revoked refresh tokens")
+                .addOptions(new OptionData(OptionType.BOOLEAN, "dryrun", "Only count; don’t delete"));
     }
 
     @Override
     public void execute(SlashCommandInteractionEvent event) {
         event.deferReply().queue();
 
+        AuthService authService = SpringContext.getBean(AuthService.class);
 		MessageEmbed messageEmbed = null;
 		File file = null;
 		String fileName = null;
         
         switch(event.getSubcommandName()) {
             case "user-insert" -> {
-                AuthService authService = SpringContext.getBean(AuthService.class);
                 messageEmbed = authService.insertUserFromEvent(event);
+            }
+            case "token-purge" -> {
+                event.replyEmbeds(authService.purgeRefreshTokensFromEvent(event)).queue();
+            }
+            case "user-delete" -> {
+                event.replyEmbeds(authService.deleteUserFromEvent(event)).queue();
             }
         }
 

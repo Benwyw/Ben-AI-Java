@@ -13,5 +13,6 @@ public interface UserMapper {
     com.benwyw.bot.data.security.User findByUsername(@Param("username") String username);
     int insertUser(com.benwyw.bot.data.security.User user);
     int updateLastLogin(@Param("userId") Long userId);
+    int deleteUserById(@Param("userId") long userId);
 
 }
