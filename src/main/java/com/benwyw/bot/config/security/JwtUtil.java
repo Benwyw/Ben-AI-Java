@@ -63,8 +63,12 @@ public class JwtUtil {
 
     public static String validateAccessToken(String token) {
         try {
-            Claims claims = Jwts.parser().verifyWith(KEY).build()
-                    .parseSignedClaims(token).getPayload();
+            Claims claims = Jwts.parser()
+                    .clockSkewSeconds(60)        // allow ±60s drift
+                    .verifyWith(KEY)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
             return claims.getSubject();
         } catch (JwtException e) {
             return null;
@@ -81,8 +85,12 @@ public class JwtUtil {
 
     public static RefreshTokenInfo parseRefreshToken(String token) {
         try {
-            Claims claims = Jwts.parser().verifyWith(KEY).build()
-                    .parseSignedClaims(token).getPayload();
+            Claims claims = Jwts.parser()
+                    .clockSkewSeconds(60)        // allow ±60s drift
+                    .verifyWith(KEY)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
             if (!"refresh".equals(claims.get("type", String.class))) return null;
             return new RefreshTokenInfo(claims.getSubject(), claims.getId()); // jti
         } catch (JwtException e) {
