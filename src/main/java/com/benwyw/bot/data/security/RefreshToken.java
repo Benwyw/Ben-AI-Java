@@ -1,13 +1,15 @@
 package com.benwyw.bot.data.security;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 
 public class RefreshToken {
     private Long id;
     private Long userId;
     private String jti;
     private String tokenHash;
-    private OffsetDateTime expiresAt;
+    private LocalDateTime expiresAt;
+    private String revoked = "N";                 // default to not revoked
+    private LocalDateTime createdAt = LocalDateTime.now(); // default to now
 
     public Long getId() {
         return id;
@@ -41,11 +43,27 @@ public class RefreshToken {
         this.tokenHash = tokenHash;
     }
 
-    public OffsetDateTime getExpiresAt() {
+    public LocalDateTime getExpiresAt() {
         return expiresAt;
     }
 
-    public void setExpiresAt(OffsetDateTime expiresAt) {
+    public void setExpiresAt(LocalDateTime expiresAt) {
         this.expiresAt = expiresAt;
+    }
+
+    public String getRevoked() {
+        return revoked;
+    }
+
+    public void setRevoked(String revoked) {
+        this.revoked = revoked;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }

@@ -1,18 +1,29 @@
 package com.benwyw.bot.service.security;
 
 import com.benwyw.bot.config.security.JwtUtil;
-import com.benwyw.bot.data.security.User;
 import com.benwyw.bot.data.security.RefreshToken;
+import com.benwyw.bot.data.security.User;
 import com.benwyw.bot.mapper.RefreshTokenMapper;
 import com.benwyw.bot.mapper.UserMapper;
+import com.benwyw.util.embeds.EmbedColor;
+import com.benwyw.util.embeds.EmbedUtils;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.Map;
 
 @Service
@@ -80,7 +91,7 @@ public class AuthService {
         rt.setUserId(userId);
         rt.setJti(jti);
         rt.setTokenHash(sha256(rawToken));
-        rt.setExpiresAt(expiresAt);
+        rt.setExpiresAt(expiresAt.toLocalDateTime()); // convert here
         refreshTokenMapper.insertToken(rt);
     }
 
@@ -95,4 +106,62 @@ public class AuthService {
             throw new RuntimeException(e);
         }
     }
+
+    @Transactional
+    @CacheEvict(cacheNames = "userBaseCache", allEntries = true)
+    public MessageEmbed insertUserFromEvent(SlashCommandInteractionEvent event) {
+        MessageEmbed masterMessageEmbed = EmbedUtils.createSuccess("Operation started.");
+        try {
+            String username = event.getOption("username").getAsString();
+            String rawPassword = event.getOption("password").getAsString();
+            String email = getOptionValue(event, "email");
+            String role = getOptionValue(event, "role");
+            String status = getOptionValue(event, "status");
+            String remarks = getOptionValue(event, "remarks");
+
+            User u = new User();
+            u.setUsername(username.trim());
+            u.setPasswordHash(passwordEncoder.encode(rawPassword));
+            u.setEmail(StringUtils.trimToNull(email));
+            u.setRole(StringUtils.defaultIfBlank(role, "USER").toUpperCase());
+            u.setStatus(StringUtils.defaultIfBlank(status, "ACTIVE").toUpperCase());
+            u.setCreatedAt(OffsetDateTime.now());
+            u.setUpdatedAt(OffsetDateTime.now());
+
+            int count = userMapper.insertUser(u);
+
+            // Build embed just like your weight() method
+            EmbedBuilder embedBuilder = new EmbedBuilder();
+            embedBuilder.setTitle("User Management", "https://your-docs-url.example/user"); // adjust URL
+            embedBuilder.setDescription(count > 0 ? "INSERT successful" : "INSERT failure");
+            embedBuilder.setAuthor("AuthService");
+            embedBuilder.setFooter(String.valueOf(LocalDateTime.now(ZoneId.of("Asia/Hong_Kong"))));
+            embedBuilder.setThumbnail("https://i.imgur.com/b81zA3M.png"); // your own image here
+
+            // Show user fields like in SELECT mode from your weight() example
+            embedBuilder.addField("ID", u.getId() != null ? u.getId().toString() : "", true);
+            embedBuilder.addField("Username", u.getUsername(), true);
+            if (StringUtils.isNotBlank(u.getEmail())) {
+                embedBuilder.addField("Email", u.getEmail(), true);
+            }
+            embedBuilder.addField("Role", u.getRole(), true);
+            embedBuilder.addField("Status", u.getStatus(), true);
+            if (StringUtils.isNotBlank(remarks)) {
+                embedBuilder.addField("Remarks", remarks, true);
+            }
+
+            embedBuilder.setColor(count > 0 ? EmbedColor.SUCCESS.color : EmbedColor.ERROR.color);
+            masterMessageEmbed = embedBuilder.build();
+
+        } catch (Exception e) {
+            masterMessageEmbed = EmbedUtils.createError(String.format("Operation failed.\n%s", e.getMessage()));
+        }
+        return masterMessageEmbed;
+    }
+
+    private String getOptionValue(SlashCommandInteractionEvent event, String name) {
+        OptionMapping opt = event.getOption(name);
+        return opt != null ? opt.getAsString() : null;
+    }
+
 }

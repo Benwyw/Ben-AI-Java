@@ -7,7 +7,8 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface RefreshTokenMapper {
     int insertToken(RefreshToken token);
-    int isValid(@Param("jti") String jti, @Param("tokenHash") String tokenHash);
+    int isValid(@Param("jti") String jti,
+                @Param("tokenHash") String tokenHash);
     int revokeByJti(@Param("jti") String jti);
     int revokeAllForUser(@Param("userId") Long userId);
 
