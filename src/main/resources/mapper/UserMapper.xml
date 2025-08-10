@@ -29,4 +29,26 @@
 		where ud.userid = #{userId}
 	</select>
 
+    <select id="findByUsername" parameterType="string" resultType="com.benwyw.bot.data.security.User">
+        SELECT * FROM USERS WHERE USERNAME = #{username}
+    </select>
+
+    <insert id="insertUser" parameterType="com.benwyw.bot.data.security.User" useGeneratedKeys="false">
+        <selectKey resultType="long" keyProperty="id" order="BEFORE">
+            SELECT USERS_SEQ.NEXTVAL FROM DUAL
+        </selectKey>
+        INSERT INTO USERS (ID, USERNAME, PASSWORD_HASH, EMAIL, ROLE, STATUS, CREATED_AT)
+        VALUES (#{id}, #{username}, #{passwordHash}, #{email}, #{role}, #{status}, SYSTIMESTAMP)
+    </insert>
+
+    <update id="updateLastLogin" parameterType="long">
+        UPDATE USERS SET LAST_LOGIN_AT = SYSTIMESTAMP, UPDATED_AT = SYSTIMESTAMP
+        WHERE ID = #{userId}
+    </update>
+
+    <delete id="deleteUserByUsername">
+        DELETE FROM USERS
+        WHERE USERNAME = #{username}
+    </delete>
+
 </mapper>

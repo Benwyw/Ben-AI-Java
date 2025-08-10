@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.benwyw.bot.mapper.RefreshTokenMapper">
+
+    <!-- Insert a new refresh token -->
+    <insert id="insertToken" parameterType="com.benwyw.bot.data.security.RefreshToken">
+        <selectKey keyProperty="id" resultType="long" order="BEFORE">
+            SELECT USER_REFRESH_TOKENS_SEQ.NEXTVAL FROM dual
+        </selectKey>
+        INSERT INTO USER_REFRESH_TOKENS
+        (ID, USER_ID, JTI, TOKEN_HASH, EXPIRES_AT, REVOKED, CREATED_AT)
+        VALUES
+        (#{id}, #{userId}, #{jti}, #{tokenHash}, #{expiresAt}, #{revoked}, #{createdAt})
+    </insert>
+
+    <!-- Check if valid by JTI + tokenHash -->
+    <select id="isValid" resultType="int">
+        SELECT COUNT(1)
+        FROM USER_REFRESH_TOKENS
+        WHERE JTI = #{jti}
+          AND TOKEN_HASH = #{tokenHash}
+          AND REVOKED = 'N'
+          AND EXPIRES_AT > SYSTIMESTAMP
+    </select>
+
+    <!-- Revoke by JTI -->
+    <update id="revokeByJti">
+        UPDATE USER_REFRESH_TOKENS
+        SET REVOKED = 'Y'
+        WHERE JTI = #{jti}
+    </update>
+
+    <!-- Revoke all tokens for a user -->
+    <update id="revokeAllForUser">
+        UPDATE USER_REFRESH_TOKENS
+        SET REVOKED = 'Y'
+        WHERE USER_ID = #{userId}
+    </update>
+
+    <select id="countExpiredOrRevoked" resultType="int">
+        <![CDATA[
+        SELECT COUNT(1)
+        FROM USER_REFRESH_TOKENS
+        WHERE EXPIRES_AT < SYSTIMESTAMP
+                           OR REVOKED = 'Y'
+      ]]>
+    </select>
+
+    <update id="purgeExpiredOrRevoked">
+        <![CDATA[
+        DELETE FROM USER_REFRESH_TOKENS
+        WHERE EXPIRES_AT < SYSTIMESTAMP
+                           OR REVOKED = 'Y'
+      ]]>
+    </update>
+
+    <delete id="deleteTokensByUserId">
+        DELETE FROM USER_REFRESH_TOKENS WHERE USER_ID = #{userId}
+    </delete>
+
+</mapper>
