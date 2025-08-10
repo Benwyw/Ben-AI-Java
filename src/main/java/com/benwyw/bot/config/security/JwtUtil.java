@@ -20,9 +20,9 @@ public class JwtUtil {
     private static final SecretKey KEY = Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET));
 
     private static final long ACCESS_TOKEN_EXPIRY =
-            Long.parseLong(config.get("JWT_ACCESS_TOKEN_EXPIRY", "900000")); // ms
+            Long.parseLong(config.get("JWT_ACCESS_TOKEN_EXPIRY", "900000")); // ms; 15 mins
     private static final long REFRESH_TOKEN_EXPIRY =
-            Long.parseLong(config.get("JWT_REFRESH_TOKEN_EXPIRY", "604800000")); // ms
+            Long.parseLong(config.get("JWT_REFRESH_TOKEN_EXPIRY", "604800000")); // ms; 7 days
 
     public static String generateAccessToken(String username) {
         return Jwts.builder()
