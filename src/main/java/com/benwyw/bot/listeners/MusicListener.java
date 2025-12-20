@@ -14,6 +14,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
 import dev.lavalink.youtube.clients.*;
+import io.github.cdimascio.dotenv.Dotenv;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -45,6 +46,8 @@ public class MusicListener extends ListenerAdapter {
 
     private static final Logger logger = LoggerFactory.getLogger(MusicListener.class);
     private final AudioPlayerManager playerManager;
+    private final static String USE_NEW_REFRESH_TOKEN = Dotenv.configure().load().get("USE_NEW_REFRESH_TOKEN");
+    private final static String REFRESH_TOKEN = Dotenv.configure().load().get("REFRESH_TOKEN");
 
     /**
      * Setup audio player manager.
@@ -60,15 +63,22 @@ public class MusicListener extends ListenerAdapter {
 //        String mediaAPIToken = Dotenv.configure().load().get("APPLE_MUSIC_TOKEN");
 //        playerManager.registerSourceManager(new AppleMusicSourceManager(null, mediaAPIToken, "hk", playerManager));
 
-        // Add YT support with clients that DON'T require OAuth or signature cipher
-        // Android and iOS clients use different URL formats that bypass cipher issues
-        YoutubeAudioSourceManager youtubeAudioSourceManager = new YoutubeAudioSourceManager(/*allowSearch:*/ true,
-            new AndroidWithThumbnail(),         // Android client - no cipher needed
-            new IosWithThumbnail(),             // iOS client - no cipher needed
-            new AndroidVrWithThumbnail()        // Android VR - fallback
-        );
+        // Add YT support
+        YoutubeAudioSourceManager youtubeAudioSourceManager = new dev.lavalink.youtube.YoutubeAudioSourceManager(/*allowSearch:*/ true, new MusicWithThumbnail(), new WebWithThumbnail(), new AndroidVrWithThumbnail(), new TvHtml5EmbeddedWithThumbnail(), new MWebWithThumbnail(), new IosWithThumbnail(), new AndroidMusicWithThumbnail()); // Removed new AndroidWithThumbnail() as it's broken according to the warning
+        if ("true".equals(USE_NEW_REFRESH_TOKEN)) {
+            youtubeAudioSourceManager.useOauth2(null, false);
+        }
+        else if (REFRESH_TOKEN != null && !REFRESH_TOKEN.isEmpty()) {
+            try {
+                youtubeAudioSourceManager.useOauth2(REFRESH_TOKEN, true);
+            } catch (FriendlyException e) {
+                logger.error("Failed to set YouTube OAuth2 refresh token: " + e.getMessage());
+            }
+        }
+        else {
+            logger.warn("No YouTube OAuth2 refresh token provided. YouTube search may not work.");
 
-        logger.info("YouTube configured with Android/iOS clients - no OAuth or cipher required");
+        }
         playerManager.registerSourceManager(youtubeAudioSourceManager);
 
         // Add audio player to source manager
