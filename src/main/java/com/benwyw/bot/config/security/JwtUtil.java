@@ -16,8 +16,20 @@ import java.util.UUID;
 
 public class JwtUtil {
     private static final Dotenv config = Dotenv.configure().ignoreIfMissing().load();
-    private static final String SECRET = config.get("JWT_SECRET");
+    private static final String SECRET = getJwtSecret();
     private static final SecretKey KEY = Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET));
+
+    private static String getJwtSecret() {
+        String secret = config.get("JWT_SECRET");
+        if (secret == null || secret.isBlank()) {
+            throw new IllegalStateException(
+                    "JWT_SECRET environment variable is not set. " +
+                    "Please add JWT_SECRET to your .env file with a Base64-encoded secret key. " +
+                    "You can generate one using: openssl rand -base64 32"
+            );
+        }
+        return secret;
+    }
 
     private static final long ACCESS_TOKEN_EXPIRY =
             Long.parseLong(config.get("JWT_ACCESS_TOKEN_EXPIRY", "900000")); // ms; 15 mins
