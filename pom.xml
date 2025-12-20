@@ -5,7 +5,7 @@
 
     <groupId>com.benwyw</groupId>
     <artifactId>Ben-AI-Java</artifactId>
-    <version>v0.4.1</version>
+    <version>v0.4.2</version>
     <packaging>jar</packaging>
 
     <name>Ben-AI-Java</name>
@@ -97,26 +97,24 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
+        <!-- YouTube Source - Using latest snapshot for cipher fix -->
         <dependency>
             <groupId>dev.lavalink.youtube</groupId>
             <artifactId>common</artifactId>
-            <version>1.13.4</version>
+            <version>c97016c55280af59ddf799b7f0c20630e6472fd4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>dev.lavalink.youtube</groupId>
             <artifactId>v2</artifactId>
-            <version>1.13.4</version>
+            <version>c97016c55280af59ddf799b7f0c20630e6472fd4-SNAPSHOT</version>
         </dependency>
+
+        <!-- LavaSrc for Spotify, Apple Music, Deezer, Yandex (可選) -->
         <dependency>
-            <groupId>com.github.topi314</groupId>
+            <groupId>com.github.topi314.lavasrc</groupId>
             <artifactId>lavasrc</artifactId>
-            <version>4.7.3</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.jetbrains.kotlin</groupId>
-                    <artifactId>kotlin-dom-api-compat</artifactId>
-                </exclusion>
-            </exclusions>
+            <version>4.3.0</version>
         </dependency>
 
         <!-- Jackson -->
