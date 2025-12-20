@@ -9,70 +9,95 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
 import java.io.IOException;
-import java.util.Comparator;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
 @ServerEndpoint("/websocket/{userId}")
 public class WebSocket implements WebSocketMessageBrokerConfigurer {
     private Session session;
-    private Integer userId;
+    private String userId;
     private long sessionCreationTime;
-    private static CopyOnWriteArraySet<WebSocket> webSockets = new CopyOnWriteArraySet<>();
-    private static ConcurrentHashMap<Integer, Session> sessionPool = new ConcurrentHashMap<Integer, Session>();
+    private static final CopyOnWriteArraySet<WebSocket> webSockets = new CopyOnWriteArraySet<>();
+    private static final ConcurrentHashMap<String, Session> sessionPool = new ConcurrentHashMap<>();
+    // Map userId -> WebSocket instance for targeted sends
+    private static final ConcurrentHashMap<String, WebSocket> socketByUserId = new ConcurrentHashMap<>();
     private static final long EXPIRATION_DURATION_IN_MILLISECONDS = 24 * 60 * 60 * 1000; // 24 hour in milliseconds
-    private static final Integer DEFAULT_USER_ID = 1;
-    private static final Integer SERVER_USER_ID = 0;
+    private static final String DEFAULT_USER_ID = "1";
+    private static final String SERVER_USER_ID = "0";
+    // Per-session send queue & state to serialize writes and avoid TEXT_FULL_WRITING
+    private final Queue<String> outboundQueue = new ConcurrentLinkedQueue<>();
+    private final AtomicBoolean sending = new AtomicBoolean(false);
+    // Backoff scheduler (shared) for retrying failed sends due to transient state
+    private static final ScheduledExecutorService retryScheduler = Executors.newScheduledThreadPool(2, r -> {
+        Thread t = new Thread(r, "ws-send-retry");
+        t.setDaemon(true);
+        return t;
+    });
+    // Max retry attempts per message send
+    private static final int MAX_RETRY = 3;
 
-    private Integer getUserId() {
+    private String getUserId() {
         return this.userId;
     }
 
     @OnOpen
-    public void onOpen(Session session, @PathParam(value="userId") Integer userId) {
+    public void onOpen(Session session, @PathParam(value="userId") String userId) {
         try {
             this.session = session;
             this.userId = userId;
             this.sessionCreationTime = System.currentTimeMillis();
             webSockets.add(this);
             sessionPool.put(userId, session);
+            socketByUserId.put(userId, this);
+
+            // Configure async remote timeout to avoid indefinite TEXT_FULL_WRITING if client stalls
+            try {
+                session.getAsyncRemote().setSendTimeout(15000); // 15s safety
+            } catch (Throwable ignored) {}
 
             String formattedString = String.format("User %s connected, total of %s online people", userId, webSockets.size());
             log.info(formattedString);
-            sendAllMessage(SERVER_USER_ID, formattedString);
+            sendAllMessage(getFormattedMessage(SERVER_USER_ID, formattedString));
+            sendOnlineCountUpdate();
         } catch(Exception e) {
-            e.printStackTrace();
+            log.error("Error during WebSocket onOpen", e);
         }
     }
 
     @OnClose
     public void onClose() {
         try {
+            if (this.userId == null) {
+                log.warn("WebSocket onClose before userId init; skipping keyed cleanup.");
+                webSockets.remove(this);
+                return;
+            }
             webSockets.remove(this);
             sessionPool.remove(this.userId);
+            socketByUserId.remove(this.userId);
 
             String formattedString = String.format("User %s disconnected, total of %s online people", userId, webSockets.size());
 //            log.info(formattedString);
-            sendAllMessage(SERVER_USER_ID, formattedString);
+            sendAllMessage(getFormattedMessage(SERVER_USER_ID, formattedString));
+            sendOnlineCountUpdate();
         } catch(Exception e) {
-            e.printStackTrace();
+            log.error("Error in onClose cleanup", e);
         }
     }
 
     @OnMessage
     public void onMessage(String message) {
 //        log.info("[WebSocket] User {}, sent {}", userId, message);
-        sendAllMessage(userId, message);
+        sendAllMessage(getFormattedMessage(userId, message), userId);
     }
 
     @OnError
     public void onError(Session session, Throwable error) {
-//        log.info("[WebSocket] User error, reason {}", error.getMessage());
-        error.printStackTrace();
+        log.error("WebSocket error for user {}: {}", this.userId, error.getMessage(), error);
     }
 
     /**
@@ -83,7 +108,7 @@ public class WebSocket implements WebSocketMessageBrokerConfigurer {
         long currentTime = System.currentTimeMillis();
         for (WebSocket webSocket : webSockets) {
             if (currentTime - webSocket.sessionCreationTime >= EXPIRATION_DURATION_IN_MILLISECONDS) {
-                sendAllMessage(SERVER_USER_ID, "Your session has expired.");
+                webSocket.enqueueAndSend(getFormattedMessage(SERVER_USER_ID, "Your session has expired."));
                 webSocket.closeSession();
             }
         }
@@ -96,7 +121,16 @@ public class WebSocket implements WebSocketMessageBrokerConfigurer {
         try {
             this.session.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Error closing session", e);
+        }
+    }
+
+    private static Integer tryParseInt(String s) {
+        if (s == null) return null;
+        try {
+            return Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+            return null;
         }
     }
 
@@ -118,28 +152,18 @@ public class WebSocket implements WebSocketMessageBrokerConfigurer {
 //        }
 //    }
 
-    public static Integer generateUserId() {
-        Optional<Integer> maxUserId = webSockets.stream()
+    public static String generateUserId() {
+        Set<Integer> used = webSockets.stream()
                 .map(WebSocket::getUserId)
-                .max(Comparator.naturalOrder());
+                .map(WebSocket::tryParseInt)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
 
-        int nextUserId;
-        if (maxUserId.isPresent()) {
-            int max = maxUserId.get();
-            nextUserId = max + 1;
-
-            for (int i = 1; i <= max; i++) {
-                final int currentId = i;
-                if (!webSockets.stream().map(WebSocket::getUserId).anyMatch(id -> id.equals(currentId))) {
-                    nextUserId = currentId;
-                    break;
-                }
-            }
-        } else {
-            nextUserId = DEFAULT_USER_ID;
+        int next = 1;
+        while (used.contains(next)) {
+            next++;
         }
-
-        return nextUserId;
+        return String.valueOf(next);
     }
 
     public static Integer getOnlineUserCount() {
@@ -147,71 +171,193 @@ public class WebSocket implements WebSocketMessageBrokerConfigurer {
     }
 
     /**
-     * Format message with userId
+     * Format message with userId as JSON
      * @param userId Integer
      * @param message String
-     * @return String
+     * @return String JSON formatted message
      */
-    private String getFormattedMessage(Integer userId, String message) {
+    public String getFormattedMessage(String userId, String message) {
         String formattedMessage = String.format("[Server]: %s", message);
         if (!Objects.equals(userId, SERVER_USER_ID)) {
             formattedMessage = String.format("[User %s]: %s", userId, message);
         }
-        return formattedMessage;
+        String safe = escapeJson(formattedMessage);
+        return String.format("{\"type\":\"chatMessage\",\"content\":\"%s\"}", safe);
     }
 
-    public void sendAllMessage(Integer userId, String message) {
-        for (WebSocket webSocket : webSockets) {
+    /**
+     * Enqueue message and trigger drain
+     */
+    private void enqueueAndSend(String message) {
+        Session s = this.session;
+        if (s == null || !s.isOpen()) return;
+        outboundQueue.add(message);
+        drainQueue();
+    }
+
+    /**
+     * Drain the outbound queue serially to avoid TEXT_FULL_WRITING issues
+     */
+    private void drainQueue() {
+        if (!sending.compareAndSet(false, true)) {
+            return; // send already in progress
+        }
+        String next = outboundQueue.poll();
+        if (next == null) {
+            sending.set(false);
+            return;
+        }
+        Session s = this.session;
+        if (s == null || !s.isOpen()) {
+            sending.set(false);
+            return;
+        }
+        try {
+            s.getAsyncRemote().sendText(next, result -> {
+                if (!result.isOK()) {
+                    Throwable t = result.getException();
+                    log.error("Async send failed for user {}: {}", this.userId, t != null ? t.getMessage() : "unknown", t);
+                }
+                sending.set(false);
+                if (!outboundQueue.isEmpty()) {
+                    drainQueue();
+                }
+            });
+        } catch (IllegalStateException ise) {
+            // Container still in TEXT_FULL_WRITING; requeue and retry with small backoff
+            log.warn("Send state conflict for user {}: {}. Will retry.", this.userId, ise.getMessage());
+            // Put message back at head (preserve order)
+            outboundQueue.add(next);
+            sending.set(false);
+            scheduleRetry(1); // first retry
+        } catch (Exception ex) {
+            log.error("Unexpected send exception for user {}: {}", this.userId, ex.getMessage(), ex);
+            sending.set(false);
+            if (!outboundQueue.isEmpty()) {
+                drainQueue();
+            }
+        }
+    }
+
+    /**
+     * Schedule a retry with backoff
+     */
+    private void scheduleRetry(int attempt) {
+        if (attempt > MAX_RETRY) {
+            log.error("Exceeded max send retries for user {}; dropping {} pending messages", this.userId, outboundQueue.size());
+            outboundQueue.clear();
+            return;
+        }
+        retryScheduler.schedule(() -> {
+            if (!outboundQueue.isEmpty()) {
+                drainQueue();
+            }
+        }, attempt * 50L, TimeUnit.MILLISECONDS); // incremental backoff 50ms,100ms,150ms
+    }
+
+    public void sendAllMessage(String message) {
+        for (WebSocket webSocket : new ArrayList<>(webSockets)) {
             try {
-                if (webSocket.session.isOpen()) {
-                    webSocket.session.getAsyncRemote().sendText(getFormattedMessage(userId, message));
+                if (webSocket.session != null && webSocket.session.isOpen()) {
+                    webSocket.enqueueAndSend(message);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("Error sending message to user: {}", webSocket.userId, e);
+            }
+        }
+    }
+
+    public void sendAllMessage(String message, String senderId) {
+        for (WebSocket webSocket : new ArrayList<>(webSockets)) {
+            try {
+                // Skip sending message back to the sender (except for server messages)
+                if (webSocket.session != null && webSocket.session.isOpen() &&
+                    (Objects.equals(senderId, SERVER_USER_ID) || !Objects.equals(webSocket.userId, senderId))) {
+                    webSocket.enqueueAndSend(message);
+                }
+            } catch (Exception e) {
+                log.error("Error sending message to user: {}", webSocket.userId, e);
             }
         }
     }
 
     // In development, restricted Local only
-    public void sendOneMessage(Integer userId, String message) {
-        Session session = sessionPool.get(userId);
-        if (session != null && session.isOpen()) {
+    public void sendOneMessage(String userId, String message) {
+        WebSocket socket = socketByUserId.get(userId);
+        if (socket != null && socket.session != null && socket.session.isOpen()) {
             try {
                 log.info("[WebSocket] Single message: {}", message);
-                session.getAsyncRemote().sendText(message);
+                socket.enqueueAndSend(message);
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("Error queueing message for user {}: {}", userId, e.getMessage(), e);
             }
+        } else {
+            log.warn("User {} not found or session closed; message dropped.", userId);
         }
     }
 
     // In development, restricted Local only
-    public void sendMoreMessage(Integer[] userIds, String message) {
-        for (Integer userId : userIds) {
-            Session session = sessionPool.get(userId);
-            if (session != null && session.isOpen()) {
+    public void sendMoreMessage(String[] userIds, String message) {
+        for (String uid : userIds) {
+            WebSocket socket = socketByUserId.get(uid);
+            if (socket != null && socket.session != null && socket.session.isOpen()) {
                 try {
                     log.info("[WebSocket] Single message: {}", message);
-                    session.getAsyncRemote().sendText(message);
+                    socket.enqueueAndSend(message);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    log.error("Error queueing message for user {}: {}", uid, e.getMessage(), e);
                 }
+            } else {
+                log.warn("User {} not found or session closed; message dropped.", uid);
             }
         }
     }
 
     // In development, restricted Local only
-    private void sendMessageToUser(Integer userId, String message) {
-        Session session = sessionPool.get(userId);
-        if (session != null && session.isOpen()) {
-            try {
-                session.getBasicRemote().sendText(message);
-            } catch (IOException e) {
-                log.error("Error sending message to User {}: {}", userId, e.getMessage());
-            }
+    private void sendMessageToUser(String userId, String message) {
+        WebSocket socket = socketByUserId.get(userId);
+        if (socket != null && socket.session != null && socket.session.isOpen()) {
+            socket.enqueueAndSend(message);
         } else {
             log.warn("User {} is not connected or session is closed.", userId);
         }
+    }
+
+    private void sendOnlineCountUpdate() {
+        String message = String.format("{\"type\":\"onlineCountUpdate\",\"count\":%d}", webSockets.size());
+        for (WebSocket webSocket : new ArrayList<>(webSockets)) {
+            try {
+                if (webSocket.session != null && webSocket.session.isOpen()) {
+                    webSocket.enqueueAndSend(message);
+                }
+            } catch (Exception e) {
+                log.error("Error sending online count update to user: {}", webSocket.userId, e);
+            }
+        }
+    }
+
+    private static String escapeJson(String s) {
+        if (s == null) return "";
+        StringBuilder sb = new StringBuilder(s.length() + 16);
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            switch (c) {
+                case '"': sb.append("\\\""); break;
+                case '\\': sb.append("\\\\"); break;
+                case '\b': sb.append("\\b"); break;
+                case '\f': sb.append("\\f"); break;
+                case '\n': sb.append("\\n"); break;
+                case '\r': sb.append("\\r"); break;
+                case '\t': sb.append("\\t"); break;
+                default:
+                    if (c < 0x20) {
+                        sb.append(String.format("\\u%04x", (int) c));
+                    } else {
+                        sb.append(c);
+                    }
+            }
+        }
+        return sb.toString();
     }
 
 }

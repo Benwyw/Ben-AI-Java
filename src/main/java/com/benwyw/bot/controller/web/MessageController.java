@@ -7,8 +7,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-
 @Slf4j
 @RestController
 @RequestMapping("ws")
@@ -22,7 +20,7 @@ public class MessageController {
 	@PostMapping("/sendAllMessage")
 	@ResponseStatus(HttpStatus.OK)
 	public void sendAllMessage(String message){
-		webSocket.sendAllMessage(0, message);
+		webSocket.sendAllMessage(webSocket.getFormattedMessage("0", message));
 	}
 
 	// Send to target user
@@ -31,7 +29,7 @@ public class MessageController {
 	@ResponseStatus(HttpStatus.OK)
 	public void sendOneMessage(){
 		String message = "[Today topic]: Message to single user";
-		webSocket.sendOneMessage(1, message);
+		webSocket.sendOneMessage("1", message);
 	}
 
 	// Send to user group
@@ -40,11 +38,11 @@ public class MessageController {
 	@ResponseStatus(HttpStatus.OK)
 	public void sendMoreMessage() {
 		String message = "[Today topic]: Message to multi-users";
-		webSocket.sendMoreMessage(Arrays.asList(1, 2, 3).toArray(new Integer[0]), message);
+		webSocket.sendMoreMessage(new String[]{"1","2","3"}, message);
 	}
 
 	@GetMapping("/generateUserId")
-	public Integer generateUserId() {
+	public String generateUserId() {
 		return webSocket.generateUserId();
 	}
 
