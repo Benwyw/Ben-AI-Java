@@ -51,4 +51,19 @@
         WHERE USERNAME = #{username}
     </delete>
 
+    <!-- List users with pagination -->
+    <select id="listUsers" resultType="com.benwyw.bot.data.security.User">
+        SELECT * FROM (
+            SELECT u.*, ROWNUM AS rn FROM (
+                SELECT ID, USERNAME, EMAIL, ROLE, STATUS, CREATED_AT, UPDATED_AT, LAST_LOGIN_AT
+                FROM USERS
+                ORDER BY ID
+            ) u WHERE ROWNUM &lt;= #{offset} + #{limit}
+        ) WHERE rn > #{offset}
+    </select>
+
+    <select id="countUsers" resultType="int">
+        SELECT COUNT(1) FROM USERS
+    </select>
+
 </mapper>

@@ -243,4 +243,76 @@ public class AuthService {
         return eb.build();
     }
 
+    /**
+     * Result class for user list with pagination info.
+     */
+    public static class UserListResult {
+        private final MessageEmbed embed;
+        private final int currentPage;
+        private final int totalPages;
+
+        public UserListResult(MessageEmbed embed, int currentPage, int totalPages) {
+            this.embed = embed;
+            this.currentPage = currentPage;
+            this.totalPages = totalPages;
+        }
+
+        public MessageEmbed getEmbed() { return embed; }
+        public int getCurrentPage() { return currentPage; }
+        public int getTotalPages() { return totalPages; }
+        public boolean hasPrevious() { return currentPage > 1; }
+        public boolean hasNext() { return currentPage < totalPages; }
+    }
+
+    /**
+     * List users with pagination for Discord embed.
+     * @param page 1-based page number
+     * @param pageSize number of users per page
+     * @return UserListResult with embed and pagination info
+     */
+    public UserListResult listUsersFromEvent(int page, int pageSize) {
+        int totalUsers = userMapper.countUsers();
+        int totalPages = (int) Math.ceil((double) totalUsers / pageSize);
+
+        // Clamp page to valid range
+        if (page < 1) page = 1;
+        if (page > totalPages && totalPages > 0) page = totalPages;
+
+        int offset = (page - 1) * pageSize;
+        java.util.List<User> users = userMapper.listUsers(offset, pageSize);
+
+        EmbedBuilder eb = new EmbedBuilder();
+        eb.setTitle("User List", "https://your-docs-url.example/users");
+        eb.setDescription(String.format("Page %d of %d (Total: %d users)", page, Math.max(totalPages, 1), totalUsers));
+        eb.setAuthor("AuthService");
+        eb.setFooter(String.valueOf(LocalDateTime.now(ZoneId.of("Asia/Hong_Kong"))));
+        eb.setThumbnail("https://i.imgur.com/b81zA3M.png");
+
+        if (users.isEmpty()) {
+            eb.addField("No Users", "No users found in the system.", false);
+        } else {
+            StringBuilder sb = new StringBuilder();
+            sb.append("```\n");
+            sb.append(String.format("%-4s %-20s %-10s %-10s%n", "ID", "Username", "Role", "Status"));
+            sb.append("-".repeat(50)).append("\n");
+            for (User u : users) {
+                sb.append(String.format("%-4d %-20s %-10s %-10s%n",
+                        u.getId(),
+                        truncate(u.getUsername(), 20),
+                        u.getRole() != null ? u.getRole() : "N/A",
+                        u.getStatus() != null ? u.getStatus() : "N/A"));
+            }
+            sb.append("```");
+            eb.addField("Users", sb.toString(), false);
+        }
+
+        eb.setColor(EmbedColor.DEFAULT.color);
+        return new UserListResult(eb.build(), page, totalPages);
+    }
+
+    private String truncate(String s, int maxLen) {
+        if (s == null) return "N/A";
+        return s.length() > maxLen ? s.substring(0, maxLen - 2) + ".." : s;
+    }
+
 }

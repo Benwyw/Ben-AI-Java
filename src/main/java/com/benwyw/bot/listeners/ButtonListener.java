@@ -1,5 +1,8 @@
 package com.benwyw.bot.listeners;
 
+import com.benwyw.bot.SpringContext;
+import com.benwyw.bot.commands.security.AuthCommand;
+import com.benwyw.bot.service.security.AuthService;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -149,8 +152,16 @@ public class ButtonListener extends ListenerAdapter {
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
+        String componentId = event.getComponentId();
+
+        // Handle auth user list pagination buttons
+        if (componentId.startsWith("auth_userlist_")) {
+            handleAuthUserListPagination(event);
+            return;
+        }
+
         // Check that these are 'help' buttons
-        String[] pressedArgs = event.getComponentId().split(":");
+        String[] pressedArgs = componentId.split(":");
 
         // Check if user owns this menu
         long userID = Long.parseLong(pressedArgs[2]);
@@ -193,5 +204,36 @@ public class ButtonListener extends ListenerAdapter {
                 }
             }
         }
+    }
+
+    /**
+     * Handles auth user list pagination button clicks.
+     * Button ID format: auth_userlist_prev_{currentPage} or auth_userlist_next_{currentPage}
+     */
+    private void handleAuthUserListPagination(ButtonInteractionEvent event) {
+        String componentId = event.getComponentId();
+        String[] parts = componentId.split("_");
+        // parts: ["auth", "userlist", "prev/next", "currentPage"]
+
+        if (parts.length < 4) return;
+
+        String direction = parts[2]; // "prev" or "next"
+        int currentPage = Integer.parseInt(parts[3]);
+        int newPage = direction.equals("next") ? currentPage + 1 : currentPage - 1;
+
+        if (newPage < 1) newPage = 1;
+
+        AuthService authService = SpringContext.getBean(AuthService.class);
+        AuthService.UserListResult result = authService.listUsersFromEvent(newPage, AuthCommand.PAGE_SIZE);
+
+        // Create updated buttons
+        Button prevBtn = Button.primary("auth_userlist_prev_" + result.getCurrentPage(), "◀ Previous")
+                .withDisabled(!result.hasPrevious());
+        Button nextBtn = Button.primary("auth_userlist_next_" + result.getCurrentPage(), "Next ▶")
+                .withDisabled(!result.hasNext());
+
+        event.editMessageEmbeds(result.getEmbed())
+                .setActionRow(prevBtn, nextBtn)
+                .queue();
     }
 }

@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.FileUpload;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.ObjectUtils;
@@ -28,6 +29,7 @@ import java.io.File;
 public class AuthCommand extends Command {
 
 	private final static String ownerId = Dotenv.configure().load().get("OWNER_ID");
+	public static final int PAGE_SIZE = 10;
 
     public AuthCommand(Main bot) {
         super(bot);
@@ -54,7 +56,11 @@ public class AuthCommand extends Command {
         );
         this.subCommands.add(
         new SubcommandData("token-purge", "Delete expired or revoked refresh tokens")
-                .addOptions(new OptionData(OptionType.BOOLEAN, "dryrun", "Only count; don’t delete"))
+                .addOptions(new OptionData(OptionType.BOOLEAN, "dryrun", "Only count; don't delete"))
+        );
+        this.subCommands.add(
+        new SubcommandData("user-list", "List all users with pagination")
+                .addOptions(new OptionData(OptionType.INTEGER, "page", "Page number (default: 1)").setRequired(false).setMinValue(1))
         );
     }
 
@@ -76,6 +82,21 @@ public class AuthCommand extends Command {
             }
             case "user-delete" -> {
                 messageEmbed = authService.deleteUserFromEvent(event);
+            }
+            case "user-list" -> {
+                int page = event.getOption("page") != null ? event.getOption("page").getAsInt() : 1;
+                AuthService.UserListResult result = authService.listUsersFromEvent(page, PAGE_SIZE);
+                messageEmbed = result.getEmbed();
+
+                // Add pagination buttons if there are multiple pages
+                if (result.getTotalPages() > 1) {
+                    Button prevBtn = Button.primary("auth_userlist_prev_" + result.getCurrentPage(), "◀ Previous")
+                            .withDisabled(!result.hasPrevious());
+                    Button nextBtn = Button.primary("auth_userlist_next_" + result.getCurrentPage(), "Next ▶")
+                            .withDisabled(!result.hasNext());
+                    event.getHook().sendMessageEmbeds(messageEmbed).addActionRow(prevBtn, nextBtn).queue();
+                    return;
+                }
             }
         }
 

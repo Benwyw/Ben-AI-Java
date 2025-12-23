@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
@@ -37,6 +38,7 @@ import java.net.UnknownHostException;
 @EnableAsync
 //@PropertySource("classpath:application.properties")
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
+@MapperScan("com.benwyw.bot.mapper")
 public class Main {
 
 //	@Configuration
