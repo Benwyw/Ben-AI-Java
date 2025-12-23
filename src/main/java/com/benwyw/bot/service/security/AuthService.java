@@ -51,7 +51,7 @@ public class AuthService {
             return null;
         }
 
-        String accessToken = JwtUtil.generateAccessToken(username);
+        String accessToken = JwtUtil.generateAccessToken(username, user.getRole());
         // Include a JTI in the refresh token and persist its hash
         JwtUtil.RefreshTokenPair refresh = JwtUtil.generateRefreshTokenWithJti(username);
         saveRefreshToken(user.getId(), refresh.getJti(), refresh.getToken(), refresh.getExpiresAt());
@@ -99,8 +99,8 @@ public class AuthService {
         // Revoke the old refresh token
         refreshTokenMapper.revokeByJti(info.getJti());
 
-        // Generate new access token
-        String newAccessToken = JwtUtil.generateAccessToken(username);
+        // Generate new access token with user role
+        String newAccessToken = JwtUtil.generateAccessToken(username, user.getRole());
 
         // Generate new refresh token to extend/prolong the session
         JwtUtil.RefreshTokenPair newRefresh = JwtUtil.generateRefreshTokenWithJti(username);

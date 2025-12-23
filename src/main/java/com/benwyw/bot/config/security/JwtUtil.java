@@ -36,9 +36,10 @@ public class JwtUtil {
     private static final long REFRESH_TOKEN_EXPIRY =
             Long.parseLong(config.get("JWT_REFRESH_TOKEN_EXPIRY", "604800000")); // ms; 7 days
 
-    public static String generateAccessToken(String username) {
+    public static String generateAccessToken(String username, String role) {
         return Jwts.builder()
                 .subject(username)
+                .claim("role", role)  // Include user role for frontend permission checks
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRY))
                 .signWith(KEY)
