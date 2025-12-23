@@ -61,17 +61,53 @@ public class AuthService {
         return Map.of("accessToken", accessToken, "refreshToken", refresh.getToken());
     }
 
-    public String refreshAccessToken(String refreshToken) {
-        JwtUtil.RefreshTokenInfo info = JwtUtil.parseRefreshToken(refreshToken);
-        if (info == null) return null;
-
-        String tokenHash = sha256(refreshToken);
-        int valid = refreshTokenMapper.isValid(info.getJti(), tokenHash);
-        if (valid == 0) {
-            logger.info("Refresh denied: token invalid or revoked (jti={})", info.getJti());
+    /**
+     * Refresh tokens and extend session.
+     * Returns both a new access token AND a new refresh token to prolong the session.
+     */
+    public Map<String, String> refreshAccessToken(String refreshToken) {
+        if (refreshToken == null || refreshToken.isBlank()) {
+            logger.info("Refresh denied: empty or null refresh token");
             return null;
         }
-        return JwtUtil.generateAccessToken(info.getUsername());
+
+        // Trim any whitespace that might have been added by frontend
+        refreshToken = refreshToken.trim();
+
+        JwtUtil.RefreshTokenInfo info = JwtUtil.parseRefreshToken(refreshToken);
+        if (info == null) {
+            logger.info("Refresh denied: failed to parse refresh token");
+            return null;
+        }
+
+        String tokenHash = sha256(refreshToken);
+        logger.debug("Refresh attempt: jti={}, tokenHash={}", info.getJti(), tokenHash);
+
+        int valid = refreshTokenMapper.isValid(info.getJti(), tokenHash);
+        if (valid == 0) {
+            logger.info("Refresh denied: token invalid or revoked (jti={}, computedHash={})", info.getJti(), tokenHash);
+            return null;
+        }
+
+        String username = info.getUsername();
+        User user = userMapper.findByUsername(username);
+        if (user == null) {
+            logger.info("Refresh denied: user not found {}", username);
+            return null;
+        }
+
+        // Revoke the old refresh token
+        refreshTokenMapper.revokeByJti(info.getJti());
+
+        // Generate new access token
+        String newAccessToken = JwtUtil.generateAccessToken(username);
+
+        // Generate new refresh token to extend/prolong the session
+        JwtUtil.RefreshTokenPair newRefresh = JwtUtil.generateRefreshTokenWithJti(username);
+        saveRefreshToken(user.getId(), newRefresh.getJti(), newRefresh.getToken(), newRefresh.getExpiresAt());
+
+        logger.info("Refresh success for {} (old jti={}, new jti={})", username, info.getJti(), newRefresh.getJti());
+        return Map.of("accessToken", newAccessToken, "refreshToken", newRefresh.getToken());
     }
 
     public void logoutByRefreshToken(String refreshToken) {
@@ -91,9 +127,11 @@ public class AuthService {
         RefreshToken rt = new RefreshToken();
         rt.setUserId(userId);
         rt.setJti(jti);
-        rt.setTokenHash(sha256(rawToken));
+        String hash = sha256(rawToken);
+        rt.setTokenHash(hash);
         rt.setExpiresAt(expiresAt.toLocalDateTime()); // convert here
         refreshTokenMapper.insertToken(rt);
+        logger.debug("Saved refresh token: jti={}, tokenHash={}, expiresAt={}", jti, hash, expiresAt);
     }
 
     private static String sha256(String s) {

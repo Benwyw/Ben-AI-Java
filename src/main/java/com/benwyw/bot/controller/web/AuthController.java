@@ -40,11 +40,12 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<?> refresh(@RequestBody Map<String, String> body) {
         String refreshToken = body.get("refreshToken");
-        String accessToken = authService.refreshAccessToken(refreshToken);
-        if (accessToken == null) {
+        Map<String, String> tokens = authService.refreshAccessToken(refreshToken);
+        if (tokens == null) {
             return ResponseEntity.status(401).body("Invalid refresh token");
         }
-        return ResponseEntity.ok(Map.of("accessToken", accessToken));
+        // Returns both new accessToken and new refreshToken to extend/prolong the session
+        return ResponseEntity.ok(tokens);
     }
 
     @PostMapping("/logout")

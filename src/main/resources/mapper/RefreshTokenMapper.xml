@@ -20,7 +20,7 @@
         WHERE JTI = #{jti}
           AND TOKEN_HASH = #{tokenHash}
           AND REVOKED = 'N'
-          AND EXPIRES_AT > SYSTIMESTAMP
+          AND EXPIRES_AT > SYSDATE
     </select>
 
     <!-- Revoke by JTI -->
@@ -41,7 +41,7 @@
         <![CDATA[
         SELECT COUNT(1)
         FROM USER_REFRESH_TOKENS
-        WHERE EXPIRES_AT < SYSTIMESTAMP
+        WHERE EXPIRES_AT < SYSDATE
                            OR REVOKED = 'Y'
       ]]>
     </select>
@@ -49,7 +49,7 @@
     <update id="purgeExpiredOrRevoked">
         <![CDATA[
         DELETE FROM USER_REFRESH_TOKENS
-        WHERE EXPIRES_AT < SYSTIMESTAMP
+        WHERE EXPIRES_AT < SYSDATE
                            OR REVOKED = 'Y'
       ]]>
     </update>
