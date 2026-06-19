@@ -5,7 +5,7 @@
 
     <groupId>com.benwyw</groupId>
     <artifactId>Ben-AI-Java</artifactId>
-    <version>v0.5.13</version>
+    <version>v0.5.14</version>
     <packaging>jar</packaging>
 
     <name>Ben-AI-Java</name>
@@ -20,9 +20,10 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <start-class>com.benwyw.bot.Main</start-class>
-        <maven.compiler.source>19</maven.compiler.source>
-        <maven.compiler.target>19</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <mainClass>com.benwyw.bot.Main</mainClass>
+        <java.version>21</java.version>
     </properties>
 
     <repositories>
