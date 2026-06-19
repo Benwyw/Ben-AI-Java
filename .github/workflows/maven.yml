@@ -122,7 +122,7 @@ jobs:
           
           # 4. Generate the Dockerfile automatically on the server
           cat << 'EOF' > Dockerfile
-          FROM openjdk:21-jre-headless
+          FROM eclipse-temurin:21-jre
           WORKDIR /app
           COPY app.jar /app/app.jar
           ENV TZ=Asia/Hong_Kong
