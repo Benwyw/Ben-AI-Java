@@ -5,7 +5,7 @@
 
     <groupId>com.benwyw</groupId>
     <artifactId>Ben-AI-Java</artifactId>
-    <version>v0.5.8</version>
+    <version>v0.5.9</version>
     <packaging>jar</packaging>
 
     <name>Ben-AI-Java</name>
@@ -397,11 +397,23 @@
             <groupId>net.sf.jasperreports</groupId>
             <artifactId>jasperreports</artifactId>
             <version>7.0.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>xml-apis</groupId>
+                    <artifactId>xml-apis-ext</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>net.sf.jasperreports</groupId>
             <artifactId>jasperreports-pdf</artifactId>
             <version>7.0.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>xml-apis</groupId>
+                    <artifactId>xml-apis-ext</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- security -->
@@ -475,11 +487,23 @@
                 <groupId>net.sf.jasperreports</groupId>
                 <artifactId>jasperreports</artifactId>
                 <version>7.0.3</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>xml-apis</groupId>
+                        <artifactId>xml-apis-ext</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>net.sf.jasperreports</groupId>
                 <artifactId>jasperreports-pdf</artifactId>
                 <version>7.0.3</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>xml-apis</groupId>
+                        <artifactId>xml-apis-ext</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <!-- Override commons-beanutils to fix CVE-2025-48734 -->
             <dependency>
