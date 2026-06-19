@@ -35,6 +35,9 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
         cache: maven
+
+    - name: Clean Corrupted Maven Cache
+      run: rm -rf ~/.m2/repository/xml-apis/xml-apis-ext/
       
     - name: Build with Maven
       # add -U parameter to force update of dependencies
