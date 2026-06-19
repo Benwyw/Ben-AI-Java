@@ -37,7 +37,8 @@ jobs:
         cache: maven
       
     - name: Build with Maven
-      run: mvn -B package --file pom.xml
+      # add -U parameter to force update of dependencies
+      run: mvn -B package -U --file pom.xml
         
     - name: Set version
       id: set_version
