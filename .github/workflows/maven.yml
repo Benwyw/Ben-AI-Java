@@ -142,6 +142,7 @@ jobs:
             --name ben-ai-java \
             --restart always \
             -p 127.0.0.1:8080:8080 \
+            -v /home/github/ben-ai-java/.env:/app/.env \
             ben-ai-java:latest
             
           # 8. Clean up unused remote Docker images
