@@ -108,9 +108,41 @@ jobs:
         username: ${{ secrets.SERVER_USERNAME }}
         key: ${{ secrets.SERVER_PRIVATE_KEY }}
         script: |
+          mkdir -p /home/github/ben-ai-java
           cd /home/github/ben-ai-java
-          rm Ben-AI-Java-*.jar
+          
+          # 1. Clean up old jars to save space
+          rm -f *.jar
+          
+          # 2. Download the newly released jar
           wget https://github.com/${{ github.repository }}/releases/download/${{ env.VERSION }}/Ben-AI-Java-${{ env.VERSION }}.jar
-          screen -S ben-ai-java -X quit
-          screen -dmS ben-ai-java java -jar Ben-AI-Java-${{ env.VERSION }}.jar 
-    #--server.port=8080
+          
+          # 3. Rename to app.jar to match the Dockerfile
+          mv Ben-AI-Java-${{ env.VERSION }}.jar app.jar
+          
+          # 4. Generate the Dockerfile automatically on the server
+          cat << 'EOF' > Dockerfile
+          FROM openjdk:21-jre-headless
+          WORKDIR /app
+          COPY app.jar /app/app.jar
+          ENV TZ=Asia/Hong_Kong
+          RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+          ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+          EOF
+          
+          # 5. Stop and remove the old container
+          docker stop ben-ai-java || true
+          docker rm ben-ai-java || true
+          
+          # 6. Build the new Docker image
+          docker build -t ben-ai-java:latest .
+          
+          # 7. Run the new container
+          docker run -d \
+            --name ben-ai-java \
+            --restart always \
+            -p 127.0.0.1:8080:8080 \
+            ben-ai-java:latest
+            
+          # 8. Clean up unused remote Docker images
+          docker image prune -f
